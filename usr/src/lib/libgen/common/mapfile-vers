@@ -25,40 +25,79 @@
 # ident	"%Z%%M%	%I%	%E% SMI"
 #
 
-include ../Makefile.lib
+SUNW_1.1 {
+    global:
+	advance;
+	bgets;
+	braelist;
+	___braelist;
+	braslist;
+	___braslist;
+	bufsplit;
+	compile;
+	copylist;
+	eaccess;
+	gmatch;
+	isencrypt;
+	loc1;
+	___loc1;
+	loc2;
+	___loc2;
+	locs;
+	___locs;
+	mkdirp;
+	nbra;
+	___nbra;
+	p2close;
+	p2open;
+	pathfind;
+	regerrno;
+	___regerrno;
+	reglength;
+	___reglength;
+	rmdirp;
+	step;
+	strcadd;
+	strccpy;
+	streadd;
+	strecpy;
+	strfind;
+	strrspn;
+	strtrns;
+};
 
-SUBDIRS =	$(MACH)
-$(BUILD64)SUBDIRS += $(MACH64)
-
-# conditional assignments
-all :=		TARGET= all
-install :=	TARGET= install
-clean :=	TARGET= clean
-clobber :=	TARGET= clobber
-lint :=		TARGET= lint
-test :=		TARGET= test
-
-# definitions for install_h target
-HDRS=		libnvpair.h
-ROOTHDRDIR=	$(ROOT)/usr/include
-ROOTHDRS=	$(HDRS:%=$(ROOTHDRDIR)/%)
-CHECKHDRS=	$(HDRS:%.h=%.check)
-
-.KEEP_STATE:
-
-all install clean clobber lint: $(SUBDIRS)
-
-# install rule for install_h target
-
-$(ROOTHDRDIR)/%: %
-	$(INS.file)
-
-install_h: $(ROOTHDRS)
-
-check: $(CHECKHDRS)
-
-$(SUBDIRS):	FRC
-	@cd $@; pwd; $(MAKE) $(TARGET)
-
-FRC:
-
+SUNWprivate_1.1 {
+    global:
+	_bgets;
+	_braelist;
+	_braslist;
+	_bufsplit;
+	_compile;
+	_copylist;
+	_eaccess;
+	_gmatch;
+	_isencrypt;
+	_loc1;
+	_loc2;
+	_locs;
+	_mkdirp;
+	_nbra;
+	_p2close;
+	__p2close;
+	_p2open;
+	__p2open;
+	_pathfind;
+	_regerrno;
+	_reglength;
+	_rmdirp;
+	_step;
+	_strcadd;
+	_strccpy;
+	_streadd;
+	_strecpy;
+	_strfind;
+	_strrspn;
+	_strtrns;
+    local:
+	*;
+};
