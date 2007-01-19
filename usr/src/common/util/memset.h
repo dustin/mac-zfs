@@ -18,33 +18,27 @@
  *
  * CDDL HEADER END
  */
+
 /*
  * Copyright 2007 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
- *
- * Copyright (c) 1983, 1984, 1985, 1986, 1987, 1988, 1989 AT&T
- * All Rights Reserved
- *
- * Portions of this source code were derived from Berkeley
- * 4.3 BSD under license from the regents of the University of
- * California.
  */
+
+#ifndef	_COMMON_UTIL_MEMSET_H
+#define	_COMMON_UTIL_MEMSET_H
 
 #pragma ident	"%Z%%M%	%I%	%E% SMI"
 
-#if !defined(_KMDB) && !defined(_BOOT)
-#include "synonyms.h"
-#endif /* !_KMDB && !_BOOT */
-
 #include <sys/types.h>
-#include <string.h>
-#include <strings.h>
 
-/*
- * Set an array of n chars starting at sp to zero.
- */
-void
-bzero(void *sp, size_t len)
-{
-	(void) memset(sp, 0, len);
+#ifdef __cplusplus
+extern "C" {
+#endif
+
+extern void *memset(void *, int, size_t);
+
+#ifdef __cplusplus
 }
+#endif
+
+#endif	/* _COMMON_UTIL_MEMSET_H */
