@@ -1,0 +1,209 @@
+// !$*UTF8*$!
+{
+	089C1669FE841209C02AAC07 /* Project object */ = {
+		activeArchitecture = i386;
+		activeBuildConfigurationName = Release;
+		activeExecutable = D92620760D197CEF009A3E1D /* zpool */;
+		activeTarget = 26C84C1F0AB75E1F008B950C /* zfs aggregate */;
+		codeSenseManager = D92620880D197D0F009A3E1D /* Code sense */;
+		executables = (
+			D92620760D197CEF009A3E1D /* zpool */,
+			D92620770D197CEF009A3E1D /* zfs */,
+			D92620780D197CEF009A3E1D /* zfs.util */,
+			D92620790D197CEF009A3E1D /* zoink */,
+		);
+		perUserDictionary = {
+			PBXConfiguration.PBXFileTableDataSource3.PBXFileTableDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					243,
+					20,
+					48.16259765625,
+					43,
+					43,
+					20,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+					PBXFileDataSource_Target_ColumnID,
+				);
+			};
+			PBXConfiguration.PBXTargetDataSource.PBXTargetDataSource = {
+				PBXFileTableDataSourceColumnSortingDirectionKey = "-1";
+				PBXFileTableDataSourceColumnSortingKey = PBXFileDataSource_Filename_ColumnID;
+				PBXFileTableDataSourceColumnWidthsKey = (
+					20,
+					203,
+					60,
+					20,
+					48.16259765625,
+					43,
+					43,
+				);
+				PBXFileTableDataSourceColumnsKey = (
+					PBXFileDataSource_FiletypeID,
+					PBXFileDataSource_Filename_ColumnID,
+					PBXTargetDataSource_PrimaryAttribute,
+					PBXFileDataSource_Built_ColumnID,
+					PBXFileDataSource_ObjectSize_ColumnID,
+					PBXFileDataSource_Errors_ColumnID,
+					PBXFileDataSource_Warnings_ColumnID,
+				);
+			};
+			PBXPerProjectTemplateStateSaveDate = 219774191;
+			PBXWorkspaceStateSaveDate = 219774191;
+		};
+		sourceControlManager = D92620870D197D0F009A3E1D /* Source Control */;
+		userBuildSettings = {
+		};
+	};
+	2611F7350ACDD13900E5D4E2 /* zfs.util */ = {
+		activeExec = 0;
+		executables = (
+			D92620780D197CEF009A3E1D /* zfs.util */,
+		);
+	};
+	2611F75D0ACDD4E100E5D4E2 /* zfs.fs */ = {
+		activeExec = 0;
+	};
+	2665B64C0BB47761004F043E /* zfs_readonly.kext */ = {
+		activeExec = 0;
+	};
+	2696406B0AACEAD20073456B /* libzfs */ = {
+		activeExec = 0;
+	};
+	26A9783A0AA9371200FF1F22 /* zpool */ = {
+		activeExec = 0;
+		executables = (
+			D92620760D197CEF009A3E1D /* zpool */,
+		);
+	};
+	26C84C1F0AB75E1F008B950C /* zfs aggregate */ = {
+		activeExec = 0;
+	};
+	26E59EBE0B87AA2700CFC573 /* zoink */ = {
+		activeExec = 0;
+		executables = (
+			D92620790D197CEF009A3E1D /* zoink */,
+		);
+	};
+	26F63DB10AABD480000C5196 /* zfs */ = {
+		activeExec = 0;
+		executables = (
+			D92620770D197CEF009A3E1D /* zfs */,
+		);
+	};
+	32A4FEB80562C75700D090E7 /* zfs.kext */ = {
+		activeExec = 0;
+	};
+	D92620760D197CEF009A3E1D /* zpool */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = zpool;
+		sourceDirectories = (
+		);
+	};
+	D92620770D197CEF009A3E1D /* zfs */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = zfs;
+		sourceDirectories = (
+		);
+	};
+	D92620780D197CEF009A3E1D /* zfs.util */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = zfs.util;
+		sourceDirectories = (
+		);
+	};
+	D92620790D197CEF009A3E1D /* zoink */ = {
+		isa = PBXExecutable;
+		activeArgIndices = (
+		);
+		argumentStrings = (
+		);
+		autoAttachOnCrash = 1;
+		breakpointsEnabled = 1;
+		configStateDict = {
+		};
+		customDataFormattersEnabled = 1;
+		debuggerPlugin = GDBDebugging;
+		disassemblyDisplayState = 0;
+		enableDebugStr = 1;
+		environmentEntries = (
+		);
+		executableSystemSymbolLevel = 0;
+		executableUserSymbolLevel = 0;
+		libgmallocEnabled = 0;
+		name = zoink;
+		sourceDirectories = (
+		);
+	};
+	D92620870D197D0F009A3E1D /* Source Control */ = {
+		isa = PBXSourceControlManager;
+		fallbackIsa = XCSourceControlManager;
+		isSCMEnabled = 0;
+		scmConfiguration = {
+		};
+	};
+	D92620880D197D0F009A3E1D /* Code sense */ = {
+		isa = PBXCodeSenseManager;
+		indexTemplatePath = "";
+	};
+}

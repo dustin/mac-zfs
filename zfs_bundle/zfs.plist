@@ -1,0 +1,26 @@
+<plist version="1.0">
+<array>
+<dict>
+        <key>OpenSourceProject</key>
+        <string>zfs</string>
+        <key>OpenSourceVersion</key>
+        <string>snv_61</string>
+        <key>OpenSourceWebsiteURL</key>
+        <string>http://opensolaris.org/os/community/zfs</string>
+        <key>OpenSourceURL</key>
+	<string>http://dlc.sun.com/osol/on/downloads/current</string>
+        <key>OpenSourceCVS</key>
+        <string>hg clone ssh://anon@hg.opensolaris.org/hg/onnv/onnv-gate</string>
+        <key>OpenSourceImportDate</key>
+        <string>2007-03-30</string>
+        <key>OpenSourceModifications</key>
+        <array>
+                <string>code using ifdef __APPLE__</string>
+        </array>
+        <key>OpenSourceLicense</key>
+        <string>CDDL</string>
+        <key>OpenSourceLicenseFile</key>
+        <string>zfs.txt</string>
+</dict>
+</array>
+</plist>
