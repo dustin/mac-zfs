@@ -1,0 +1,16 @@
+Open Solaris Synchronization -- Leaf Directories
+
+xCode Project                       Open Solaris
+-------------------------------------------------------------------
+zfs/zfs_kext/zfs/                   usr/src/uts/common/fs/zfs/
+zfs/zfs_kext/zfs/sys                usr/src/uts/common/fs/zfs/sys
+
+zfs/zfs_common/zfs/                 usr/src/common/zfs/
+zfs/zfs_common/sys/                 usr/src/uts/common/sys/
+zfs/zfs_common/sys/fs/zfs.h         usr/src/uts/common/sys/fs/zfs.h
+zfs/zfs_common/sys/fm/fs/zfs.h      usr/src/uts/common/sys/fm//fs/zfs.h
+
+zfs/zfs_lib/zfs/                    usr/src/lib/libzfs/common/
+
+zfs/zfs_cmd/zfs/                    usr/src/cmd/zfs/
+zfs/zfs_cmd/zpool/                  usr/src/cmd/zpool/
