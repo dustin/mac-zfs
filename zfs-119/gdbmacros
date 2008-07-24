@@ -1,0 +1,95 @@
+echo Loading zfs GDB Macros package.  Type "help zfsdebug" for more info.\n
+
+# these must be consistent with those defined in zfs_kext/zfs/zfs_ioctl.c
+set $ZFS_MAX_MSG_NUM = 100000
+set $ZFS_MAX_MSG_LEN = 128
+
+define zfsdebug
+printf ""
+echo These are the gdb macros for zfs debugging.  Type "help zfsdebug" for more info.\n
+end
+
+document zfsdebug
+| These are the gdb macros for zfs debugging.  The following macros are available in this package:
+|   zfsmsg                  prints all messages in the buffer
+|   zfsmsgnum               prints the buffer size number of messages in the buffer
+|   zfsmsgtail #num         prints the last #num number of messages in the buffer
+|   zfsmsgrange #from #to   prints the message in the range [#from, #to), the message number is 0-based
+end
+
+define get_msg_range
+    if (zfs_msg_total == zfs_msg_next)
+         # buffer not overflow
+        set $zfs_msg_from = 0
+	set $zfs_msg_to = zfs_msg_next
+    else
+         # buffer overflowed
+	set $zfs_msg_from = zfs_msg_total - $ZFS_MAX_MSG_NUM
+	set $zfs_msg_to = zfs_msg_total
+    end
+end
+
+define zfsmsg
+    get_msg_range
+    zfsmsgrange $zfs_msg_from $zfs_msg_to
+end
+
+document zfsmsg
+Syntax: zfsmsg
+| prints all messages in the buffer
+end
+
+define zfsmsgnum
+    get_msg_range
+    printf "Max messages: %d, max message length: %d, buf size: %dkb\n", $ZFS_MAX_MSG_NUM, $ZFS_MAX_MSG_LEN, $ZFS_MAX_MSG_NUM * $ZFS_MAX_MSG_LEN / 1024
+    printf "Total %d messages, %d left in buffer\n", zfs_msg_total, $zfs_msg_to - $zfs_msg_from
+end
+
+document zfsmsgnum
+Syntax: zfsmsgnum
+| prints the buffer size and the total number of messages in the buffer
+end
+
+define zfsmsgtail
+    get_msg_range
+
+    set $zfs_from = $zfs_msg_to - $arg0
+
+    if $zfs_from < $zfs_msg_from
+        set $zfs_from = $zfs_msg_from
+    end
+
+    zfsmsgrange $zfs_from $zfs_msg_to
+end
+
+document zfsmsgtail
+Syntax: zfsmsgtail <num_msg>
+|  prints the last num_msg messages in the buffer
+end
+
+define zfsmsgrange
+    get_msg_range
+
+    set $zfs_from = $arg0
+    set $zfs_to = $arg1
+
+    if $zfs_from < $zfs_msg_from
+        set $zfs_from = $zfs_msg_from
+    end
+
+    if $zfs_to > $zfs_msg_to
+        set $zfs_to = $zfs_msg_to
+    end
+
+    set $zfs_i = $zfs_from
+    while $zfs_i < $zfs_to
+        printf "%d: %s\n", $zfs_i, (*zfs_msg_buf)[$zfs_i % $ZFS_MAX_MSG_NUM]
+	set $zfs_i = $zfs_i + 1
+    end
+end
+
+document zfsmsgrange
+Syntax: zfsmsgrange <from_msg> <to_msg>
+|  prints messages in range from_msg (include from_msg) to to_msg (exclude to_msg)
+|  message numbers are 0-based
+end

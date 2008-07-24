@@ -1,0 +1,90 @@
+'\" te
+.\" Copyright (c) 2007 Apple Inc. All rights reserved.
+.\" Use is subject to license terms stated below.
+.\"
+.\" The contents of this file are subject to the terms of the
+.\" Common Development and Distribution License v. 1.0 (the "License").
+.\" You may not use this file except in compliance with the License.
+.\"
+.\" You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
+.\" or http://www.opensolaris.org/os/licensing <http://www.opensolaris.org/os/licensing> .
+.\" See the License for the specific language governing permissions
+.\" and limitations under the License.
+.\"
+.\" THIS SOFTWARE IS PROVIDED BY APPLE AND ITS CONTRIBUTORS "AS IS" AND
+.\" ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+.\" IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
+.\" PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL APPLE OR ITS CONTRIBUTORS BE
+.\" LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+.\" CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+.\" SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+.\" INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+.\" CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+.\" ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
+.\" THE POSSIBILITY OF SUCH DAMAGE.
+
+.Dd Oct 15, 2006
+.Dt ZFS.UTIL 8 
+.Os "Mac OS X"
+.Sh NAME
+.Nm zfs.util
+.Nd ZFS file system utility
+.Sh SYNOPSIS
+.Nm
+.Op Fl m Ar mountflag1 mountflag2 mountflag3 mountflag4
+.Ar device node
+.Pp
+.Nm
+.Op Fl p Ar mountflag1 mountflag2 mountflag3 mountflag4
+.Ar device
+.Pp
+.Nm
+.Op Fl u 
+.Ar device
+.Pp
+.Nm
+.Op Fl n
+.Ar device name
+.Sh DESCRIPTION
+The
+.Nm
+command supports the mounting, probing, and unmounting of ZFS file systems.
+.Pp
+Options:
+.Bl -tag -compact -offset indent
+.It Fl m Ar mountflag1 mountflag2 mountflag3 mountflag4
+mount
+.It Fl n 
+set name
+.It Fl p Ar mountflag1 mountflag2 mountflag3 mountflag4
+probe for mounting
+.It Fl u 
+unmount
+.El
+.Pp
+.Ar mountflags 
+above are either:
+.Bl -bullet -compact -offset indent
+.It
+.Ar removable 
+or
+.Ar fixed
+.It
+.Ar readonly
+or
+.Ar writeable  
+.It
+.Ar suid
+or
+.Ar nosuid  
+.It
+.Ar dev
+or
+.Ar nodev
+.El
+.Sh SEE ALSO 
+.Xr diskarbitrationd 8
+.Sh HISTORY
+The
+.Nm
+command first appeared in Mac OS X 10.5 (Leopard).
