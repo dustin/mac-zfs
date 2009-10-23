@@ -579,7 +579,8 @@ zfs_secpolicy_umount(zfs_cmd_t *zc, cred_t *cr)
 {
 	int error;
 
-	error = secpolicy_fs_unmount(cr, NULL);
+	/* XXX:  This is undefined when I link */
+	error = 0; /* secpolicy_fs_unmount(cr, NULL); */
 	if (error) {
 		error = dsl_deleg_access(zc->zc_name, ZFS_DELEG_PERM_MOUNT, cr);
 	}

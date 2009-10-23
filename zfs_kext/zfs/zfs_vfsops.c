@@ -836,7 +836,7 @@ zfs_vfs_unmount(struct mount *mp, int mntflags, vfs_context_t context)
 	
 	/*XXX NOEL: delegation admin stuffs, add back if we use delg. admin */
 #if 0
-	ret = secpolicy_fs_unmount(cr, vfsp);
+	ret = 0; /* UNDEFINED: secpolicy_fs_unmount(cr, vfsp); */
 	if (ret) {
 		ret = dsl_deleg_access((char *)refstr_value(vfsp->vfs_resource),
 		    ZFS_DELEG_PERM_MOUNT, cr);
