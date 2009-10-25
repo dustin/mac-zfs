@@ -11,6 +11,7 @@
 			isa = PBXAggregateTarget;
 			buildConfigurationList = 26C84C250AB75E3E008B950C /* Build configuration list for PBXAggregateTarget "zfs aggregate" */;
 			buildPhases = (
+				DAD6B4D610941B8E008A0395 /* CopyFiles */,
 			);
 			dependencies = (
 				26C84C2B0AB75E6C008B950C /* PBXTargetDependency */,
@@ -264,6 +265,8 @@
 		D9FBE48A0CA89A6C00492543 /* qsort.c in Sources */ = {isa = PBXBuildFile; fileRef = D9FBE47F0CA899DA00492543 /* qsort.c */; };
 		DAD6B3DC10940AE4008A0395 /* fix-nofs.m in Sources */ = {isa = PBXBuildFile; fileRef = DAD6B3DB10940AE4008A0395 /* fix-nofs.m */; };
 		DAD6B41810940DCF008A0395 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAD6B41710940DCF008A0395 /* Foundation.framework */; };
+		DAD6B4D010941B6F008A0395 /* post-install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DAD6B4BA109419E8008A0395 /* post-install.sh */; };
+		DAD6B4D110941B8C008A0395 /* fix-nofs in CopyFiles */ = {isa = PBXBuildFile; fileRef = DAD6B3CF109409E4008A0395 /* fix-nofs */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -416,6 +419,17 @@
 				D9B898060BF3ADB200F648C1 /* zfs.txt in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
+		};
+		DAD6B4D610941B8E008A0395 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = install_support;
+			dstSubfolderSpec = 7;
+			files = (
+				DAD6B4D110941B8C008A0395 /* fix-nofs in CopyFiles */,
+				DAD6B4D010941B6F008A0395 /* post-install.sh in CopyFiles */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXCopyFilesBuildPhase section */
 
@@ -671,9 +685,10 @@
 		D9EE4F550CA2FCE400FC11CD /* zfs_deleg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zfs_deleg.h; sourceTree = "<group>"; };
 		D9FBE47A0CA8997500492543 /* qsort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qsort.h; sourceTree = "<group>"; };
 		D9FBE47F0CA899DA00492543 /* qsort.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = qsort.c; sourceTree = "<group>"; };
-		DAD6B3CF109409E4008A0395 /* fix-nofs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "fix-nofs"; path = "build/Release/fix-nofs"; sourceTree = "<group>"; };
+		DAD6B3CF109409E4008A0395 /* fix-nofs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "fix-nofs"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAD6B3DB10940AE4008A0395 /* fix-nofs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "fix-nofs.m"; path = "install_support/fix-nofs.m"; sourceTree = "<group>"; };
 		DAD6B41710940DCF008A0395 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
+		DAD6B4BA109419E8008A0395 /* post-install.sh */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.sh; name = "post-install.sh"; path = "install_support/post-install.sh"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -740,13 +755,13 @@
 		089C166AFE841209C02AAC07 /* zfs */ = {
 			isa = PBXGroup;
 			children = (
-				DAD6B3C91094097B008A0395 /* install_support */,
 				2680316F0AA168C700F12729 /* zfs_common */,
 				269640650AACEA870073456B /* zfs_lib */,
 				26A9784D0AA938FD00FF1F22 /* zfs_commands */,
 				26BE01540A9E9FC800F3429C /* zfs_kext */,
 				262438310ACDCD8F007444B5 /* zfs_bundle */,
 				269334AF0AD1C1E2000CDAB9 /* Documentation */,
+				DAD6B3C91094097B008A0395 /* install_support */,
 				19C28FB6FE9D52B211CA2CBB /* Products */,
 				DAD6B41710940DCF008A0395 /* Foundation.framework */,
 			);
@@ -1350,6 +1365,7 @@
 		DAD6B3C91094097B008A0395 /* install_support */ = {
 			isa = PBXGroup;
 			children = (
+				DAD6B4BA109419E8008A0395 /* post-install.sh */,
 				DAD6B3DB10940AE4008A0395 /* fix-nofs.m */,
 			);
 			name = install_support;
