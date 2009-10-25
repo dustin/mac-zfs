@@ -14,6 +14,7 @@
 			);
 			dependencies = (
 				26C84C2B0AB75E6C008B950C /* PBXTargetDependency */,
+				DAD6B3F710940D03008A0395 /* PBXTargetDependency */,
 				26C84C290AB75E65008B950C /* PBXTargetDependency */,
 				26B5F16D0AB7CDD9009860FF /* PBXTargetDependency */,
 				262CEB3D0AB9BF7B00582940 /* PBXTargetDependency */,
@@ -261,6 +262,8 @@
 		D9FBE4880CA89A6200492543 /* zfs_deleg.c in Sources */ = {isa = PBXBuildFile; fileRef = D9EE4F540CA2FCE400FC11CD /* zfs_deleg.c */; };
 		D9FBE4890CA89A6A00492543 /* qsort.c in Sources */ = {isa = PBXBuildFile; fileRef = D9FBE47F0CA899DA00492543 /* qsort.c */; };
 		D9FBE48A0CA89A6C00492543 /* qsort.c in Sources */ = {isa = PBXBuildFile; fileRef = D9FBE47F0CA899DA00492543 /* qsort.c */; };
+		DAD6B3DC10940AE4008A0395 /* fix-nofs.m in Sources */ = {isa = PBXBuildFile; fileRef = DAD6B3DB10940AE4008A0395 /* fix-nofs.m */; };
+		DAD6B41810940DCF008A0395 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAD6B41710940DCF008A0395 /* Foundation.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -333,6 +336,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 2696406B0AACEAD20073456B;
 			remoteInfo = libzfs;
+		};
+		DAD6B3F610940D03008A0395 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DAD6B3CE109409E4008A0395 /* fix-nofs */;
+			remoteInfo = "fix-nofs";
 		};
 /* End PBXContainerItemProxy section */
 
@@ -416,7 +426,7 @@
 		2611F75E0ACDD4E100E5D4E2 /* zfs.fs */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = zfs.fs; sourceTree = BUILT_PRODUCTS_DIR; };
 		2611F7F10ACDE5EB00E5D4E2 /* English */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		261C25260BB0CC2A0077895F /* kstat.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = kstat.h; sourceTree = "<group>"; };
-		2624381D0ACDCCF4007444B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = Info.plist; sourceTree = "<group>"; };
+		2624381D0ACDCCF4007444B5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		2624F2180AAFDA9500B04FAE /* zfs_replay.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zfs_replay.c; sourceTree = "<group>"; };
 		2625ECB50B07E66E00D24DB3 /* zfs_acl.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zfs_acl.c; sourceTree = "<group>"; };
 		263504270AC62C69000E67D7 /* dmu_send.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dmu_send.c; sourceTree = "<group>"; };
@@ -647,7 +657,7 @@
 		26F91B110AAE85E1005510C9 /* zfs_dir.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zfs_dir.c; sourceTree = "<group>"; };
 		26F91C360AAE9089005510C9 /* zfs_log.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zfs_log.c; sourceTree = "<group>"; };
 		26F95C1C0B07E8F600BCB684 /* zfs_ctldir.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zfs_ctldir.c; sourceTree = "<group>"; };
-		32A4FEC30562C75700D090E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = Info.plist; path = zfs_kext/Info.plist; sourceTree = "<group>"; };
+		32A4FEC30562C75700D090E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = zfs_kext/Info.plist; sourceTree = "<group>"; };
 		32A4FEC40562C75800D090E7 /* zfs.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = zfs.kext; sourceTree = BUILT_PRODUCTS_DIR; };
 		D9A27ACF0CA1DDF700009531 /* dsl_deleg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = dsl_deleg.c; sourceTree = "<group>"; };
 		D9A27AD40CA1DE1000009531 /* dsl_deleg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = dsl_deleg.h; sourceTree = "<group>"; };
@@ -661,6 +671,9 @@
 		D9EE4F550CA2FCE400FC11CD /* zfs_deleg.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zfs_deleg.h; sourceTree = "<group>"; };
 		D9FBE47A0CA8997500492543 /* qsort.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = qsort.h; sourceTree = "<group>"; };
 		D9FBE47F0CA899DA00492543 /* qsort.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = qsort.c; sourceTree = "<group>"; };
+		DAD6B3CF109409E4008A0395 /* fix-nofs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; name = "fix-nofs"; path = "build/Release/fix-nofs"; sourceTree = "<group>"; };
+		DAD6B3DB10940AE4008A0395 /* fix-nofs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "fix-nofs.m"; path = "install_support/fix-nofs.m"; sourceTree = "<group>"; };
+		DAD6B41710940DCF008A0395 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -713,12 +726,21 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DAD6B3CD109409E4008A0395 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DAD6B41810940DCF008A0395 /* Foundation.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
 		089C166AFE841209C02AAC07 /* zfs */ = {
 			isa = PBXGroup;
 			children = (
+				DAD6B3C91094097B008A0395 /* install_support */,
 				2680316F0AA168C700F12729 /* zfs_common */,
 				269640650AACEA870073456B /* zfs_lib */,
 				26A9784D0AA938FD00FF1F22 /* zfs_commands */,
@@ -726,6 +748,7 @@
 				262438310ACDCD8F007444B5 /* zfs_bundle */,
 				269334AF0AD1C1E2000CDAB9 /* Documentation */,
 				19C28FB6FE9D52B211CA2CBB /* Products */,
+				DAD6B41710940DCF008A0395 /* Foundation.framework */,
 			);
 			name = zfs;
 			sourceTree = "<group>";
@@ -741,6 +764,7 @@
 				2611F75E0ACDD4E100E5D4E2 /* zfs.fs */,
 				26E59EBF0B87AA2700CFC573 /* zoink */,
 				2665B69E0BB47761004F043E /* zfs.readonly.kext */,
+				DAD6B3CF109409E4008A0395 /* fix-nofs */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -1323,6 +1347,14 @@
 			path = zfs_common/util;
 			sourceTree = "<group>";
 		};
+		DAD6B3C91094097B008A0395 /* install_support */ = {
+			isa = PBXGroup;
+			children = (
+				DAD6B3DB10940AE4008A0395 /* fix-nofs.m */,
+			);
+			name = install_support;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXHeadersBuildPhase section */
@@ -1501,6 +1533,22 @@
 			productReference = 32A4FEC40562C75800D090E7 /* zfs.kext */;
 			productType = "com.apple.product-type.kernel-extension";
 		};
+		DAD6B3CE109409E4008A0395 /* fix-nofs */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = DAD6B3D410940A02008A0395 /* Build configuration list for PBXNativeTarget "fix-nofs" */;
+			buildPhases = (
+				DAD6B3CC109409E4008A0395 /* Sources */,
+				DAD6B3CD109409E4008A0395 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = "fix-nofs";
+			productName = "fix-nofs";
+			productReference = DAD6B3CF109409E4008A0395 /* fix-nofs */;
+			productType = "com.apple.product-type.tool";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -1522,6 +1570,7 @@
 				2611F75D0ACDD4E100E5D4E2 /* zfs.fs */,
 				26E59EBE0B87AA2700CFC573 /* zoink */,
 				2665B64C0BB47761004F043E /* zfs_readonly.kext */,
+				DAD6B3CE109409E4008A0395 /* fix-nofs */,
 			);
 		};
 /* End PBXProject section */
@@ -1805,6 +1854,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		DAD6B3CC109409E4008A0395 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				DAD6B3DC10940AE4008A0395 /* fix-nofs.m in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
@@ -1857,6 +1914,11 @@
 			isa = PBXTargetDependency;
 			target = 2696406B0AACEAD20073456B /* libzfs */;
 			targetProxy = 26DBF4180AB7C675007CE795 /* PBXContainerItemProxy */;
+		};
+		DAD6B3F710940D03008A0395 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DAD6B3CE109409E4008A0395 /* fix-nofs */;
+			targetProxy = DAD6B3F610940D03008A0395 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -2768,6 +2830,48 @@
 			};
 			name = Release;
 		};
+		DAD6B3D1109409E4008A0395 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = "fix-nofs";
+			};
+			name = Debug;
+		};
+		DAD6B3D2109409E4008A0395 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_ENABLE_FIX_AND_CONTINUE = NO;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = "fix-nofs";
+				ZERO_LINK = NO;
+			};
+			name = Release;
+		};
+		DAD6B3D3109409E4008A0395 /* Leopard_Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = "fix-nofs";
+			};
+			name = Leopard_Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -2867,6 +2971,16 @@
 				26F63DB80AABD48F000C5196 /* Debug */,
 				26F63DB90AABD48F000C5196 /* Release */,
 				2618BB300D6DE4DD003F43EA /* Leopard_Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		DAD6B3D410940A02008A0395 /* Build configuration list for PBXNativeTarget "fix-nofs" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				DAD6B3D1109409E4008A0395 /* Debug */,
+				DAD6B3D2109409E4008A0395 /* Release */,
+				DAD6B3D3109409E4008A0395 /* Leopard_Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
