@@ -10,36 +10,39 @@ int main (int argc, const char * argv[]) {
 	NSPropertyListFormat format;
 	
 	NSString *filePath=@"/System/Library/Filesystems/nofs.fs/Contents/Info.plist";
+	if( [[NSFileManager defaultManager] fileExistsAtPath:filePath] )
+	{
 
-	NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:filePath];
-	NSMutableDictionary *temp = [NSPropertyListSerialization propertyListFromData:plistXML
+		NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:filePath];
+	
+		NSMutableDictionary *temp = [NSPropertyListSerialization propertyListFromData:plistXML
 																 mutabilityOption:NSPropertyListMutableContainersAndLeaves
 																		   format:&format
 																 errorDescription:&errorDesc];
-	if (!temp) {
-		NSLog(@"Error reading plist: %@, format: %d", errorDesc, format);
-		exit(EX_OSFILE);
-	}
+		if (!temp) {
+			NSLog(@"Error reading plist: %@, format: %d", errorDesc, format);
+			exit(EX_OSFILE);
+		}
 	
-	NSLog(@"Got list:  %@", temp);
-	[[temp objectForKey:@"FSPersonalities"]
+		NSLog(@"Got list:  %@", temp);
+		[[temp objectForKey:@"FSPersonalities"]
 				removeObjectForKey:@"ZFS (Not Mountable)"];
-	NSLog(@"Mutated to %@", temp);
+		NSLog(@"Mutated to %@", temp);
 
-	NSData *outData = [NSPropertyListSerialization dataFromPropertyList:temp
+		NSData *outData = [NSPropertyListSerialization dataFromPropertyList:temp
 																 format:format
 													   errorDescription:&errorDesc];
 	
-	if (!outData) {
-		NSLog(@"Failed to serialize data.");
-		exit(EX_SOFTWARE);
-	}
+		if (!outData) {
+			NSLog(@"Failed to serialize data.");
+			exit(EX_SOFTWARE);
+		}
 	
-	if (![outData writeToFile:filePath atomically:YES]) {
-		NSLog(@"Failed to update plist.");
-		exit(EX_SOFTWARE);
-	}
-	
+		if (![outData writeToFile:filePath atomically:YES]) {
+			NSLog(@"Failed to update plist.");
+			exit(EX_SOFTWARE);
+		}
+	}	
 	[pool release];
 	return 0;
 }
