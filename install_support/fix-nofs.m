@@ -7,6 +7,9 @@ static void rewritePlist(NSString *filePath) {
     NSString *errorDesc = nil;
     NSPropertyListFormat format;
 
+    NSString *personalities = @"FSPersonalities";
+    NSString *zfsNotMountable = @"ZFS (Not Mountable)";
+
     NSData *plistXML = [[NSFileManager defaultManager] contentsAtPath:filePath];
 
     NSMutableDictionary *temp = [NSPropertyListSerialization propertyListFromData:plistXML
@@ -19,8 +22,12 @@ static void rewritePlist(NSString *filePath) {
     }
 
     NSLog(@"Got list:  %@", temp);
-    [[temp objectForKey:@"FSPersonalities"]
-                removeObjectForKey:@"ZFS (Not Mountable)"];
+    if (![[temp objectForKey:personalities] objectForKey:zfsNotMountable]) {
+        NSLog(@"Has no %@ section, not rewriting.", zfsNotMountable);
+        exit(0);
+    }
+
+    [[temp objectForKey:personalities] removeObjectForKey:zfsNotMountable];
     NSLog(@"Mutated to %@", temp);
 
     NSData *outData = [NSPropertyListSerialization dataFromPropertyList:temp
