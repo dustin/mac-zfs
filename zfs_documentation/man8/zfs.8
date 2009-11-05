@@ -306,7 +306,7 @@ The clone parent-child dependency relationship can be reversed by using the \fBp
 Creating a \fBZFS\fR file system is a simple operation, so the number of file systems per system is likely to be numerous. To cope with this, \fBZFS\fR automatically manages mounting and unmounting file systems. All automatically managed file systems are mounted by \fBZFS\fR at boot time.
 .sp
 .LP
-By default, file systems are mounted under \fB/\fIpath\fR\fR, where \fIpath\fR is the name of the file system in the \fBZFS\fR namespace. Directories are created and destroyed as needed.
+By default, file systems are mounted under \fB/Volumes/\fIpath\fR\fR, where \fIpath\fR is the name of the file system in the \fBZFS\fR namespace. Directories are created and destroyed as needed.
 .sp
 .LP
 A file system can also have a mount point set in the \fBmountpoint\fR property. This directory is created as needed, and \fBZFS\fR automatically mounts the file system when the \fBzfs mount -a\fR command is invoked. The \fBmountpoint\fR property can be inherited, so if \fBpool/home\fR has a mount point of \fB/export/stuff\fR, then \fBpool/home/user\fR automatically inherits a mount point of \fB/export/stuff/user\fR.
@@ -1083,11 +1083,11 @@ When a file system is mounted, either through \fBmount\fR(8) for legacy mounts o
 .in +2
 .nf
     PROPERTY                MOUNT OPTION
-     devices                 devices/nodevices
-     exec                    exec/noexec
-     readonly                ro/rw
-     setuid                  setuid/nosetuid
-     xattr                   xattr/noxattr
+    devices                 devices/nodevices
+    exec                    exec/noexec
+    readonly                ro/rw
+    setuid                  setuid/nosetuid
+    xattr                   xattr/noxattr
 .fi
 .in -2
 .sp
@@ -2285,7 +2285,7 @@ Delegates \fBZFS\fR administration permission for the file systems to non-privil
 .ne 2
 .mk
 .na
-\fB[\fB-ug\fR] "\fIeveryone\fR"|\fIuser\fR|\fIgroup\fR[,...]\fR
+[\fB-ug\fR] "\fIeveryone\fR"|\fIuser\fR|\fIgroup\fR[,...]\fR
 .ad
 .sp .6
 .RS 4n
@@ -2296,7 +2296,7 @@ Specifies to whom the permissions are delegated. Multiple entities can be specif
 .ne 2
 .mk
 .na
-\fB[\fB-e\fR] \fIperm\fR|@\fIsetname\fR[,...]\fR
+[\fB-e\fR] \fIperm\fR|@\fIsetname\fR[,...]\fR
 .ad
 .sp .6
 .RS 4n
@@ -2307,7 +2307,7 @@ Specifies that the permissions be delegated to "everyone." Multiple permissions 
 .ne 2
 .mk
 .na
-\fB[\fB-ld\fR] \fIfilesystem\fR|\fIvolume\fR\fR
+[\fB-ld\fR] \fIfilesystem\fR|\fIvolume\fR\fR
 .ad
 .sp .6
 .RS 4n
@@ -3035,25 +3035,6 @@ An error occurred.
 .RS 4n
 Invalid command line options were specified.
 .RE
-
-.SH ATTRIBUTES
-.sp
-.LP
-See \fBattributes\fR(5) for descriptions of the following attributes:
-.sp
-
-.sp
-.TS
-tab() box;
-cw(2.75i) |cw(2.75i) 
-lw(2.75i) |lw(2.75i) 
-.
-ATTRIBUTE TYPEATTRIBUTE VALUE
-_
-AvailabilitySUNWzfsu
-_
-Interface StabilityCommitted
-.TE
 
 .SH SEE ALSO
 .sp
