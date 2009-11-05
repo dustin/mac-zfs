@@ -80,6 +80,8 @@ extern void		kmem_free(
 				vm_size_t	size);
 extern vm_map_t	kernel_map;
 
+static hrtime_t maczfs_gethrtime(void);
+
 
 /*
  * CONTEXT GLOBALS
@@ -1044,7 +1046,7 @@ kstat_create(const char *ks_module, int ks_instance, const char *ks_name,
 	 * calling kstat_install().
 	 */
 	ksp = &e->e_ks;
-	ksp->ks_crtime		= gethrtime();
+	ksp->ks_crtime		= maczfs_gethrtime();
 	kstat_set_string(ksp->ks_module, ks_module);
 	ksp->ks_instance	= ks_instance;
 	kstat_set_string(ksp->ks_name, ks_name);
@@ -1168,7 +1170,7 @@ membar_producer(void)
 }
 
 /*
- * gethrtime() provides high-resolution timestamps with machine-dependent origin.
+ * maczfs_gethrtime() provides high-resolution timestamps with machine-dependent origin.
  * Hence its primary use is to specify intervals.
  */
 
@@ -1218,8 +1220,8 @@ zfs_abs_to_nano(uint64_t elapsed)
 	}
 }
 
-hrtime_t
-gethrtime(void)
+static hrtime_t
+maczfs_gethrtime(void)
 {
 	static uint64_t start = 0;
 

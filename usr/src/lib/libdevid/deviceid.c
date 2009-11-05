@@ -42,7 +42,7 @@
 #include <strings.h>
 
 //#include <libdevinfo.h>
-#include "libdevid.h"
+#include "libdevid/libdevid.h"
 
 /*
  * return code for node_callback

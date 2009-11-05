@@ -364,7 +364,7 @@ zfs_vfs_mount(struct mount *mp, vnode_t devvp, user_addr_t data, vfs_context_t c
 			if ( (error = copyin(data, (caddr_t)&fspec, sizeof(fspec))) )
 				goto out;	
 		} else {
-#ifdef ZFS_LEOPARD_ONLY
+#ifdef APPLE
 			char *tmp;
 #else
 			user32_addr_t tmp;
