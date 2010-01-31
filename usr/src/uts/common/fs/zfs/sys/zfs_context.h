@@ -474,6 +474,7 @@ struct dk_callback {
 
 extern	void 		gethrestime(struct timespec *);
 extern	time_t 		gethrestime_sec(void);
+extern  hrtime_t        gethrtime(void);
 
 extern int random_add_entropy(uint8_t *, size_t, uint_t);
 extern int random_get_bytes(uint8_t *, size_t);
