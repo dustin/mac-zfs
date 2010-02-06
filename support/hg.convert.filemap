@@ -1,0 +1,28 @@
+include usr/src/cmd/zdb
+include usr/src/cmd/zfs
+include usr/src/cmd/zpool
+include usr/src/cmd/ztest
+include usr/src/common/acl
+include usr/src/common/avl
+include usr/src/common/devid
+include usr/src/common/nvpair
+include usr/src/common/unicode
+include usr/src/common/util
+include usr/src/common/zfs
+# We only seem to need a couple of files from here
+include usr/src/head/devid.h
+include usr/src/head/libintl.h
+include usr/src/lib/libdevid
+include usr/src/lib/libgen/common
+include usr/src/lib/libnsl/rpc
+include usr/src/lib/libnvpair
+include usr/src/lib/libuutil/common
+include usr/src/lib/libzfs/common
+include usr/src/lib/libzpool/common
+include usr/src/uts/common/fs/zfs
+include usr/src/uts/common/os
+include usr/src/uts/common/rpc
+# There's a lot of rubbish in here as well, but we might need stuff in future
+include usr/src/uts/common/sys
+include usr/src/uts/common/vm
+include usr/src/uts/common/zmod
