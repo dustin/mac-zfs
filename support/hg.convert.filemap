@@ -1,3 +1,27 @@
+#
+# This is a convert file, used by hg to do conversions.
+#
+# sudo easy_install hg-git
+# Add (or create) ~/.hgrc with the following contents:
+#
+# [extensions]
+# hgext.convert=
+# hgext.bookmarks=
+# hggit=
+#
+# [extensions]
+hgext.convert=
+hgext.bookmarks=
+hggit=
+#
+# convert from 'onnv-gate' to 'onnv-gate-zfs' mercurial repository, up to onnv_72
+# hg convert --filemap .../hg.convert.filemap onnv-gate [--rev onnv_72]  onnv-gate-zfs
+#
+# Converting to a Git repository
+#
+# hg bookmark -r default master
+# hg push git+ssh://git@githhub.com/.../onnv-gate-zfs.git
+# hg push
 include usr/src/cmd/zdb
 include usr/src/cmd/zfs
 include usr/src/cmd/zpool
@@ -43,6 +67,7 @@ exclude usr/src/uts/common/sys/fc4
 exclude usr/src/uts/common/sys/fcoe
 exclude usr/src/uts/common/sys/fibre-channel
 exclude usr/src/uts/common/sys/hotplug
+exclude usr/src/uts/common/sys/i2o
 exclude usr/src/uts/common/sys/ib
 exclude usr/src/uts/common/sys/idm
 exclude usr/src/uts/common/sys/iscsit
