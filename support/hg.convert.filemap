@@ -27,44 +27,42 @@ include usr/src/uts/common/zmod
 # usr/src/uts/common is a real mess of combined OpenSolaris and ZFS dependencies
 # There's a lot of rubbish in here as well, but we might need stuff in future
 include usr/src/uts/common/sys
-exclude usr/src/uts/common/sys/fibre-channel
-exclude usr/src/uts/common/sys/sdcard
-exclude usr/src/uts/common/sys/iscsit
-exclude usr/src/uts/common/sys/crypto
-exclude usr/src/uts/common/sys/av
-exclude usr/src/uts/common/sys/uwb
-exclude usr/src/uts/common/sys/lvm
-exclude usr/src/uts/common/sys/sata
-exclude usr/src/uts/common/sys/ib
-exclude usr/src/uts/common/sys/tsol
-exclude usr/src/uts/common/sys/pcmcia
-exclude usr/src/uts/common/sys/mpt
-exclude usr/src/uts/common/sys/dcam
-exclude usr/src/uts/common/sys/idm
-exclude usr/src/uts/common/sys/scsi
-exclude usr/src/uts/common/sys/iso
-exclude usr/src/uts/common/sys/rsm
-exclude usr/src/uts/common/sys/1394
-exclude usr/src/uts/common/sys/sysevent
-exclude usr/src/uts/common/sys/hotplug
-exclude usr/src/uts/common/sys/contract
-exclude usr/src/uts/common/sys/agp
-exclude usr/src/uts/common/sys/audio
-exclude usr/src/uts/common/sys/fc4
-exclude usr/src/uts/common/sys/fcoe
 # We need this subdir
 # exclude usr/src/uts/common/sys/fs
-exclude usr/src/uts/common/sys/nxge
 # And this subdir
 # exclude usr/src/uts/common/sys/fm
-exclude usr/src/uts/common/sys/sbp2
-exclude usr/src/uts/common/sys/usb
+exclude usr/src/uts/common/sys/1394
+exclude usr/src/uts/common/sys/agp
+exclude usr/src/uts/common/sys/audio
+exclude usr/src/uts/common/sys/av
+exclude usr/src/uts/common/sys/contract
+exclude usr/src/uts/common/sys/crypto
+exclude usr/src/uts/common/sys/dcam
 exclude usr/src/uts/common/sys/dktp
+exclude usr/src/uts/common/sys/fc4
+exclude usr/src/uts/common/sys/fcoe
+exclude usr/src/uts/common/sys/fibre-channel
+exclude usr/src/uts/common/sys/hotplug
+exclude usr/src/uts/common/sys/ib
+exclude usr/src/uts/common/sys/idm
+exclude usr/src/uts/common/sys/iscsit
+exclude usr/src/uts/common/sys/iso
+exclude usr/src/uts/common/sys/lvm
+exclude usr/src/uts/common/sys/mpt
+exclude usr/src/uts/common/sys/nxge
+exclude usr/src/uts/common/sys/pcmcia
+exclude usr/src/uts/common/sys/rsm
+exclude usr/src/uts/common/sys/sata
+exclude usr/src/uts/common/sys/sbp2
+exclude usr/src/uts/common/sys/scsi
+exclude usr/src/uts/common/sys/sdcard
+exclude usr/src/uts/common/sys/sysevent
+exclude usr/src/uts/common/sys/tsol
+exclude usr/src/uts/common/sys/usb
+exclude usr/src/uts/common/sys/uwb
 # Lots more (large) rubbish that's not needed
 exclude usr/src/uts/common/sys/acct.h
 exclude usr/src/uts/common/sys/acctctl.h
-exclude usr/src/uts/common/sys/acl.h
-exclude usr/src/uts/common/sys/acl_impl.h
 exclude usr/src/uts/common/sys/acpi_drv.h
 exclude usr/src/uts/common/sys/aggr.h
 exclude usr/src/uts/common/sys/aggr_impl.h
@@ -77,7 +75,6 @@ exclude usr/src/uts/common/sys/aiocb.h
 exclude usr/src/uts/common/sys/ascii.h
 exclude usr/src/uts/common/sys/asy.h
 exclude usr/src/uts/common/sys/asynch.h
-exclude usr/src/uts/common/sys/atomic.h
 exclude usr/src/uts/common/sys/attr.h
 exclude usr/src/uts/common/sys/audio.h
 exclude usr/src/uts/common/sys/audioio.h
@@ -86,10 +83,7 @@ exclude usr/src/uts/common/sys/auxv.h
 exclude usr/src/uts/common/sys/auxv_386.h
 exclude usr/src/uts/common/sys/auxv_SPARC.h
 exclude usr/src/uts/common/sys/avintr.h
-exclude usr/src/uts/common/sys/avl.h
-exclude usr/src/uts/common/sys/avl_impl.h
 exclude usr/src/uts/common/sys/beep.h
-exclude usr/src/uts/common/sys/bitmap.h
 exclude usr/src/uts/common/sys/bitset.h
 exclude usr/src/uts/common/sys/bl.h
 exclude usr/src/uts/common/sys/bmc_intf.h
@@ -104,8 +98,6 @@ exclude usr/src/uts/common/sys/bscv_impl.h
 exclude usr/src/uts/common/sys/buf.h
 exclude usr/src/uts/common/sys/bufmod.h
 exclude usr/src/uts/common/sys/bustypes.h
-exclude usr/src/uts/common/sys/byteorder.h
-exclude usr/src/uts/common/sys/callb.h
 exclude usr/src/uts/common/sys/callo.h
 exclude usr/src/uts/common/sys/cap_util.h
 exclude usr/src/uts/common/sys/ccompile.h
@@ -117,9 +109,7 @@ exclude usr/src/uts/common/sys/clock_impl.h
 exclude usr/src/uts/common/sys/clock_tick.h
 exclude usr/src/uts/common/sys/cmlb.h
 exclude usr/src/uts/common/sys/cmlb_impl.h
-exclude usr/src/uts/common/sys/cmn_err.h
 exclude usr/src/uts/common/sys/cmt.h
-exclude usr/src/uts/common/sys/compress.h
 exclude usr/src/uts/common/sys/condvar.h
 exclude usr/src/uts/common/sys/condvar_impl.h
 exclude usr/src/uts/common/sys/conf.h
@@ -147,7 +137,6 @@ exclude usr/src/uts/common/sys/cpupart.h
 exclude usr/src/uts/common/sys/cpupm.h
 exclude usr/src/uts/common/sys/cpuvar.h
 exclude usr/src/uts/common/sys/crc32.h
-exclude usr/src/uts/common/sys/cred.h
 exclude usr/src/uts/common/sys/cred_impl.h
 exclude usr/src/uts/common/sys/crtctl.h
 exclude usr/src/uts/common/sys/cryptmod.h
@@ -182,7 +171,6 @@ exclude usr/src/uts/common/sys/ddifm_impl.h
 exclude usr/src/uts/common/sys/ddimapreq.h
 exclude usr/src/uts/common/sys/ddipropdefs.h
 exclude usr/src/uts/common/sys/dditypes.h
-exclude usr/src/uts/common/sys/debug.h
 exclude usr/src/uts/common/sys/des.h
 exclude usr/src/uts/common/sys/devcache.h
 exclude usr/src/uts/common/sys/devcache_impl.h
@@ -196,7 +184,6 @@ exclude usr/src/uts/common/sys/devpoll.h
 exclude usr/src/uts/common/sys/dirent.h
 exclude usr/src/uts/common/sys/disp.h
 exclude usr/src/uts/common/sys/dkbad.h
-exclude usr/src/uts/common/sys/dkio.h
 exclude usr/src/uts/common/sys/dklabel.h
 exclude usr/src/uts/common/sys/dl.h
 exclude usr/src/uts/common/sys/dld.h
@@ -208,7 +195,6 @@ exclude usr/src/uts/common/sys/dls_impl.h
 exclude usr/src/uts/common/sys/dls_mgmt.h
 exclude usr/src/uts/common/sys/dma_engine.h
 exclude usr/src/uts/common/sys/dma_i8237A.h
-exclude usr/src/uts/common/sys/dnlc.h
 exclude usr/src/uts/common/sys/door.h
 exclude usr/src/uts/common/sys/door_data.h
 exclude usr/src/uts/common/sys/door_impl.h
@@ -258,7 +244,6 @@ exclude usr/src/uts/common/sys/fdbuffer.h
 exclude usr/src/uts/common/sys/fdc.h
 exclude usr/src/uts/common/sys/fdio.h
 exclude usr/src/uts/common/sys/fdmedia.h
-exclude usr/src/uts/common/sys/feature_tests.h
 exclude usr/src/uts/common/sys/fem.h
 exclude usr/src/uts/common/sys/file.h
 exclude usr/src/uts/common/sys/filep.h
@@ -267,12 +252,12 @@ exclude usr/src/uts/common/sys/flock.h
 exclude usr/src/uts/common/sys/flock_impl.h
 exclude usr/src/uts/common/sys/font.h
 exclude usr/src/uts/common/sys/fork.h
-exclude usr/src/uts/common/sys/fsid.h
-exclude usr/src/uts/common/sys/fss.h
-exclude usr/src/uts/common/sys/fssnap.h
-exclude usr/src/uts/common/sys/fssnap_if.h
-exclude usr/src/uts/common/sys/fsspriocntl.h
-exclude usr/src/uts/common/sys/fstyp.h
+id.h
+s.h
+snap.h
+snap_if.h
+spriocntl.h
+typ.h
 exclude usr/src/uts/common/sys/ftrace.h
 exclude usr/src/uts/common/sys/fx.h
 exclude usr/src/uts/common/sys/fxpriocntl.h
@@ -293,7 +278,6 @@ exclude usr/src/uts/common/sys/ia.h
 exclude usr/src/uts/common/sys/iapriocntl.h
 exclude usr/src/uts/common/sys/id32.h
 exclude usr/src/uts/common/sys/id_space.h
-exclude usr/src/uts/common/sys/idmap.h
 exclude usr/src/uts/common/sys/ieeefp.h
 exclude usr/src/uts/common/sys/instance.h
 exclude usr/src/uts/common/sys/int_const.h
@@ -306,7 +290,6 @@ exclude usr/src/uts/common/sys/ioctl.h
 exclude usr/src/uts/common/sys/ipc.h
 exclude usr/src/uts/common/sys/ipc_impl.h
 exclude usr/src/uts/common/sys/ipc_rctl.h
-exclude usr/src/uts/common/sys/isa_defs.h
 exclude usr/src/uts/common/sys/iscsi_authclient.h
 exclude usr/src/uts/common/sys/iscsi_authclientglue.h
 exclude usr/src/uts/common/sys/iscsi_protocol.h
@@ -346,17 +329,12 @@ exclude usr/src/uts/common/sys/kiconv_utf8_gb18030.h
 exclude usr/src/uts/common/sys/kiconv_utf8_gb2312.h
 exclude usr/src/uts/common/sys/kiconv_utf8_hkscs.h
 exclude usr/src/uts/common/sys/kiconv_utf8_uhc.h
-exclude usr/src/uts/common/sys/kidmap.h
 exclude usr/src/uts/common/sys/klpd.h
 exclude usr/src/uts/common/sys/klwp.h
 exclude usr/src/uts/common/sys/kmdb.h
-exclude usr/src/uts/common/sys/kmem.h
-exclude usr/src/uts/common/sys/kmem_impl.h
-exclude usr/src/uts/common/sys/kobj.h
 exclude usr/src/uts/common/sys/kobj_impl.h
 exclude usr/src/uts/common/sys/kobj_lex.h
 exclude usr/src/uts/common/sys/ksocket.h
-exclude usr/src/uts/common/sys/kstat.h
 exclude usr/src/uts/common/sys/kstr.h
 exclude usr/src/uts/common/sys/ksyms.h
 exclude usr/src/uts/common/sys/ksynch.h
@@ -365,8 +343,6 @@ exclude usr/src/uts/common/sys/lgrp.h
 exclude usr/src/uts/common/sys/lgrp_user.h
 exclude usr/src/uts/common/sys/libc_kernel.h
 exclude usr/src/uts/common/sys/link.h
-exclude usr/src/uts/common/sys/list.h
-exclude usr/src/uts/common/sys/list_impl.h
 exclude usr/src/uts/common/sys/llc1.h
 exclude usr/src/uts/common/sys/loadavg.h
 exclude usr/src/uts/common/sys/lock.h
@@ -421,10 +397,7 @@ exclude usr/src/uts/common/sys/mixer.h
 exclude usr/src/uts/common/sys/mkdev.h
 exclude usr/src/uts/common/sys/mman.h
 exclude usr/src/uts/common/sys/mmapobj.h
-exclude usr/src/uts/common/sys/mntent.h
 exclude usr/src/uts/common/sys/mntio.h
-exclude usr/src/uts/common/sys/mnttab.h
-exclude usr/src/uts/common/sys/modctl.h
 exclude usr/src/uts/common/sys/mode.h
 exclude usr/src/uts/common/sys/model.h
 exclude usr/src/uts/common/sys/modhash.h
@@ -440,7 +413,6 @@ exclude usr/src/uts/common/sys/mtio.h
 exclude usr/src/uts/common/sys/multiboot.h
 exclude usr/src/uts/common/sys/multidata.h
 exclude usr/src/uts/common/sys/multidata_impl.h
-exclude usr/src/uts/common/sys/mutex.h
 exclude usr/src/uts/common/sys/nbmlock.h
 exclude usr/src/uts/common/sys/ndi_impldefs.h
 exclude usr/src/uts/common/sys/ndifm.h
@@ -454,8 +426,6 @@ exclude usr/src/uts/common/sys/netlb.h
 exclude usr/src/uts/common/sys/netstack.h
 exclude usr/src/uts/common/sys/nexusdefs.h
 exclude usr/src/uts/common/sys/note.h
-exclude usr/src/uts/common/sys/nvpair.h
-exclude usr/src/uts/common/sys/nvpair_impl.h
 exclude usr/src/uts/common/sys/objfs.h
 exclude usr/src/uts/common/sys/objfs_impl.h
 exclude usr/src/uts/common/sys/ontrap.h
@@ -464,7 +434,6 @@ exclude usr/src/uts/common/sys/openpromio.h
 exclude usr/src/uts/common/sys/panic.h
 exclude usr/src/uts/common/sys/param.h
 exclude usr/src/uts/common/sys/pathconf.h
-exclude usr/src/uts/common/sys/pathname.h
 exclude usr/src/uts/common/sys/pattr.h
 exclude usr/src/uts/common/sys/pbio.h
 exclude usr/src/uts/common/sys/pccard.h
@@ -557,7 +526,6 @@ exclude usr/src/uts/common/sys/sha2_consts.h
 exclude usr/src/uts/common/sys/share.h
 exclude usr/src/uts/common/sys/shm.h
 exclude usr/src/uts/common/sys/shm_impl.h
-exclude usr/src/uts/common/sys/sid.h
 exclude usr/src/uts/common/sys/siginfo.h
 exclude usr/src/uts/common/sys/signal.h
 exclude usr/src/uts/common/sys/sleepq.h
@@ -596,7 +564,6 @@ exclude usr/src/uts/common/sys/strstat.h
 exclude usr/src/uts/common/sys/strsubr.h
 exclude usr/src/uts/common/sys/strsun.h
 exclude usr/src/uts/common/sys/strtty.h
-exclude usr/src/uts/common/sys/sunddi.h
 exclude usr/src/uts/common/sys/sunldi.h
 exclude usr/src/uts/common/sys/sunldi_impl.h
 exclude usr/src/uts/common/sys/sunmdi.h
@@ -616,23 +583,18 @@ exclude usr/src/uts/common/sys/sysevent.h
 exclude usr/src/uts/common/sys/sysevent_impl.h
 exclude usr/src/uts/common/sys/sysinfo.h
 exclude usr/src/uts/common/sys/syslog.h
-exclude usr/src/uts/common/sys/sysmacros.h
 exclude usr/src/uts/common/sys/sysmsg_impl.h
-exclude usr/src/uts/common/sys/systeminfo.h
 exclude usr/src/uts/common/sys/systm.h
 exclude usr/src/uts/common/sys/systrace.h
 exclude usr/src/uts/common/sys/t_kuser.h
 exclude usr/src/uts/common/sys/t_lock.h
 exclude usr/src/uts/common/sys/task.h
-exclude usr/src/uts/common/sys/taskq.h
-exclude usr/src/uts/common/sys/taskq_impl.h
 exclude usr/src/uts/common/sys/telioctl.h
 exclude usr/src/uts/common/sys/tem.h
 exclude usr/src/uts/common/sys/tem_impl.h
 exclude usr/src/uts/common/sys/termio.h
 exclude usr/src/uts/common/sys/termios.h
 exclude usr/src/uts/common/sys/termiox.h
-exclude usr/src/uts/common/sys/thread.h
 exclude usr/src/uts/common/sys/ticlts.h
 exclude usr/src/uts/common/sys/ticots.h
 exclude usr/src/uts/common/sys/ticotsord.h
@@ -663,11 +625,7 @@ exclude usr/src/uts/common/sys/ttychars.h
 exclude usr/src/uts/common/sys/ttydev.h
 exclude usr/src/uts/common/sys/tuneable.h
 exclude usr/src/uts/common/sys/turnstile.h
-exclude usr/src/uts/common/sys/types.h
-exclude usr/src/uts/common/sys/types32.h
 exclude usr/src/uts/common/sys/tzfile.h
-exclude usr/src/uts/common/sys/u8_textprep.h
-exclude usr/src/uts/common/sys/u8_textprep_data.h
 exclude usr/src/uts/common/sys/uadmin.h
 exclude usr/src/uts/common/sys/ucode.h
 exclude usr/src/uts/common/sys/ucred.h
@@ -679,15 +637,12 @@ exclude usr/src/uts/common/sys/unix_bb_info.h
 exclude usr/src/uts/common/sys/user.h
 exclude usr/src/uts/common/sys/ustat.h
 exclude usr/src/uts/common/sys/utime.h
-exclude usr/src/uts/common/sys/utsname.h
 exclude usr/src/uts/common/sys/utssys.h
 exclude usr/src/uts/common/sys/uuid.h
 exclude usr/src/uts/common/sys/va-sparc.h
 exclude usr/src/uts/common/sys/va_impl.h
-exclude usr/src/uts/common/sys/va_list.h
 exclude usr/src/uts/common/sys/var.h
 exclude usr/src/uts/common/sys/varargs.h
-exclude usr/src/uts/common/sys/vfs.h
 exclude usr/src/uts/common/sys/vfs_opreg.h
 exclude usr/src/uts/common/sys/vfstab.h
 exclude usr/src/uts/common/sys/vgareg.h
@@ -697,10 +652,8 @@ exclude usr/src/uts/common/sys/visual_io.h
 exclude usr/src/uts/common/sys/vlan.h
 exclude usr/src/uts/common/sys/vm.h
 exclude usr/src/uts/common/sys/vm_usage.h
-exclude usr/src/uts/common/sys/vmem.h
 exclude usr/src/uts/common/sys/vmem_impl.h
 exclude usr/src/uts/common/sys/vmmeter.h
-exclude usr/src/uts/common/sys/vmsystm.h
 exclude usr/src/uts/common/sys/vnic.h
 exclude usr/src/uts/common/sys/vnic_impl.h
 exclude usr/src/uts/common/sys/vnode.h
@@ -725,5 +678,3 @@ exclude usr/src/uts/common/sys/xti_inet.h
 exclude usr/src/uts/common/sys/xti_osi.h
 exclude usr/src/uts/common/sys/xti_xtiopt.h
 exclude usr/src/uts/common/sys/zcons.h
-exclude usr/src/uts/common/sys/zmod.h
-exclude usr/src/uts/common/sys/zone.h
