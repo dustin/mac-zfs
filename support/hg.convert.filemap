@@ -252,12 +252,6 @@ exclude usr/src/uts/common/sys/flock.h
 exclude usr/src/uts/common/sys/flock_impl.h
 exclude usr/src/uts/common/sys/font.h
 exclude usr/src/uts/common/sys/fork.h
-id.h
-s.h
-snap.h
-snap_if.h
-spriocntl.h
-typ.h
 exclude usr/src/uts/common/sys/ftrace.h
 exclude usr/src/uts/common/sys/fx.h
 exclude usr/src/uts/common/sys/fxpriocntl.h
