@@ -28,6 +28,7 @@
 
 #pragma ident	"%Z%%M%	%I%	%E% SMI"
 
+#include <alloca.h>
 #include <assert.h>
 #include <ctype.h>
 #include <errno.h>
@@ -1363,13 +1364,13 @@ zpool_iter_zvol(zpool_handle_t *zhp, int (*cb)(const char *, void *),
 	if ((base = open("/dev/zvol/dsk", O_RDONLY)) < 0)
 		return (errno == ENOENT ? 0 : -1);
 
-#if 0
+#ifndef __APPLE__ 
 	if (fstatat(base, zhp->zpool_name, &st, 0) != 0) {
 		int err = errno;
 		(void) close(base);
 		return (err == ENOENT ? 0 : -1);
 	}
-#endif
+#endif /* !__APPLE__ */
 	/*
 	 * Oddly this wasn't a directory -- ignore that failure since we
 	 * know there are no links lower in the (non-existant) hierarchy.
@@ -1387,7 +1388,7 @@ zpool_iter_zvol(zpool_handle_t *zhp, int (*cb)(const char *, void *),
 	(void) strlcpy(paths[0], zhp->zpool_name, sizeof (paths[0]));
 	curr = 0;
 
-#if 0
+#ifndef __APPLE__ 
 	while (curr >= 0) {
 		if (fstatat(base, paths[curr], &st, AT_SYMLINK_NOFOLLOW) != 0)
 			goto err;
@@ -1436,7 +1437,7 @@ zpool_iter_zvol(zpool_handle_t *zhp, int (*cb)(const char *, void *),
 
 		curr--;
 	}
-#endif
+#endif /* !__APPLE__ */
 
 	free(paths);
 	(void) close(base);
@@ -2189,7 +2190,8 @@ zpool_label_disk(libzfs_handle_t *hdl, zpool_handle_t *zhp, char *name)
 	efi_free(vtoc);
 	return (0);
 }
-#endif
+#endif /* !__APPLE__ */
+
 int
 zpool_set_prop(zpool_handle_t *zhp, const char *propname, const char *propval)
 {

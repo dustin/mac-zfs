@@ -30,14 +30,16 @@
 #ifndef	_LIBUUTIL_COMMON_H
 #define	_LIBUUTIL_COMMON_H
 
-#pragma ident	"@(#)libuutil_common.h	1.3	06/01/04 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 /*
  * We don't bind to the internal libc interfaces if this is a
  * native build.
  */
 #ifndef NATIVE_BUILD
-//#include "c_synonyms.h"
+#ifndef __APPLE__
+#include "c_synonyms.h"
+#endif
 #endif
 
 #include <libuutil.h>

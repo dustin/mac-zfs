@@ -549,12 +549,11 @@ libzfs_print_on_error(libzfs_handle_t *hdl, boolean_t printerr)
  */
 const char *kextpaths[] = {
 	"/System/Library/Extensions/zfs.kext",		/* Preferred (if available) */
-	"/AppleInternal/zfs/zfs.kext",			/* Apple Internal */
-	"/System/Library/Extensions/zfs.readonly.kext"	/* Mac OS X 10.5 Default */
+	"/Library/Extensions/zfs.kext",			/* Preferred (if available) */
 };
 
 int kextvers[] = {
-	0, 0, 0
+	0, 0
 };
 
 static void
@@ -628,26 +627,6 @@ load_zfs_kext(const char *kextpath)
 	}
 }
 
-int zfs_readonly_kext;
-
-static int
-is_readonly_kext(int typenum)
-{
-	size_t buflen;
-	int name[3];
-	int rdonly = 0;
-
-	name[0] = CTL_VFS;
-	name[1] = typenum;
-	name[2] = ZFS_SYSCTL_READONLY;
-	buflen = sizeof (rdonly);
-
-	if (sysctl(name, 3, &rdonly, &buflen, (void *)0, (size_t)0) == 0 && rdonly)
-		return (1);
-
-	return (0);
-}
-
 #endif
 
 
@@ -668,28 +647,16 @@ libzfs_init(void)
 		/* Find all possible zfs kext versions. */
 		getkextvers(kextpaths[0], &kextvers[0]);
 		getkextvers(kextpaths[1], &kextvers[1]);
-		getkextvers(kextpaths[2], &kextvers[2]);
 
 		/* Pick the newest one. */
-		for (i = 0; i < 3; ++i) {
+		for (i = 0; i < 2; ++i) {
 			if (kextvers[i] > kextvers[pick])
 				pick = i;
 		}
 
 		loaded = load_zfs_kext(kextpaths[pick]);
-		zfs_readonly_kext = (pick == 2);
 
-		/* Make sure user knows they have loaded the readonly kext */
-		if(zfs_readonly_kext && (loaded != -1))
-		    (void) fprintf(stderr, gettext("ZFS Readonly implemntation "
-				"is loaded!\nTo download the full ZFS "
-				"read/write kext with all functionality "
-				"enabled, please go to "
-				"http://developer.apple.com\n"));
-
-	} else {
-		zfs_readonly_kext = is_readonly_kext(vfc.vfc_typenum);
-	}
+	} 
 	/* Attempt to create "/etc/zfs" its not already there. */
 	if (getuid() == 0 && stat("/etc/zfs", &sb)!= 0 &&  errno == ENOENT)
 	{
@@ -718,7 +685,6 @@ libzfs_init(void)
 
 	zfs_prop_init();
 
-	/* Make sure the user knows they have loaded the Read Only kext */
 	return (hdl);
 }
 
@@ -761,7 +727,6 @@ zfs_handle_t *
 zfs_path_to_zhandle(libzfs_handle_t *hdl, char *path, zfs_type_t argtype)
 {
 #if _DARWIN_FEATURE_64_BIT_INODE
-	
 	struct stat statbuf;
 #else
 	struct stat64 statbuf;
@@ -838,7 +803,7 @@ zcmd_alloc_dst_nvlist(libzfs_handle_t *hdl, zfs_cmd_t *zc, size_t len)
 		len = 2048;
 	zc->zc_nvlist_dst_size = len;
 	if ((zc->zc_nvlist_dst = (uint64_t)(uintptr_t)
-	    zfs_alloc(hdl, zc->zc_nvlist_dst_size)) == 0)
+	    zfs_alloc(hdl, zc->zc_nvlist_dst_size)) == NULL)
 		return (-1);
 
 	return (0);
@@ -854,7 +819,8 @@ zcmd_expand_dst_nvlist(libzfs_handle_t *hdl, zfs_cmd_t *zc)
 {
 	free((void *)(uintptr_t)zc->zc_nvlist_dst);
 	if ((zc->zc_nvlist_dst = (uint64_t)(uintptr_t)
-	    zfs_alloc(hdl, zc->zc_nvlist_dst_size)) == 0)
+	    zfs_alloc(hdl, zc->zc_nvlist_dst_size))
+	    == NULL)
 		return (-1);
 
 	return (0);
@@ -1080,7 +1046,6 @@ libzfs_print_one_property(const char *name, libzfs_get_cbdata_t *cbp,
 
 	(void) printf("\n");
 }
-
 
 #ifdef __APPLE__
 

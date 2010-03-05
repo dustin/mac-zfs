@@ -19,13 +19,13 @@
  * CDDL HEADER END
  */
 /*
- * Copyright 2005 Sun Microsystems, Inc.  All rights reserved.
+ * Copyright 2006 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
  * Portions Copyright 2007 Apple Inc. All rights reserved.
  * Use is subject to license terms.
  */
 
-#pragma ident	"@(#)uu_avl.c	1.4	05/08/23 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 #include "libuutil_common.h"
 

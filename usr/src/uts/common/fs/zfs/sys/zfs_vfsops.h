@@ -61,7 +61,6 @@ struct zfsvfs {
 	krwlock_t	z_unmount_inactive_lock;
 	list_t		z_all_znodes;	/* all vnodes in the fs */
 	kmutex_t	z_znodes_lock;	/* lock for z_all_znodes */
-
 #ifdef __APPLE__
 	struct vnode	*z_ctldir;		/* .zfs directory pointer */
 	time_t		z_mount_time;		/* mount timestamp (for Spotlight) */	

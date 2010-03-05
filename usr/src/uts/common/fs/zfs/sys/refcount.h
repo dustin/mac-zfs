@@ -30,10 +30,14 @@
 
 #pragma ident	"%Z%%M%	%I%	%E% SMI"
 
+#ifdef __APPLE__
 #ifdef _KERNEL
-
-#include <sys/zfs_context.h>
 #include <kern/locks.h>
+#endif /* _KERNEL */
+#include <sys/inttypes.h>
+#include <sys/list.h>
+#endif /* __APPLE__ */
+#include <sys/zfs_context.h>
 
 #ifdef	__cplusplus
 extern "C" {
@@ -46,7 +50,7 @@ extern "C" {
  */
 #define	FTAG ((char *)__func__)
 
-#ifdef __APPLE__ 
+#if defined(__APPLE__) || defined(DEBUG) || !defined(_KERNEL)
 /*
  * In Mac OS X we use a mutex to protect access to rc_count.
  * This is due to two things:
@@ -89,8 +93,7 @@ int64_t refcount_remove_many(refcount_t *rc, uint64_t number, void *holder_tag);
 void refcount_init(void);
 void refcount_fini(void);
 
-
-#else	/* APPLE */
+#else /* __APPLE__ || DEBUG || !_KERNEL */
 
 typedef struct refcount {
 	uint64_t rc_count;
@@ -111,12 +114,10 @@ typedef struct refcount {
 #define	refcount_init()
 #define	refcount_fini()
 
-#endif /* APPLE */
+#endif /* __APPLE__ || DEBUG || !_KERNEL */
 
 #ifdef	__cplusplus
 }
 #endif
-
-#endif /* _KERNEL */
 
 #endif /* _SYS_REFCOUNT_H */

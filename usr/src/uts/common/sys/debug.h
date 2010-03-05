@@ -2,9 +2,8 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License, Version 1.0 only
- * (the "License").  You may not use this file except in compliance
- * with the License.
+ * Common Development and Distribution License (the "License").
+ * You may not use this file except in compliance with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
  * or http://www.opensolaris.org/os/licensing.
@@ -20,31 +19,104 @@
  * CDDL HEADER END
  */
 /*
- * Copyright 1993-2001, 2003 Sun Microsystems, Inc.  All rights reserved.
- * Use is subject to license terms.
- * Portions Copyright 2007 Apple Inc. All rights reserved.
+ * Copyright 2010 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
  */
+
+/*	Copyright (c) 1984, 1986, 1987, 1988, 1989 AT&T	*/
+/*	  All Rights Reserved	*/
 
 #ifndef _SYS_DEBUG_H
 #define	_SYS_DEBUG_H
 
-#define VERIFY(expr)                                           \
-	do {                                                       \
-		if (!(expr))                                           \
-			panic("[ZFS]: assertion failed in %s line %d: %s", \
-				__FILE__, __LINE__, # expr);                   \
-	} while (0)
+#ifndef __APPLE__
+#include <sys/isa_defs.h>
+#include <sys/types.h>
+#include <sys/note.h>
+#endif /* !__APPLE__ */
 
-#define	VERIFY3_IMPL(LEFT, OP, RIGHT, TYPE)                                                       \
-	do {                                                                                          \
-	const TYPE __left = (TYPE)(LEFT);                                                             \
-	const TYPE __right = (TYPE)(RIGHT);                                                           \
-	if (!(__left OP __right))                                                                     \
-		panic("%s failed, %d %s %d", #LEFT " " #OP " " #RIGHT, (int)__left, #OP, (int)__right);  \
-	} while (0)
+#ifdef __APPLE__
+#define _NOTE(X)
+#endif
 
-#if 1
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+/*
+ * ASSERT(ex) causes a panic or debugger entry if expression ex is not
+ * true.  ASSERT() is included only for debugging, and is a no-op in
+ * production kernels.  VERIFY(ex), on the other hand, behaves like
+ * ASSERT and is evaluated on both debug and non-debug kernels.
+ */
+
+#if defined(__STDC__)
+#define	VERIFY(EX) do { if (!(EX)) assfail(#EX, __FILE__, __LINE__); } while (0)
+#if DEBUG
+#define	ASSERT(EX) VERIFY(EX)
+#else
+#define	ASSERT(x)  ((void)0)
+#endif
+#else	/* defined(__STDC__) */
+#define	VERIFY(EX) do { if (!(EX)) assfail("EX", __FILE__, __LINE__); } while (0)
+#if DEBUG
+#define	ASSERT(EX) VERIFY(EX)
+#else
+#define	ASSERT(x)  ((void)0)
+#endif
+#endif	/* defined(__STDC__) */
+
+/*
+ * Assertion variants sensitive to the compilation data model
+ */
+#if defined(_LP64)
+#define	ASSERT64(x)	ASSERT(x)
+#define	ASSERT32(x)
+#else
+#define	ASSERT64(x)
+#define	ASSERT32(x)	ASSERT(x)
+#endif
+
+/*
+ * IMPLY and EQUIV are assertions of the form:
+ *
+ *	if (a) then (b)
+ * and
+ *	if (a) then (b) *AND* if (b) then (a)
+ */
+#if DEBUG
+#define	IMPLY(A, B) \
+	((void)(((!(A)) || (B)) || \
+	    assfail("(" #A ") implies (" #B ")", __FILE__, __LINE__)))
+#define	EQUIV(A, B) \
+	((void)((!!(A) == !!(B)) || \
+	    assfail("(" #A ") is equivalent to (" #B ")", __FILE__, __LINE__)))
+#else
+#define	IMPLY(A, B) ((void)0)
+#define	EQUIV(A, B) ((void)0)
+#endif
+
+/*
+ * ASSERT3() behaves like ASSERT() except that it is an explicit conditional,
+ * and prints out the values of the left and right hand expressions as part of
+ * the panic message to ease debugging.  The three variants imply the type
+ * of their arguments.  ASSERT3S() is for signed data types, ASSERT3U() is
+ * for unsigned, and ASSERT3P() is for pointers.  The VERIFY3*() macros
+ * have the same relationship as above.
+ */
+#define	VERIFY3_IMPL(LEFT, OP, RIGHT, TYPE) do { \
+	const TYPE __left = (TYPE)(LEFT); \
+	const TYPE __right = (TYPE)(RIGHT); \
+	if (!(__left OP __right)) \
+		assfail3(#LEFT " " #OP " " #RIGHT, \
+			(uintmax_t)__left, #OP, (uintmax_t)__right, \
+			__FILE__, __LINE__); \
+_NOTE(CONSTCOND) } while (0)
+
+#define	VERIFY3S(x, y, z)	VERIFY3_IMPL(x, y, z, int64_t)
+#define	VERIFY3U(x, y, z)	VERIFY3_IMPL(x, y, z, uint64_t)
+#define	VERIFY3P(x, y, z)	VERIFY3_IMPL(x, y, z, uintptr_t)
+#if DEBUG
 #define	ASSERT3S(x, y, z)	VERIFY3_IMPL(x, y, z, int64_t)
 #define	ASSERT3U(x, y, z)	VERIFY3_IMPL(x, y, z, uint64_t)
 #define	ASSERT3P(x, y, z)	VERIFY3_IMPL(x, y, z, uintptr_t)
@@ -54,16 +126,25 @@
 #define	ASSERT3P(x, y, z)	((void)0)
 #endif
 
+#ifndef __APPLE__
+#ifdef	_KERNEL
 
-#if 1
-#define ASSERT(expr)	VERIFY(expr) 
+extern void abort_sequence_enter(char *);
+extern void debug_enter(char *);
+
+#endif	/* _KERNEL */
+#endif  /* !__APPLE__ */
+
+#if defined(DEBUG) && !defined(__sun)
+/* CSTYLED */
+#define	STATIC
 #else
-#define ASSERT(expr)	((void)0)
+/* CSTYLED */
+#define	STATIC static
 #endif
 
-#define _NOTE(x)
-
-#define	VERIFY3U(x, y, z)   VERIFY3_IMPL(x, y, z, uint64_t)
-
+#ifdef	__cplusplus
+}
+#endif
 
 #endif	/* _SYS_DEBUG_H */

@@ -27,7 +27,7 @@
 #ifndef	_LIBUUTIL_IMPL_H
 #define	_LIBUUTIL_IMPL_H
 
-#pragma ident	"@(#)libuutil_impl.h	1.3	05/08/23 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 #include <libuutil.h>
 #include <pthread.h>

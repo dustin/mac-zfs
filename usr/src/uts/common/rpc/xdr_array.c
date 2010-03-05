@@ -36,7 +36,7 @@
  * Use is subject to license terms.
  */
  
-#pragma ident	"@(#)xdr_array.c	1.16	05/06/08 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 /*
  * xdr_array.c, Generic XDR routines impelmentation.

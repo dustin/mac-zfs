@@ -31,7 +31,7 @@
 #ifndef	_LIBINTL_H
 #define	_LIBINTL_H
 
-#pragma ident	"@(#)libintl.h	1.19	05/08/18 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 //#include <sys/isa_defs.h>
 

@@ -45,7 +45,7 @@
 #ifndef __APPLE__
 #include <zone.h>
 #include <sys/mkdev.h>
-#endif
+#endif /* !__APPLE__ */
 #include <sys/mntent.h>
 #include <sys/mnttab.h>
 #include <sys/mount.h>
@@ -60,7 +60,7 @@
 
 #ifdef __APPLE__
 #define MS_FORCE MNT_FORCE
-#endif
+#endif /* __APPLE__ */
 
 libzfs_handle_t *g_zfs;
 
@@ -176,42 +176,6 @@ static zfs_command_t command_table[] = {
 };
 
 #define	NCOMMAND	(sizeof (command_table) / sizeof (command_table[0]))
-
-#ifdef __APPLE__
-/*
- * The read-only zfs kext has limited zfs command functionality
- */
-static int zfs_read_only_command[] = {
-	0,	/* create */
-	0,	/* destroy */
-	0,	/* NULL */
-	0,	/* snapshot */
-	0,	/* rollback */
-	0,	/* clone */
-	0,	/* promote */
-	0,	/* rename */
-	0,	/* NULL */
-	1,	/* list */
-	1,	/* NULL */
-	0,	/* set */
-	1,	/* get */
-	0,	/* inherit */
-	1,	/* NULL */
-	1,	/* mount */
-	1,	/* NULL */
-	1,	/* unmount */
-	1,	/* NULL */
-	0,	/* share */
-	0,	/* NULL */
-	0,	/* unshare */
-	0,	/* NULL */
-	1,	/* send */
-	0	/* receive */
-};
-
-extern int zfs_readonly_kext;
-
-#endif /* __APPLE__ */
 
 zfs_command_t *current_command;
 
@@ -367,10 +331,6 @@ usage(boolean_t requested)
 		    gettext("where 'command' is one of the following:\n\n"));
 
 		for (i = 0; i < NCOMMAND; i++) {
-#ifdef __APPLE__
-			if (zfs_readonly_kext && !zfs_read_only_command[i])
-				continue;
-#endif
 			if (command_table[i].name == NULL)
 				(void) fprintf(fp, "\n");
 			else
@@ -2914,7 +2874,7 @@ share_mount_one(zfs_handle_t *zhp, int op, int flags, boolean_t explicit,
 			    zfs_get_name(zhp));
 			return (1);
 		}
-#endif
+#endif /* !__APPLE__ */
 		/*
 		 * Ignore any filesystems which don't apply to us. This
 		 * includes those with a legacy mountpoint, or those with
@@ -3126,7 +3086,7 @@ share_mount(int op, int argc, char **argv)
 		case 'O':
 #ifndef __APPLE__
 			flags |= MS_OVERLAY;
-#endif
+#endif /* !__APPLE__ */
 			break;
 		case ':':
 			(void) fprintf(stderr, gettext("missing argument for "
@@ -3235,7 +3195,7 @@ share_mount(int op, int argc, char **argv)
 			    entry.mnt_mountp);
 		}
 
-#endif
+#endif /* __APPLE__ */
 	} else {
 		zfs_handle_t *zhp;
 
@@ -3379,7 +3339,7 @@ unshare_unmount_path(int op, char *path, int flags, boolean_t is_manual)
 	if ((zhp = zfs_open(g_zfs, entry.mnt_special,
 	    ZFS_TYPE_FILESYSTEM)) == NULL)
 		return (1);
-#endif
+#endif /* __APPLE__ */
 
 	verify(zfs_prop_get(zhp, op == OP_SHARE ?
 	    ZFS_PROP_SHARENFS : ZFS_PROP_MOUNTPOINT, property,
@@ -3471,7 +3431,7 @@ unshare_unmount(int op, int argc, char **argv)
 		int nitems;
 #else
 		struct mnttab entry;
-#endif
+#endif /* __APPLE__ */
 		uu_avl_pool_t *pool;
 		uu_avl_t *tree;
 		unshare_unmount_node_t *node;
@@ -3507,7 +3467,7 @@ unshare_unmount(int op, int argc, char **argv)
 #else
 		rewind(mnttab_file);
 		while (getmntent(mnttab_file, &entry) == 0) {
-#endif
+#endif /* __APPLE__ */
 
 			/* ignore non-ZFS entries */
 			if (strcmp(sfsp->f_fstypename, MNTTYPE_ZFS) != 0) {
@@ -3773,12 +3733,12 @@ manual_mount(int argc, char **argv)
 		case 'O':
 #ifndef __APPLE__
 			flags |= MS_OVERLAY;
-#endif
+#endif /* !__APPLE__ */
 			break;
 		case 'm':
 #ifndef __APPLE__
 			flags |= MS_NOMNTTAB;
-#endif
+#endif /* !__APPLE__ */
 			break;
 		case ':':
 			(void) fprintf(stderr, gettext("missing argument for "
@@ -3831,7 +3791,7 @@ manual_mount(int argc, char **argv)
 #else
 		if (mount(dataset, path, MS_OPTIONSTR | flags, MNTTYPE_ZFS,
 		    NULL, 0, mntopts, sizeof (mntopts)) != 0) {
-#endif
+#endif /* __APPLE__ */
 			(void) fprintf(stderr, gettext("mount failed: %s\n"),
 			    strerror(errno));
 			ret = 1;
@@ -3982,10 +3942,6 @@ main(int argc, char **argv)
 		 * Make sure the user has specified some command.
 		 */
 		if (argc < 2) {
-#ifdef __APPLE__
-			if (zfs_readonly_kext)
-				(void) fprintf(stderr, "Read-Only ZFS Implementation\n");
-#endif
 			(void) fprintf(stderr, gettext("missing command\n"));
 			usage(B_FALSE);
 		}

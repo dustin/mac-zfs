@@ -28,6 +28,8 @@
 #ifndef _SYS_ATOMIC_H
 #define	_SYS_ATOMIC_H
 
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
+
 #ifdef _KERNEL
 #include <libkern/OSAtomic.h>
 
@@ -86,7 +88,7 @@ extern SInt64 OSAddAtomic64_NV(SInt64 theAmount, volatile SInt64 *address);
 #define atomic_and_32(addr, mask)	(void)OSBitAndAtomic((UInt32)mask, (volatile UInt32 *)addr)
 
 /*
- * If *arg1 == arg2, set *arg1 = arg3; return old value
+ * *arg1 == arg2, set *arg1 = arg3; return old value
  */
 extern uint8_t atomic_cas_8(volatile uint8_t *, uint8_t, uint8_t);
 extern uint16_t atomic_cas_16(volatile uint16_t *, uint16_t, uint16_t);

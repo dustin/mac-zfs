@@ -265,7 +265,7 @@ zfs_dirent_lock(zfs_dirlock_t **dlpp, znode_t *dzp, char *name, znode_t **zpp,
 		}
 #else
 		vp = dnlc_lookup(ZTOV(dzp), name);
-#endif
+#endif /* __APPLE__ */
 		if (vp == DNLC_NO_VNODE) {
 			VN_RELE(vp);
 			error = ENOENT;
@@ -296,7 +296,7 @@ zfs_dirent_lock(zfs_dirlock_t **dlpp, znode_t *dzp, char *name, znode_t **zpp,
 				}
 #else
 				dnlc_update(ZTOV(dzp), name, DNLC_NO_VNODE);
-#endif
+#endif /* __APPLE__ */
 		}
 	}
 	if (error) {
@@ -320,7 +320,7 @@ zfs_dirent_lock(zfs_dirlock_t **dlpp, znode_t *dzp, char *name, znode_t **zpp,
 				cache_enter(ZTOV(dzp), ZTOV(*zpp), cnp);
 #else
 			dnlc_update(ZTOV(dzp), name, ZTOV(*zpp));
-#endif
+#endif /* __APPLE__ */
 	}
 
 	*dlpp = dl;
@@ -551,11 +551,13 @@ zfs_purgedir(znode_t *dzp)
 
 		ASSERT(S_ISREG(xzp->z_phys->zp_mode) || S_ISLNK(xzp->z_phys->zp_mode));
 #else
-		error = zfs_zget(zfsvfs, ZFS_DIRENT_OBJ(zap.za_first_integer), &xzp);
+		error = zfs_zget(zfsvfs,
+		    ZFS_DIRENT_OBJ(zap.za_first_integer), &xzp);
 		ASSERT3U(error, ==, 0);
 
-		ASSERT((ZTOV(xzp)->v_type == VREG) || (ZTOV(xzp)->v_type == VLNK));
-#endif
+		ASSERT((ZTOV(xzp)->v_type == VREG) ||
+		    (ZTOV(xzp)->v_type == VLNK));
+#endif /* __APPLE__ */
 		tx = dmu_tx_create(zfsvfs->z_os);
 		dmu_tx_hold_bonus(tx, dzp->z_id);
 		dmu_tx_hold_zap(tx, dzp->z_id, FALSE, zap.za_name);
@@ -565,17 +567,14 @@ zfs_purgedir(znode_t *dzp)
 		if (error) {
 			dmu_tx_abort(tx);
 #ifdef __APPLE__
-			ZFS_OBJ_HOLD_ENTER(zfsvfs, xzp->z_id);
 			if (ZTOV(xzp) == NULL) {
-				/* zfs_zreclaim always exists the obj_hold lock we are holding */
-				zfs_zreclaim(xzp, FALSE/*get_zhold_lock*/);
+				zfs_zinactive(xzp);
 			} else {
-				ZFS_OBJ_HOLD_EXIT(zfsvfs, xzp->z_id);
 				VN_RELE(ZTOV(xzp));
 			}
 #else
 			VN_RELE(ZTOV(xzp));
-#endif
+#endif /* __APPLE__ */
 			skipped += 1;
 			continue;
 		}
@@ -588,17 +587,14 @@ zfs_purgedir(znode_t *dzp)
 		dmu_tx_commit(tx);
 
 #ifdef __APPLE__
-		ZFS_OBJ_HOLD_ENTER(zfsvfs, xzp->z_id);
 		if (ZTOV(xzp) == NULL) {
-			/* zfs_zreclaim always exists the obj_hold lock we are holding */
-			zfs_zreclaim(xzp, FALSE/*get_zhold_lock*/);
+			zfs_zinactive(xzp);
 		} else {
-			ZFS_OBJ_HOLD_EXIT(zfsvfs, xzp->z_id);
 			VN_RELE(ZTOV(xzp));
 		}
 #else
 		VN_RELE(ZTOV(xzp));
-#endif
+#endif /* __APPLE__ */
 	}
 	zap_cursor_fini(&zc);
 	ASSERT(error == ENOENT);
@@ -629,10 +625,11 @@ zfs_rmnode(znode_t *zp)
 	 * If this is an attribute directory, purge its contents.
 	 */
 #ifdef __APPLE__
-	if (S_ISDIR(zp->z_phys->zp_mode) && (zp->z_phys->zp_flags & ZFS_XATTR)) {
+	if (S_ISDIR(zp->z_phys->zp_mode) && (zp->z_phys->zp_flags & ZFS_XATTR)) 
 #else
-	if (ZTOV(zp)->v_type == VDIR && (zp->z_phys->zp_flags & ZFS_XATTR)) {
+	if (ZTOV(zp)->v_type == VDIR && (zp->z_phys->zp_flags & ZFS_XATTR)) 
 #endif
+	{
 		if (zfs_purgedir(zp) != 0) {
 			/*
 			 * Not enough space to delete some xattrs.
@@ -672,14 +669,16 @@ zfs_rmnode(znode_t *zp)
 		 * unlinked set, leaking it until the fs is remounted (at
 		 * which point we'll call zfs_unlinked_drain() to process it).
 		 */
+		dmu_tx_abort(tx);
+#ifdef __APPLE__
 		/*XXX NOEL: double check this path logic. see radar 5182217.
 		 * This may be disturbing some of the evict logic
 		 * and hence causing the NULL ptr drefs seen every great while 
 		 * in some of the test cases*/
-		dmu_tx_abort(tx);
 		zp->z_dbuf_held = 0;
 		ZFS_OBJ_HOLD_EXIT(zfsvfs, zp->z_id);
 		dmu_buf_rele(zp->z_dbuf, NULL);
+#endif /* __APPLE__ */
 		return;
 	}
 
@@ -802,13 +801,19 @@ zfs_link_destroy(zfs_dirlock_t *dl, znode_t *zp, dmu_tx_t *tx, int flag,
 	if (!(flag & ZRENAMING)) {
 		dmu_buf_will_dirty(zp->z_dbuf, tx);
 
-		if (vp && vn_vfswlock(vp))	/* prevent new mounts on zp */
+#ifdef __APPLE__
+		if (vp) {	
+#endif /* __APPLE__ */
+		if (vn_vfswlock(vp))		/* prevent new mounts on zp */
 			return (EBUSY);
 
-		if (vp && vn_ismntpt(vp)) {	/* don't remove mount point */
+		if (vn_ismntpt(vp)) {		/* don't remove mount point */
 			vn_vfsunlock(vp);
 			return (EBUSY);
 		}
+#ifdef __APPLE__
+		} /* if (vp) */
+#endif /* __APPLE__ */
 
 		mutex_enter(&zp->z_lock);
 		if (zp_is_dir && !zfs_dirempty(zp)) {	/* dir not empty */
@@ -970,10 +975,11 @@ top:
 	}
 
 #ifdef __APPLE__
-	if (vfs_isrdonly(zfsvfs->z_vfs)) {
+	if (vfs_isrdonly(zfsvfs->z_vfs)) 
 #else
-	if (zfsvfs->z_vfs->vfs_flag & VFS_RDONLY) {
+	if (zfsvfs->z_vfs->vfs_flag & VFS_RDONLY) 
 #endif
+	{
 		zfs_dirent_unlock(dl);
 		return (EROFS);
 	}
@@ -1029,12 +1035,14 @@ zfs_sticky_remove_access(znode_t *zdp, znode_t *zp, cred_t *cr)
 	if ((zdp->z_phys->zp_mode & S_ISVTX) == 0 ||
 	    (uid = crgetuid(cr)) == zdp->z_phys->zp_uid ||
 	    uid == zp->z_phys->zp_uid ||
+		(
 #ifdef __APPLE__
-	    (vnode_isreg(ZTOV(zp)) &&
+	    vnode_isreg(ZTOV(zp)) &&
 #else
-	    (ZTOV(zp)->v_type == VREG &&
+	    ZTOV(zp)->v_type == VREG &&
 #endif
-	    zfs_zaccess(zp, ACE_WRITE_DATA, cr) == 0))
+		zfs_zaccess(zp, ACE_WRITE_DATA, cr) == 0)
+	)
 		return (0);
 	else
 		return (secpolicy_vnode_remove(cr));

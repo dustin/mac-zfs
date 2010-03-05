@@ -707,7 +707,6 @@ int
 zpool_read_label(int fd, nvlist_t **config)
 {
 #if _DARWIN_FEATURE_64_BIT_INODE
-	
 	struct stat statbuf;
 #else
 	struct stat64 statbuf;
@@ -793,7 +792,6 @@ zpool_find_import(libzfs_handle_t *hdl, int argc, char **argv)
 	struct dirent64 *dp;
 	char path[MAXPATHLEN];
 #if _DARWIN_FEATURE_64_BIT_INODE
-	
 	struct stat statbuf;
 #else
 	struct stat64 statbuf;

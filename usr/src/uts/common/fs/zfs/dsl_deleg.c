@@ -450,7 +450,6 @@ dsl_check_user_access(objset_t *mos, uint64_t zapobj, const char *perm,
 #else
 	return (0);
 #endif
-	
 }
 
 /*
@@ -524,7 +523,6 @@ dsl_load_user_sets(objset_t *mos, uint64_t zapobj, avl_tree_t *avl,
 		    ZFS_DELEG_GROUP_SETS, checkflag, &id, avl);
 	}
 #endif
-
 }
 
 /*

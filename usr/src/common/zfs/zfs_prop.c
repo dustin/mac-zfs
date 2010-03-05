@@ -314,6 +314,7 @@ zfs_prop_init(void)
 	    ZFS_TYPE_POOL, "<filesystem>", "BOOTFS");
 	register_string(ZFS_PROP_MOUNTPOINT, "mountpoint", "/", PROP_INHERIT,
 	    ZFS_TYPE_FILESYSTEM, "<path> | legacy | none", "MOUNTPOINT");
+
 	/* Mac OSX doesn't support sharenfs and shareiscsi */
 	register_string(ZFS_PROP_SHARENFS, "sharenfs", "off", PROP_INHERIT,
 	    ZFS_TYPE_FILESYSTEM, "off", "SHARENFS");

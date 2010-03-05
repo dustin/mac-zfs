@@ -26,17 +26,21 @@
  * Use is subject to license terms.
  */
  
-#pragma ident	"@(#)devid.c	1.6	05/06/08 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 #include <sys/types.h>
-//#include <sys/stropts.h>
+#ifndef __APPLE__
+#include <sys/stropts.h>
+#endif
 #include <sys/debug.h>
-//#include <sys/isa_defs.h>
-//#include <sys/dditypes.h>
-//#include <sys/ddi_impldefs.h>
+#ifndef __APPLE__
+#include <sys/isa_defs.h>
+#include <sys/dditypes.h>
+#include <sys/ddi_impldefs.h>
+#endif
 #include "devid_impl.h"
 
-
+#ifdef __APPLE__
 /*
  * Device id types
  */
@@ -73,6 +77,7 @@ typedef struct impl_devid {
 	char	did_id[1];			/* start of device id data */
 } impl_devid_t;
 
+#endif
 
 static int devid_str_decode_id(char *devidstr, ddi_devid_t *devidp,
     char **minor_namep, impl_devid_t *id);
@@ -82,9 +87,17 @@ static int devid_str_decode_id(char *devidstr, ddi_devid_t *devidp,
  * Validate device id.
  */
 int
+#ifdef __APPLE__
 devid_valid(ddi_devid_t devid)
+#else
+#ifdef	_KERNEL
+ddi_devid_valid(ddi_devid_t devid)
+#else	/* !_KERNEL */
+devid_valid(ddi_devid_t devid)
+#endif	/* _KERNEL */
+#endif  /* __APPLE__ */
 {
-#if 0
+#ifndef __APPLE__
 	impl_devid_t	*id = (impl_devid_t *)devid;
 	ushort_t	type;
 
@@ -105,7 +118,7 @@ devid_valid(ddi_devid_t devid)
 	type = DEVID_GETTYPE(id);
 	if ((type == DEVID_NONE) || (type > DEVID_MAXTYPE))
 		return (DEVID_RET_INVALID);
-#endif
+#endif /* !__APPLE__ */
 	return (DEVID_RET_VALID);
 }
 
@@ -114,9 +127,17 @@ devid_valid(ddi_devid_t devid)
  * the amount of space needed to determine the size.
  */
 size_t
+#ifdef __APPLE__
 devid_sizeof(ddi_devid_t devid)
+#else
+#ifdef	_KERNEL
+ddi_devid_sizeof(ddi_devid_t devid)
+#else	/* !_KERNEL */
+devid_sizeof(ddi_devid_t devid)
+#endif	/* _KERNEL */
+#endif /* __APPLE */
 {
-#if 0
+#ifndef __APPLE__
 	impl_devid_t	*id = (impl_devid_t *)devid;
 
 	if (id == NULL)
@@ -127,10 +148,10 @@ devid_sizeof(ddi_devid_t devid)
 	return (sizeof (*id) + DEVID_GETLEN(id) - sizeof (id->did_id));
 #else
 	return (0);
-#endif
+#endif /* !__APPLE__ */
 }
 
-#if 0
+#ifndef __APPLE__
 /*
  * Compare two device id's.
  *	-1 - less than
@@ -138,7 +159,11 @@ devid_sizeof(ddi_devid_t devid)
  * 	1  - greater than
  */
 int
+#ifdef	_KERNEL
+ddi_devid_compare(ddi_devid_t id1, ddi_devid_t id2)
+#else	/* !_KERNEL */
 devid_compare(ddi_devid_t id1, ddi_devid_t id2)
+#endif	/* _KERNEL */
 {
 	int		rval;
 	impl_devid_t	*i_id1	= (impl_devid_t *)id1;
@@ -199,15 +224,23 @@ devid_compare(ddi_devid_t id1, ddi_devid_t id2)
 
 	return (rval);
 }
-#endif
+#endif /* __APPLE__ */
 
 /*
  * Free a Device Id
  */
 void
+#ifdef __APPLE__
 devid_free(ddi_devid_t devid)
+#else
+#ifdef	_KERNEL
+ddi_devid_free(ddi_devid_t devid)
+#else	/* !_KERNEL */
+devid_free(ddi_devid_t devid)
+#endif	/* _KERNEL */
+#endif /* __APPLE__ */
 {
-#if 0
+#ifndef __APPLE__
 	DEVID_ASSERT(devid != NULL);
 	DEVID_FREE(devid, DEVID_FUNC(devid_sizeof)(devid));
 #endif
@@ -217,9 +250,17 @@ devid_free(ddi_devid_t devid)
  * Encode a device id into a string.  See ddi_impldefs.h for details.
  */
 char *
+#ifdef __APPLE__
 devid_str_encode(ddi_devid_t devid, char *minor_name)
+#else
+#ifdef	_KERNEL
+ddi_devid_str_encode(ddi_devid_t devid, char *minor_name)
+#else	/* !_KERNEL */
+devid_str_encode(ddi_devid_t devid, char *minor_name)
+#endif	/* _KERNEL */
+#endif
 {
-#if 0
+#ifndef __APPLE__
 	impl_devid_t	*id = (impl_devid_t *)devid;
 	size_t		driver_len, devid_len, slen;
 	char		*sbuf, *dsp, *dp, ta;
@@ -316,7 +357,15 @@ devid_str_encode(ddi_devid_t devid, char *minor_name)
 
 /* free the string returned by devid_str_encode */
 void
+#ifdef __APPLE__
 devid_str_free(char *devidstr)
+#else
+#ifdef	_KERNEL
+ddi_devid_str_free(char *devidstr)
+#else	/* !_KERNEL */
+devid_str_free(char *devidstr)
+#endif	/* _KERNEL */
+#endif  /* __APPLE__ */
 {
 	DEVID_FREE(devidstr, strlen(devidstr) + 1);
 }
@@ -332,17 +381,25 @@ devid_str_free(char *devidstr)
  * See ddi_impldefs.h for format details.
  */
 int
+#ifdef __APPLE__
 devid_str_decode(char *devidstr, ddi_devid_t *devidp, char **minor_namep)
+#else
+#ifdef	_KERNEL
+ddi_devid_str_decode(char *devidstr, ddi_devid_t *devidp, char **minor_namep)
+#else	/* !_KERNEL */
+devid_str_decode(char *devidstr, ddi_devid_t *devidp, char **minor_namep)
+#endif	/* _KERNEL */
+#endif  /* __APPLE__ */
 {
 	return (devid_str_decode_id(devidstr, devidp, minor_namep, NULL));
 }
 
-/* implementation for devid_str_decode */
+/* implementation for (ddi_)devid_str_decode */
 static int
 devid_str_decode_id(char *devidstr, ddi_devid_t *devidp,
     char **minor_namep, impl_devid_t *id)
 {
-#if 0
+#ifndef __APPLE__
 	char		*str, *msp, *dsp, *dp, ta;
 	int		slen, devid_len, ascii, i, n, c, pre_alloc = FALSE;
 	unsigned short	id_len, type;		/* for hibyte/lobyte */
@@ -492,11 +549,11 @@ devid_str_decode_id(char *devidstr, ddi_devid_t *devidp,
 efree:
 	if ((pre_alloc == FALSE) && (id))
 		DEVID_FREE(id, devid_len);
-#endif
+#endif /* !__APPLE__ */
 	return (DEVID_FAILURE);
 }
 
-#if 0
+#ifndef __APPLE__
 /*
  * Compare two device id's in string form
  *	-1 - id1 less than id2
@@ -504,14 +561,36 @@ efree:
  * 	1  - id1 greater than id2
  */
 int
+#ifdef __APPLE__
 devid_str_compare(char *id1_str, char *id2_str)
+#else
+#ifdef	_KERNEL
+ddi_devid_str_compare(char *id1_str, char *id2_str)
+#else	/* !_KERNEL */
+devid_str_compare(char *id1_str, char *id2_str)
+#endif	/* _KERNEL */
+#endif  /* __APPLE__ */
 {
 	int		rval	= DEVID_FAILURE;
 	ddi_devid_t	devid1;
 	ddi_devid_t	devid2;
+#ifdef __APPLE__
 	/* userland place on stack, since malloc might fail */
 	uchar_t		id1[sizeof (impl_devid_t) + MAXPATHLEN];
 	uchar_t		id2[sizeof (impl_devid_t) + MAXPATHLEN];
+#else
+#ifdef	_KERNEL
+	/* kernel use static protected by lock. */
+	static kmutex_t	id_lock;
+	static uchar_t	id1[sizeof (impl_devid_t) + MAXPATHLEN];
+	static uchar_t	id2[sizeof (impl_devid_t) + MAXPATHLEN];
+	mutex_enter(&id_lock);
+#else	/* !_KERNEL */
+	/* userland place on stack, since malloc might fail */
+	uchar_t		id1[sizeof (impl_devid_t) + MAXPATHLEN];
+	uchar_t		id2[sizeof (impl_devid_t) + MAXPATHLEN];
+#endif	/* _KERNEL */
+#endif  /* __APPLE__ */
 
 	/*
 	 * encode string form of devid
@@ -523,6 +602,10 @@ devid_str_compare(char *id1_str, char *id2_str)
 		rval = DEVID_FUNC(devid_compare)(devid1, devid2);
 	}
 
+#ifdef	_KERNEL
+	mutex_exit(&id_lock);
+#endif	/* _KERNEL */
+
 	return (rval);
 }
-#endif
+#endif /* !__APPLE__ */

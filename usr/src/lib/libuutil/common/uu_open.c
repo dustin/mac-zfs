@@ -26,7 +26,7 @@
  * Use is subject to license terms.
  */
 
-#pragma ident	"@(#)uu_open.c	1.2	05/06/08 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 #include "libuutil_common.h"
 
@@ -44,8 +44,9 @@
 #define	TMPPATHFMT	"%s/uu%lld"
 #endif /* _LP64 */
 
+#ifdef __APPLE__
 static hrtime_t gethrtime_uu(void);
-
+#endif
 
 /*ARGSUSED*/
 int
@@ -58,7 +59,11 @@ uu_open_tmp(const char *dir, uint_t uflags)
 		return (-1);
 
 	for (;;) {
+#ifdef __APPLE__
 		(void) snprintf(fname, PATH_MAX, "%s/uu%lld", dir, gethrtime_uu());
+#else
+		(void) snprintf(fname, PATH_MAX, "%s/uu%lld", dir, gethrtime());
+#endif /* __APPLE__ */
 
 		f = open(fname, O_CREAT | O_EXCL | O_RDWR, 0600);
 

@@ -38,7 +38,7 @@
 #ifndef _RPC_TYPES_H
 #define	_RPC_TYPES_H
 
-#pragma ident	"@(#)types.h	1.29	05/06/29 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 /*
  * Rpc additions to <sys/types.h>

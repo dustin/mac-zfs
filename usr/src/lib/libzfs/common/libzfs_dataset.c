@@ -47,17 +47,14 @@
 #include <sys/mntent.h>
 #include <sys/mnttab.h>
 #include <sys/mount.h>
-
 #include <sys/avl.h>
 #ifndef __APPLE__
 #include <priv.h>
 #endif
 #include <pwd.h>
 #include <grp.h>
-
 #include <stddef.h>
 #include <sys/ucred.h>
-
 #include <sys/spa.h>
 #include <sys/zio.h>
 #include <sys/zap.h>
@@ -894,7 +891,6 @@ zfs_validate_properties(libzfs_handle_t *hdl, zfs_type_t type, char *pool_name,
 
 			break;
 #endif /* __APPLE__ */
-
 		case ZFS_PROP_MOUNTPOINT:
 		{
 			namecheck_err_t why;
@@ -921,11 +917,13 @@ zfs_validate_properties(libzfs_handle_t *hdl, zfs_type_t type, char *pool_name,
 				(void) zfs_error(hdl, EZFS_BADPROP, errbuf);
 				goto error;
 			}
+#ifdef __APPLE__
 			/* 
 			 * On MacOSX we do not want to fall through to the 
 			 * sharenfs case since we don't support it. 
 			 */
 			break;
+#endif /* __APPLE__ */
 		}
 
 
@@ -1033,7 +1031,7 @@ zfs_validate_properties(libzfs_handle_t *hdl, zfs_type_t type, char *pool_name,
 			}
 
 			break;
-#endif
+#endif /* !__APPLE__ */
 		case ZPOOL_PROP_BOOTFS:
 			/*
 			 * bootfs property value has to be a dataset name and
@@ -2172,6 +2170,10 @@ get_numeric_property(zfs_handle_t *zhp, zfs_prop_t prop, zfs_source_t *src,
 		if (getmntany(mnttab, &entry, &search) == 0) {
 			zhp->zfs_mntopts = zfs_strdup(zhp->zfs_hdl,
 				entry.mnt_mntopts);
+#ifndef __APPLE__
+			if (zhp->zfs_mntopts == NULL)
+				return (-1);
+#endif /* !__APPLE__ */
 		}
 
 		zhp->zfs_mntcheck = B_TRUE;
@@ -2716,7 +2718,6 @@ check_parents(libzfs_handle_t *hdl, const char *path, uint64_t *zoned,
 	}
 
 	*zoned = zfs_prop_get_int(zhp, ZFS_PROP_ZONED);
-
 #ifndef	__APPLE__
 	/* we are in a non-global zone, but parent is in the global zone */
 	if (getzoneid() != GLOBAL_ZONEID && !(*zoned)) {
@@ -4265,7 +4266,6 @@ zvol_create_link_common(libzfs_handle_t *hdl, const char *dataset, int ifexists)
 	di_devlink_handle_t dhdl;
 	priv_set_t *priv_effective;
 #endif
-	
 	int privileged;
 
 	(void) strlcpy(zc.zc_name, dataset, sizeof (zc.zc_name));

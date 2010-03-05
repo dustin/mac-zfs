@@ -2,8 +2,6 @@
  * CDDL HEADER START
  *
  * The contents of this file are subject to the terms of the
- * Common Development and Distribution License (the "License").
- * You may not use this file except in compliance with the License.
  *
  * You can obtain a copy of the license at usr/src/OPENSOLARIS.LICENSE
  * or http://www.opensolaris.org/os/licensing.
@@ -25,10 +23,28 @@
  * Use is subject to license terms.
  */
 
+/*	Copyright (c) 1983, 1984, 1985, 1986, 1987, 1988, 1989 AT&T	*/
+/*	  All Rights Reserved  	*/
+
+/*
+ * Portions of this source code were derived from Berkeley 4.3 BSD
+ * under license from the Regents of the University of California.
+ */
+
 #ifndef _SYS_PATHNAME_H
 #define	_SYS_PATHNAME_H
 
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
+
+#ifdef __APPLE__
 #include <sys/types.h>
+#else
+
+#include <sys/vnode.h>
+#include <sys/cred.h>
+#include <sys/uio.h>
+#include <sys/dirent.h>
+#endif
 
 #ifdef	__cplusplus
 extern "C" {
@@ -55,6 +71,42 @@ typedef struct pathname {
 	size_t	pn_bufsize;		/* total size of pn_buf */
 } pathname_t;
 
+#ifndef __APPLE__
+#define	pn_pathleft(pnp)	((pnp)->pn_pathlen)
+
+extern void	pn_alloc(struct pathname *);
+extern int	pn_get(char *, enum uio_seg, struct pathname *);
+extern int	pn_get_buf(char *, enum uio_seg, struct pathname *,
+			void *, size_t);
+extern int	pn_set(struct pathname *, char *);
+extern int	pn_insert(struct pathname *, struct pathname *, size_t);
+extern int	pn_getsymlink(vnode_t *, struct pathname *, cred_t *);
+extern int	pn_getcomponent(struct pathname *, char *);
+extern void	pn_setlast(struct pathname *);
+extern void	pn_skipslash(struct pathname *);
+extern int	pn_fixslash(struct pathname *);
+extern int	pn_addslash(struct pathname *);
+extern void	pn_free(struct pathname *);
+
+extern int lookupname(char *, enum uio_seg, enum symfollow,
+		vnode_t **, vnode_t **);
+extern int lookupnameat(char *, enum uio_seg, enum symfollow,
+		vnode_t **, vnode_t **, vnode_t *);
+extern int lookuppn(struct pathname *, struct pathname *, enum symfollow,
+		vnode_t **, vnode_t **);
+extern int lookuppnat(struct pathname *, struct pathname *, enum symfollow,
+		vnode_t **, vnode_t **, vnode_t *);
+
+extern int lookuppnvp(struct pathname *, struct pathname *, int follow,
+		vnode_t **, vnode_t **, vnode_t *, vnode_t *, cred_t *);
+extern int traverse(vnode_t **);
+
+extern int vnodetopath(vnode_t *, vnode_t *, char *, size_t, cred_t *);
+extern int dogetcwd(char *, size_t);
+extern int dirfindvp(vnode_t *, vnode_t *, vnode_t *, cred_t *, char *,
+		size_t, dirent64_t **);
+
+#endif /* !__APPLE__ */
 #ifdef	__cplusplus
 }
 #endif

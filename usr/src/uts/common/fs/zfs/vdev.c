@@ -1690,7 +1690,6 @@ vdev_clear(spa_t *spa, vdev_t *vd)
 
 		if (vd->vdev_faulted)
 			spa_async_request(spa, SPA_ASYNC_RESILVER);
-	
 		spa_event_notify(spa, vd, ESC_ZFS_VDEV_CLEAR);
 	}
 }

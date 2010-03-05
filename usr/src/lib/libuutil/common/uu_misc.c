@@ -19,13 +19,13 @@
  * CDDL HEADER END
  */
 /*
- * Copyright 2004 Sun Microsystems, Inc.  All rights reserved.
+ * Copyright 2007 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
  * Portions Copyright 2007 Apple Inc. All rights reserved.
  * Use is subject to license terms.
  */
 
-#pragma ident	"@(#)uu_misc.c	1.4	05/06/08 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 #include "libuutil_common.h"
 
@@ -45,9 +45,29 @@
 #define	TEXT_DOMAIN "SYS_TEST"
 #endif
 
+#ifdef __APPLE__
 static pthread_mutex_t	uu_key_lock = PTHREAD_MUTEX_INITIALIZER;
 static pthread_key_t	uu_error_key;
 static int		uu_error_key_setup;
+#else
+/*
+ * All of the old code under !defined(PTHREAD_ONCE_KEY_NP)
+ * is here to enable the building of a native version of
+ * libuutil.so when the build machine has not yet been upgraded
+ * to a version of libc that provides pthread_key_create_once_np().
+ * It should all be deleted when solaris_nevada ships.
+ * The code is not MT-safe in a relaxed memory model.
+ */
+
+#if defined(PTHREAD_ONCE_KEY_NP)
+static pthread_key_t	uu_error_key = PTHREAD_ONCE_KEY_NP;
+#else	/* PTHREAD_ONCE_KEY_NP */
+static pthread_key_t	uu_error_key = 0;
+static pthread_mutex_t	uu_key_lock = PTHREAD_MUTEX_INITIALIZER;
+#endif	/* PTHREAD_ONCE_KEY_NP */
+
+static int		uu_error_key_setup = 0;
+#endif /* !__APPLE__ */
 
 static pthread_mutex_t	uu_panic_lock = PTHREAD_MUTEX_INITIALIZER;
 /* LINTED static unused */
@@ -58,7 +78,9 @@ static pthread_t	uu_panic_thread;
 
 static uint32_t		_uu_main_error;
 
+#ifdef __APPLE__
 #define thr_main()  (1)
+#endif
 
 
 void
@@ -191,6 +213,8 @@ uu_panic(const char *format, ...)
 			(void) pause();
 }
 
+#ifndef __APPLE__
+// Note that in OSX this is provided by a separate file
 int
 assfail(const char *astring, const char *file, int line)
 {
@@ -198,12 +222,19 @@ assfail(const char *astring, const char *file, int line)
 	/*NOTREACHED*/
 	return (0);
 }
+#endif
 
 static void
 uu_lockup(void)
 {
 	(void) pthread_mutex_lock(&uu_panic_lock);
+#ifdef __APPLE__
 	(void) pthread_mutex_lock(&uu_key_lock);
+#else
+#if !defined(PTHREAD_ONCE_KEY_NP)
+	(void) pthread_mutex_lock(&uu_key_lock);
+#endif
+#endif
 	uu_avl_lockup();
 	uu_list_lockup();
 }
@@ -212,7 +243,13 @@ static void
 uu_release(void)
 {
 	(void) pthread_mutex_unlock(&uu_panic_lock);
+#ifdef __APPLE__
 	(void) pthread_mutex_unlock(&uu_key_lock);
+#else
+#if !defined(PTHREAD_ONCE_KEY_NP)
+	(void) pthread_mutex_unlock(&uu_key_lock);
+#endif
+#endif
 	uu_avl_release();
 	uu_list_release();
 }

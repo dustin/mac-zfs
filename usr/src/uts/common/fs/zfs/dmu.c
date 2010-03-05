@@ -585,10 +585,11 @@ dmu_write_uio(objset_t *os, uint64_t object, uio_t *uio, uint64_t size, dmu_tx_t
 }
 
 int
-dmu_write_pages(objset_t *os, uint64_t object, uint64_t offset, uint64_t size,
 #ifdef __APPLE__
+dmu_write_pages(objset_t *os, uint64_t object, uint64_t offset, uint64_t size,
     page_t *pp, dmu_tx_t *tx)
 #else
+dmu_write_pages(objset_t *os, uint64_t object, uint64_t offset, uint64_t size,
     struct page *pp, dmu_tx_t *tx)
 #endif
 {
@@ -643,6 +644,7 @@ dmu_write_pages(objset_t *os, uint64_t object, uint64_t offset, uint64_t size,
 			bufoff += PAGESIZE;
 		}
 #endif
+
 		if (tocpy == db->db_size)
 			dmu_buf_fill_done(db, tx);
 

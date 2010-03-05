@@ -85,6 +85,7 @@ zfs_replay_create(zfsvfs_t *zfsvfs, lr_create_t *lr, boolean_t byteswap)
 	char *name = (char *)(lr + 1);	/* name follows lr_create_t */
 	char *link;			/* symlink content follows name */
 	znode_t *dzp;
+// Issue 27
 #ifdef __APPLE__
 	struct vnode *vp = NULL;
 #else

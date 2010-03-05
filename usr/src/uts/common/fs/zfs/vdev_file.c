@@ -74,7 +74,6 @@ vdev_file_open(vdev_t *vd, uint64_t *psize, uint64_t *ashift)
 #endif
 	error = vn_openat(vd->vdev_path + 1, UIO_SYSSPACE, spa_mode | FOFFMAX,
 	    0, &vp, 0, 0, rootdir);
-	
 	if (error) {
 		vd->vdev_stat.vs_aux = VDEV_AUX_OPEN_FAILED;
 		return (error);
@@ -87,14 +86,15 @@ vdev_file_open(vdev_t *vd, uint64_t *psize, uint64_t *ashift)
 	 * Make sure it's a regular file.
 	 */
 #ifdef __APPLE__
-	if (!vnode_isreg(vp)) {
+	if (!vnode_isreg(vp)) 
 #else
-	if (vp->v_type != VREG) {
-#endif
+	if (vp->v_type != VREG) 
+#endif /* __APPLE__ */
+	{
 		vd->vdev_stat.vs_aux = VDEV_AUX_OPEN_FAILED;
 		return (ENODEV);
 	}
-#endif
+#endif /* _KERNEL */
 
 	/*
 	 * Determine the physical size of the file.
@@ -122,7 +122,7 @@ vdev_file_open(vdev_t *vd, uint64_t *psize, uint64_t *ashift)
 	}
 
 	*psize = vattr.va_size;
-#endif
+#endif /* __APPLE__ */
 	*ashift = SPA_MINBLOCKSHIFT;
 
 	return (0);
@@ -149,7 +149,7 @@ vdev_file_close(vdev_t *vd)
 		(void) VOP_PUTPAGE(vf->vf_vnode, 0, 0, B_INVAL, kcred);
 		(void) VOP_CLOSE(vf->vf_vnode, spa_mode, 1, 0, kcred);
 		VN_RELE(vf->vf_vnode);
-#endif
+#endif /* __APPLE__ */
 	}
 
 	kmem_free(vf, sizeof (vdev_file_t));
@@ -208,14 +208,6 @@ vdev_file_io_start(zio_t *zio)
 		zio_next_stage_async(zio);
 		return;
 	}
-
-#ifdef ZFS_READONLY_KEXT
-	if (zio->io_type == ZIO_TYPE_WRITE) {
-		zio->io_error = 0;
-		zio_next_stage_async(zio);
-		return;
-	}
-#endif /* ZFS_READONLY_KEXT */
 
 	zio->io_error = vn_rdwr(zio->io_type == ZIO_TYPE_READ ?
 	    UIO_READ : UIO_WRITE, vf->vf_vnode, zio->io_data,

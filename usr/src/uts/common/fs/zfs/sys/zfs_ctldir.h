@@ -25,10 +25,6 @@
  * Use is subject to license terms.
  */
 
-/*
- * Portions Copyright 2007 Apple Inc.  All rights reserved.
- */
-
 #ifndef	_ZFS_CTLDIR_H
 #define	_ZFS_CTLDIR_H
 

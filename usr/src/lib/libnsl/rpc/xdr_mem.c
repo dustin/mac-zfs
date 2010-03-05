@@ -36,8 +36,6 @@
  * Use is subject to license terms.
  */
 
-#pragma ident	"@(#)xdr_mem.c	1.27	05/06/29 SMI"
-
 /*
  * xdr_mem.h, XDR implementation using memory buffers.
  *
@@ -247,10 +245,12 @@ static struct xdr_ops *
 xdrmem_ops(void)
 {
 	static struct xdr_ops ops;
-//	extern mutex_t	ops_lock;
+#ifndef __APPLE__
+	extern mutex_t	ops_lock;
 
 /* VARIABLES PROTECTED BY ops_lock: ops */
-//	(void) mutex_lock(&ops_lock);
+	(void) mutex_lock(&ops_lock);
+#endif
 	if (ops.x_getlong == NULL) {
 		ops.x_getlong = xdrmem_getlong;
 		ops.x_putlong = xdrmem_putlong;
@@ -266,6 +266,8 @@ xdrmem_ops(void)
 		ops.x_putint32 = xdrmem_putint32;
 #endif
 	}
-//	(void) mutex_unlock(&ops_lock);
+#ifndef __APPLE__
+	(void) mutex_unlock(&ops_lock);
+#endif
 	return (&ops);
 }

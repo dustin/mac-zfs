@@ -49,7 +49,6 @@
 extern "C" {
 #endif
 
- 
 /*
  * Miscellaneous ZFS constants
  */
@@ -454,7 +453,11 @@ extern int zfs_unshareall_nfs(zfs_handle_t *);
 extern boolean_t zfs_is_shared_iscsi(zfs_handle_t *);
 extern int zfs_share_iscsi(zfs_handle_t *);
 extern int zfs_unshare_iscsi(zfs_handle_t *);
+#ifdef __APPLE__
 extern int zfs_iscsi_perm_check(libzfs_handle_t *, char *, struct ucred *);
+#else
+extern int zfs_iscsi_perm_check(libzfs_handle_t *, char *, ucred_t *);
+#endif
 extern int zfs_deleg_share_nfs(libzfs_handle_t *, char *, char *,
     void *, void *, int, boolean_t);
 

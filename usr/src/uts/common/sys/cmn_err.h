@@ -35,6 +35,12 @@
 
 #pragma ident	"%Z%%M%	%I%	%E% SMI"
 
+#ifndef __APPLE__
+#if defined(_KERNEL) && !defined(_ASM) 
+#include <sys/va_list.h>
+#endif
+#endif /* !__APPLE__ */
+
 #ifdef	__cplusplus
 extern "C" {
 #endif
@@ -47,6 +53,7 @@ extern "C" {
 #define	CE_PANIC	3	/* panic		*/
 #define	CE_IGNORE	4	/* print nothing	*/
 
+#ifdef __APPLE__
 #ifdef _KERNEL
 
 void kprintf(const char *fmt, ...);
@@ -60,6 +67,79 @@ void kprintf(const char *fmt, ...);
 	} while(0)
 
 #endif /* _KERNEL */
+#else
+#ifndef _ASM
+
+#ifdef _KERNEL
+
+/*PRINTFLIKE2*/
+extern void cmn_err(int, const char *, ...)
+    __KPRINTFLIKE(2);
+#pragma rarely_called(cmn_err)
+
+extern void vzcmn_err(zoneid_t, int, const char *, __va_list)
+    __KVPRINTFLIKE(3);
+#pragma rarely_called(vzcmn_err)
+
+extern void vcmn_err(int, const char *, __va_list)
+    __KVPRINTFLIKE(2);
+#pragma rarely_called(vcmn_err)
+
+/*PRINTFLIKE3*/
+extern void zcmn_err(zoneid_t, int, const char *, ...)
+    __KPRINTFLIKE(3);
+#pragma rarely_called(zcmn_err)
+
+/*PRINTFLIKE1*/
+extern void printf(const char *, ...)
+    __KPRINTFLIKE(1);
+#pragma	rarely_called(printf)
+
+extern void vzprintf(zoneid_t, const char *, __va_list)
+    __KVPRINTFLIKE(2);
+#pragma rarely_called(vzprintf)
+
+/*PRINTFLIKE2*/
+extern void zprintf(zoneid_t, const char *, ...)
+    __KPRINTFLIKE(2);
+#pragma rarely_called(zprintf)
+
+extern void vprintf(const char *, __va_list)
+    __KVPRINTFLIKE(1);
+#pragma	rarely_called(vprintf)
+
+/*PRINTFLIKE1*/
+extern void uprintf(const char *, ...)
+    __KPRINTFLIKE(1);
+#pragma rarely_called(uprintf)
+
+extern void vuprintf(const char *, __va_list)
+    __KVPRINTFLIKE(1);
+#pragma rarely_called(vuprintf)
+
+/*PRINTFLIKE3*/
+extern size_t snprintf(char *, size_t, const char *, ...)
+    __KPRINTFLIKE(3);
+extern size_t vsnprintf(char *, size_t, const char *, __va_list)
+    __KVPRINTFLIKE(3);
+/*PRINTFLIKE2*/
+extern char *sprintf(char *, const char *, ...)
+    __KPRINTFLIKE(2);
+extern char *vsprintf(char *, const char *, __va_list)
+    __KVPRINTFLIKE(2);
+
+/*PRINTFLIKE1*/
+extern void panic(const char *, ...)
+    __KPRINTFLIKE(1) __NORETURN;
+#pragma rarely_called(panic)
+
+extern void vpanic(const char *, __va_list)
+    __KVPRINTFLIKE(1) __NORETURN;
+#pragma rarely_called(vpanic)
+
+#endif /* _KERNEL */
+#endif /* !_ASM */
+#endif /* !__APPLE__ */
 
 #ifdef	__cplusplus
 }

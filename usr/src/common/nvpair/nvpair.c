@@ -26,9 +26,10 @@
  * Use is subject to license terms.
  */
 
-#pragma ident	"@(#)nvpair.c	1.20	06/10/02 SMI"
-
 #ifndef __APPLE__
+
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
+
 #include <sys/stropts.h>
 #include <sys/debug.h>
 #include <sys/isa_defs.h>

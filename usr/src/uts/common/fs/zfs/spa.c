@@ -769,11 +769,7 @@ spa_load(spa_t *spa, nvlist_t *config, spa_load_state_t state, int mosconfig)
 		goto out;
 	}
 
-#ifdef ZFS_READONLY_KEXT
-	if (state != SPA_LOAD_TRYIMPORT) {
-#else
 	if ((spa_mode & FWRITE) && state != SPA_LOAD_TRYIMPORT) {
-#endif
 		dmu_tx_t *tx;
 		int need_update = B_FALSE;
 		int c;
@@ -1159,17 +1155,7 @@ spa_create(const char *pool, nvlist_t *nvroot, const char *altroot,
 	spa_activate(spa);
 
 	spa->spa_uberblock.ub_txg = txg - 1;
-#ifdef __APPLE__
-	/*
-	 * XXX-DJB
-	 * Mac OS X only creates version 6 for now (for backwards
-	 * compatibility with 10.5.0).  However, the current R/W
-	 * code base can import/access up to SPA_VERSION_8.
-	 */
-	spa->spa_uberblock.ub_version = SPA_VERSION_6;
-#else
 	spa->spa_uberblock.ub_version = SPA_VERSION;
-#endif
 	spa->spa_ubsync = spa->spa_uberblock;
 
 	/*

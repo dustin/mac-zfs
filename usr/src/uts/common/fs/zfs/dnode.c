@@ -49,32 +49,22 @@ static dnode_phys_t dnode_phys_zero;
 int zfs_default_bs = SPA_MINBLOCKSHIFT;
 int zfs_default_ibs = DN_MAX_INDBLKSHIFT;
 
-static void
-dnode_cons_ext(dnode_t *dn, int init_locks)
+/* ARGSUSED */
+static int
+dnode_cons(void *arg, void *unused, int kmflag)
 {
 	int i;
-	krwlock_t struct_rwlock;
-	kmutex_t mtx, dbufs_mtx;
-
-	if (!init_locks) {
-		/* save the mutexes since we do not want to reinitialize them */
-		struct_rwlock = dn->dn_struct_rwlock;
-		mtx = dn->dn_mtx;
-		dbufs_mtx = dn->dn_dbufs_mtx;
-	}
-
+	dnode_t *dn = arg;
 	bzero(dn, sizeof (dnode_t));
 
-	if (init_locks) {
-		rw_init(&dn->dn_struct_rwlock, NULL, RW_DEFAULT, NULL);
-		mutex_init(&dn->dn_mtx, NULL, MUTEX_DEFAULT, NULL);
-		mutex_init(&dn->dn_dbufs_mtx, NULL, MUTEX_DEFAULT, NULL);
-	} else {
-		dn->dn_struct_rwlock = struct_rwlock;
-		dn->dn_mtx = mtx;
-		dn->dn_dbufs_mtx = dbufs_mtx;
-	}
+	rw_init(&dn->dn_struct_rwlock, NULL, RW_DEFAULT, NULL);
+// This is from the 10a286 bits
+#ifdef __APPLE__
+        cv_init(&dn->dn_notxholds, NULL, CV_DEFAULT, NULL);
+#endif
 
+	mutex_init(&dn->dn_mtx, NULL, MUTEX_DEFAULT, NULL);
+	mutex_init(&dn->dn_dbufs_mtx, NULL, MUTEX_DEFAULT, NULL);
 	refcount_create(&dn->dn_holds);
 	refcount_create(&dn->dn_tx_holds);
 
@@ -89,16 +79,10 @@ dnode_cons_ext(dnode_t *dn, int init_locks)
 
 	list_create(&dn->dn_dbufs, sizeof (dmu_buf_impl_t),
 	    offsetof(dmu_buf_impl_t, db_link));
-}
 
-/* ARGSUSED */
-static int
-dnode_cons(void *arg, void *unused, int kmflag)
-{
-	dnode_t *dn = arg;
-	dnode_cons_ext(dn, TRUE/*init_locks*/);
 	return (0);
 }
+
 
 /* ARGSUSED */
 static void
@@ -108,6 +92,10 @@ dnode_dest(void *arg, void *unused)
 	dnode_t *dn = arg;
 
 	rw_destroy(&dn->dn_struct_rwlock);
+// This is from the 10a286 bits
+#ifdef __APPLE__
+        cv_destroy(&dn->dn_notxholds);
+#endif
 	mutex_destroy(&dn->dn_mtx);
 	mutex_destroy(&dn->dn_dbufs_mtx);
 	refcount_destroy(&dn->dn_holds);
@@ -291,7 +279,7 @@ dnode_create(objset_impl_t *os, dnode_phys_t *dnp, dmu_buf_impl_t *db,
     uint64_t object)
 {
 	dnode_t *dn = kmem_cache_alloc(dnode_cache, KM_SLEEP);
-	dnode_cons_ext(dn, FALSE/*init_locks*/);
+	(void) dnode_cons(dn, NULL, 0); /* XXX */
 
 	dn->dn_objset = os;
 	dn->dn_object = object;
@@ -659,9 +647,8 @@ dnode_hold_impl(objset_impl_t *os, uint64_t object, int flag,
 		return (type == DMU_OT_NONE ? ENOENT : EEXIST);
 	}
 	mutex_exit(&dn->dn_mtx);
-	
 
-	if (refcount_add(&dn->dn_holds, tag) == 1) 
+	if (refcount_add(&dn->dn_holds, tag) == 1)
 		dbuf_add_ref(db, dn);
 
 	DNODE_VERIFY(dn);
@@ -754,7 +741,6 @@ dnode_setdirty(dnode_t *dn, dmu_tx_t *tx)
 	 * dnode will hang around after we finish processing its
 	 * children.
 	 */
-
 	dnode_add_ref(dn, (void *)(uintptr_t)tx->tx_txg);
 
 	(void) dbuf_dirty(dn->dn_dbuf, tx);

@@ -25,8 +25,7 @@
  * Use is subject to license terms.
  */
 
-#pragma ident	"@(#)avl.c	1.13	06/05/05 SMI"
-
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 /*
  * AVL - generic AVL tree implementation for kernel use

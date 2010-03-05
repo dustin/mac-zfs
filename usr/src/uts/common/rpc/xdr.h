@@ -41,7 +41,7 @@
 #ifndef _RPC_XDR_H
 #define	_RPC_XDR_H
 
-#pragma ident	"@(#)xdr.h	1.54	05/06/10 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 #include <sys/byteorder.h>	/* For all ntoh* and hton*() kind of macros */
 #include <rpc/types.h>	/* For all ntoh* and hton*() kind of macros */
@@ -154,7 +154,7 @@ struct xdr_ops {
 #if defined(_LP64) || defined(_KERNEL)
 		bool_t	(*x_getint32)(struct XDR *, int32_t *);
 		/* get a int from underlying stream */
-		bool_t (*x_putint32)(struct XDR *, int32_t *);
+		bool_t	(*x_putint32)(struct XDR *, int32_t *);
 		/* put an int to " */
 #endif /* _LP64 || _KERNEL */
 #else

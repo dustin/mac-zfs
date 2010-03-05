@@ -244,6 +244,8 @@ extern uint16_t zio_zil_fail_shift;
 #define	ZTEST_DIROBJ_BLOCKSIZE	(1 << 10)
 #define	ZTEST_DIRSIZE		256
 
+static void usage(boolean_t) __NORETURN;
+
 /*
  * These libumem hooks provide a reasonable set of defaults for the allocator's
  * debugging facilities.
@@ -301,13 +303,17 @@ str2shift(const char *buf)
 		if (toupper(buf[0]) == ends[i])
 			break;
 	}
-	if (i == strlen(ends))
-		fatal(0, "invalid bytes suffix: %s", buf);
+	if (i == strlen(ends)) {
+		(void) fprintf(stderr, "ztest: invalid bytes suffix: %s\n",
+		    buf);
+		usage(B_FALSE);
+	}
 	if (buf[1] == '\0' || (toupper(buf[1]) == 'B' && buf[2] == '\0')) {
 		return (10*i);
 	}
-	fatal(0, "invalid bytes suffix: %s", buf);
-	return (-1);
+	(void) fprintf(stderr, "ztest: invalid bytes suffix: %s\n", buf);
+	usage(B_FALSE);
+	/* NOTREACHED */
 }
 
 static uint64_t
@@ -318,32 +324,40 @@ nicenumtoull(const char *buf)
 
 	val = strtoull(buf, &end, 0);
 	if (end == buf) {
-		fatal(0, "bad numeric value: %s", buf);
+		(void) fprintf(stderr, "ztest: bad numeric value: %s\n", buf);
+		usage(B_FALSE);
 	} else if (end[0] == '.') {
 		double fval = strtod(buf, &end);
 		fval *= pow(2, str2shift(end));
-		if (fval > UINT64_MAX)
-			fatal(0, "value too large: %s", buf);
+		if (fval > UINT64_MAX) {
+			(void) fprintf(stderr, "ztest: value too large: %s\n",
+			    buf);
+			usage(B_FALSE);
+		}
 		val = (uint64_t)fval;
 	} else {
 		int shift = str2shift(end);
-		if (shift >= 64 || (val << shift) >> shift != val)
-			fatal(0, "value too large: %s", buf);
+		if (shift >= 64 || (val << shift) >> shift != val) {
+			(void) fprintf(stderr, "ztest: value too large: %s\n",
+			    buf);
+			usage(B_FALSE);
+		}
 		val <<= shift;
 	}
 	return (val);
 }
 
 static void
-usage(void)
+usage(boolean_t requested)
 {
 	char nice_vdev_size[10];
 	char nice_gang_bang[10];
+	FILE *fp = requested ? stdout : stderr;
 
 	nicenum(zopt_vdev_size, nice_vdev_size);
 	nicenum(zio_gang_bang, nice_gang_bang);
 
-	(void) printf("Usage: %s\n"
+	(void) fprintf(fp, "Usage: %s\n"
 	    "\t[-v vdevs (default: %llu)]\n"
 	    "\t[-s size_of_each_vdev (default: %s)]\n"
 	    "\t[-a alignment_shift (default: %d) (use 0 for random)]\n"
@@ -362,6 +376,7 @@ usage(void)
 	    "\t[-T time] total run time (default: %llu sec)\n"
 	    "\t[-P passtime] time per pass (default: %llu sec)\n"
 	    "\t[-z zil failure rate (default: fail every 2^%llu allocs)]\n"
+	    "\t[-h] (print help)\n"
 	    "",
 	    cmdname,
 	    (u_longlong_t)zopt_vdevs,		/* -v */
@@ -380,7 +395,7 @@ usage(void)
 	    (u_longlong_t)zopt_time,		/* -T */
 	    (u_longlong_t)zopt_passtime,	/* -P */
 	    (u_longlong_t)zio_zil_fail_shift);	/* -z */
-	exit(1);
+	exit(requested ? 0 : 1);
 }
 
 static uint64_t
@@ -417,83 +432,86 @@ process_options(int argc, char **argv)
 	zio_zil_fail_shift = 5;
 
 	while ((opt = getopt(argc, argv,
-	    "v:s:a:m:r:R:d:t:g:i:k:p:f:VET:P:z:")) != EOF) {
+	    "v:s:a:m:r:R:d:t:g:i:k:p:f:VET:P:z:h")) != EOF) {
 		value = 0;
 		switch (opt) {
-		    case 'v':
-		    case 's':
-		    case 'a':
-		    case 'm':
-		    case 'r':
-		    case 'R':
-		    case 'd':
-		    case 't':
-		    case 'g':
-		    case 'i':
-		    case 'k':
-		    case 'T':
-		    case 'P':
-		    case 'z':
+		case 'v':
+		case 's':
+		case 'a':
+		case 'm':
+		case 'r':
+		case 'R':
+		case 'd':
+		case 't':
+		case 'g':
+		case 'i':
+		case 'k':
+		case 'T':
+		case 'P':
+		case 'z':
 			value = nicenumtoull(optarg);
 		}
 		switch (opt) {
-		    case 'v':
+		case 'v':
 			zopt_vdevs = value;
 			break;
-		    case 's':
+		case 's':
 			zopt_vdev_size = MAX(SPA_MINDEVSIZE, value);
 			break;
-		    case 'a':
+		case 'a':
 			zopt_ashift = value;
 			break;
-		    case 'm':
+		case 'm':
 			zopt_mirrors = value;
 			break;
-		    case 'r':
+		case 'r':
 			zopt_raidz = MAX(1, value);
 			break;
-		    case 'R':
+		case 'R':
 			zopt_raidz_parity = MIN(MAX(value, 1), 2);
 			break;
-		    case 'd':
+		case 'd':
 			zopt_datasets = MAX(1, value);
 			break;
-		    case 't':
+		case 't':
 			zopt_threads = MAX(1, value);
 			break;
-		    case 'g':
+		case 'g':
 			zio_gang_bang = MAX(SPA_MINBLOCKSIZE << 1, value);
 			break;
-		    case 'i':
+		case 'i':
 			zopt_init = value;
 			break;
-		    case 'k':
+		case 'k':
 			zopt_killrate = value;
 			break;
-		    case 'p':
+		case 'p':
 			zopt_pool = strdup(optarg);
 			break;
-		    case 'f':
+		case 'f':
 			zopt_dir = strdup(optarg);
 			break;
-		    case 'V':
+		case 'V':
 			zopt_verbose++;
 			break;
-		    case 'E':
+		case 'E':
 			zopt_init = 0;
 			break;
-		    case 'T':
+		case 'T':
 			zopt_time = value;
 			break;
-		    case 'P':
+		case 'P':
 			zopt_passtime = MAX(1, value);
 			break;
-		    case 'z':
+		case 'z':
 			zio_zil_fail_shift = MIN(value, 16);
 			break;
-		    case '?':
-		    default:
-			usage();
+		case 'h':
+			usage(B_TRUE);
+			break;
+		case '?':
+		default:
+			usage(B_FALSE);
 			break;
 		}
 	}
@@ -576,7 +594,7 @@ make_vdev_raidz(size_t size, int r)
 }
 
 static nvlist_t *
-make_vdev_mirror(size_t size, int r, int m)
+make_vdev_mirror(size_t size, int log, int r, int m)
 {
 	nvlist_t *mirror, **child;
 	int c;
@@ -594,6 +612,7 @@ make_vdev_mirror(size_t size, int r, int m)
 	    VDEV_TYPE_MIRROR) == 0);
 	VERIFY(nvlist_add_nvlist_array(mirror, ZPOOL_CONFIG_CHILDREN,
 	    child, m) == 0);
+	VERIFY(nvlist_add_uint64(mirror, ZPOOL_CONFIG_IS_LOG, log) == 0);
 
 	for (c = 0; c < m; c++)
 		nvlist_free(child[c]);
@@ -604,7 +623,7 @@ make_vdev_mirror(size_t size, int r, int m)
 }
 
 static nvlist_t *
-make_vdev_root(size_t size, int r, int m, int t)
+make_vdev_root(size_t size, int log, int r, int m, int t)
 {
 	nvlist_t *root, **child;
 	int c;
@@ -614,7 +633,7 @@ make_vdev_root(size_t size, int r, int m, int t)
 	child = umem_alloc(t * sizeof (nvlist_t *), UMEM_NOFAIL);
 
 	for (c = 0; c < t; c++)
-		child[c] = make_vdev_mirror(size, r, m);
+		child[c] = make_vdev_mirror(size, log, r, m);
 
 	VERIFY(nvlist_alloc(&root, NV_UNIQUE_NAME, 0) == 0);
 	VERIFY(nvlist_add_string(root, ZPOOL_CONFIG_TYPE, VDEV_TYPE_ROOT) == 0);
@@ -762,8 +781,8 @@ ztest_spa_create_destroy(ztest_args_t *za)
 	/*
 	 * Attempt to create using a bad file.
 	 */
-	nvroot = make_vdev_root(0, 0, 0, 1);
-	error = spa_create("ztest_bad_file", nvroot, NULL);
+	nvroot = make_vdev_root(0, 0, 0, 0, 1);
+	error = spa_create("ztest_bad_file", nvroot, NULL, NULL);
 	nvlist_free(nvroot);
 	if (error != ENOENT)
 		fatal(0, "spa_create(bad_file) = %d", error);
@@ -771,8 +790,8 @@ ztest_spa_create_destroy(ztest_args_t *za)
 	/*
 	 * Attempt to create using a bad mirror.
 	 */
-	nvroot = make_vdev_root(0, 0, 2, 1);
-	error = spa_create("ztest_bad_mirror", nvroot, NULL);
+	nvroot = make_vdev_root(0, 0, 0, 2, 1);
+	error = spa_create("ztest_bad_mirror", nvroot, NULL, NULL);
 	nvlist_free(nvroot);
 	if (error != ENOENT)
 		fatal(0, "spa_create(bad_mirror) = %d", error);
@@ -782,8 +801,8 @@ ztest_spa_create_destroy(ztest_args_t *za)
 	 * what's in the nvroot; we should fail with EEXIST.
 	 */
 	(void) rw_rdlock(&ztest_shared->zs_name_lock);
-	nvroot = make_vdev_root(0, 0, 0, 1);
-	error = spa_create(za->za_pool, nvroot, NULL);
+	nvroot = make_vdev_root(0, 0, 0, 0, 1);
+	error = spa_create(za->za_pool, nvroot, NULL, NULL);
 	nvlist_free(nvroot);
 	if (error != EEXIST)
 		fatal(0, "spa_create(whatever) = %d", error);
@@ -823,7 +842,12 @@ ztest_vdev_add_remove(ztest_args_t *za)
 
 	spa_config_exit(spa, FTAG);
 
-	nvroot = make_vdev_root(zopt_vdev_size, zopt_raidz, zopt_mirrors, 1);
+	/*
+	 * Make 1/4 of the devices be log devices.
+	 */
+	nvroot = make_vdev_root(zopt_vdev_size,
+	    ztest_random(4) == 0, zopt_raidz, zopt_mirrors, 1);
+
 	error = spa_vdev_add(spa, nvroot);
 	nvlist_free(nvroot);
 
@@ -1065,7 +1089,7 @@ ztest_vdev_LUN_growth(ztest_args_t *za)
 
 /* ARGSUSED */
 static void
-ztest_create_cb(objset_t *os, void *arg, dmu_tx_t *tx)
+ztest_create_cb(objset_t *os, void *arg, cred_t *cr, dmu_tx_t *tx)
 {
 	/*
 	 * Create the directory object.
@@ -2598,7 +2622,7 @@ ztest_fault_inject(ztest_args_t *za)
 		if (ztest_random(10) < 6)
 			(void) vdev_offline(spa, guid0, B_TRUE);
 		else
-			(void) vdev_online(spa, guid0);
+			(void) vdev_online(spa, guid0, B_FALSE, NULL);
 	}
 
 	/*
@@ -2639,9 +2663,13 @@ ztest_scrub(ztest_args_t *za)
 {
 	spa_t *spa = dmu_objset_spa(za->za_os);
 
+	mutex_enter(&spa_namespace_lock);
 	(void) spa_scrub(spa, POOL_SCRUB_EVERYTHING, B_FALSE);
+	mutex_exit(&spa_namespace_lock);
 	(void) poll(NULL, 0, 1000); /* wait a second, then force a restart */
+	mutex_enter(&spa_namespace_lock);
 	(void) spa_scrub(spa, POOL_SCRUB_EVERYTHING, B_FALSE);
+	mutex_exit(&spa_namespace_lock);
 }
 
 /*
@@ -2801,17 +2829,27 @@ ztest_verify_blocks(char *pool)
 	char zdb[MAXPATHLEN + MAXNAMELEN + 20];
 	char zbuf[1024];
 	char *bin;
+	char *ztest;
+	char *isa;
+	int isalen;
 	FILE *fp;
 
 	(void) realpath(getexecname(), zdb);
 
 	/* zdb lives in /usr/sbin, while ztest lives in /usr/bin */
 	bin = strstr(zdb, "/usr/bin/");
+	ztest = strstr(bin, "/ztest");
+	isa = bin + 8;
+	isalen = ztest - isa;
+	isa = strdup(isa);
 	/* LINTED */
-	(void) sprintf(bin, "/usr/sbin/zdb -bc%s%s -U -O %s %s",
+	(void) sprintf(bin, "/usr/sbin%.*s/zdb -bc%s%s -U -O %s %s",
+	    isalen,
+	    isa,
 	    zopt_verbose >= 3 ? "s" : "",
 	    zopt_verbose >= 4 ? "v" : "",
 	    ztest_random(2) == 0 ? "pre" : "post", pool);
+	free(isa);
 
 	if (zopt_verbose >= 5)
 		(void) printf("Executing %s\n", strstr(zdb, "zdb "));
@@ -3261,8 +3299,8 @@ ztest_init(char *pool)
 	 */
 	(void) spa_destroy(pool);
 	ztest_shared->zs_vdev_primaries = 0;
-	nvroot = make_vdev_root(zopt_vdev_size, zopt_raidz, zopt_mirrors, 1);
-	error = spa_create(pool, nvroot, NULL);
+	nvroot = make_vdev_root(zopt_vdev_size, 0, zopt_raidz, zopt_mirrors, 1);
+	error = spa_create(pool, nvroot, NULL, NULL);
 	nvlist_free(nvroot);
 
 	if (error)

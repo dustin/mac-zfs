@@ -96,7 +96,6 @@ dbuf_hash(void *os, uint64_t obj, uint8_t lvl, uint64_t blkid)
 	crc = (crc >> 8) ^ zfs_crc64_table[(crc ^ (obj >> 8)) & 0xFFULL];
 	crc = (crc >> 8) ^ zfs_crc64_table[(crc ^ (blkid >> 0)) & 0xFFULL];
 	crc = (crc >> 8) ^ zfs_crc64_table[(crc ^ (blkid >> 8)) & 0xFFULL];
-
 	crc ^= (osv>>14) ^ (obj>>16) ^ (blkid>>16);
 
 	return (crc);
@@ -1625,9 +1624,9 @@ top:
 		}
 		ASSERT3P(db->db.db_data, ==, db->db_buf->b_data);
 	}
-	
+
 	ASSERT(db->db_buf == NULL || arc_referenced(db->db_buf));
-	
+
 	/*
 	 * If this buffer is currently syncing out, and we are are
 	 * still referencing it from db_data, we need to make a copy

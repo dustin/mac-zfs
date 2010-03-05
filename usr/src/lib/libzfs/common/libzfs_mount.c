@@ -252,7 +252,6 @@ zfs_is_mountable(zfs_handle_t *zhp, char *buf, size_t buflen,
 	return (B_TRUE);
 }
 
-
 #ifdef __APPLE__
 
 struct zfs_mount_args {
@@ -405,7 +404,6 @@ zfs_mount(zfs_handle_t *zhp, const char *options, int flags)
 		}
 	}
 #endif
-
 	return (0);
 }
 
@@ -934,7 +932,7 @@ zfs_is_shared_iscsi(zfs_handle_t *zhp)
 #ifdef __APPLE__
 	return (0);
 #else
-/*
+	/*
 	 * If iscsi deamon isn't running then we aren't shared
 	 */
 	if (iscsitgt_svc_online && iscsitgt_svc_online() == 1)
@@ -974,9 +972,8 @@ zfs_share_iscsi(zfs_handle_t *zhp)
 
 		return (zfs_error_fmt(hdl, error,
 		    dgettext(TEXT_DOMAIN, "cannot share '%s'"), dataset));
-}
+	}
 #endif /* !__APPLE__ */
-
 	return (0);
 }
 
@@ -1006,7 +1003,6 @@ zfs_unshare_iscsi(zfs_handle_t *zhp)
 		    dgettext(TEXT_DOMAIN, "cannot unshare '%s'"), dataset));
 	}
 #endif /* !__APPLE__ */
-
 	return (0);
 }
 
@@ -1452,5 +1448,5 @@ hasmntopt(struct mnttab *mnt, char *opt)
 	}
 	return (NULL);
 }
-#endif
+#endif /* __APPLE__ */
 

@@ -26,7 +26,6 @@
  * Use is subject to license terms.
  */
 
-
 #ifndef	_SYS_CALLB_H
 #define	_SYS_CALLB_H
 
@@ -161,7 +160,6 @@ typedef struct callb_cpr {
  *	name	- a string giving the name of the kernel thread
  */
 #ifndef __APPLE__
-
 #define	CALLB_CPR_INIT_SAFE(t, name) {					\
 		(void) callb_add_thread(callb_generic_cpr_safe,		\
 		(void *) &callb_cprinfo_safe, CB_CL_CPR_DAEMON,		\

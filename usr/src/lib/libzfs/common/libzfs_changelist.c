@@ -101,7 +101,6 @@ changelist_prefix(prop_changelist_t *clp)
 
 	for (cn = uu_list_first(clp->cl_list); cn != NULL;
 	    cn = uu_list_next(clp->cl_list, cn)) {
-
 #ifndef __APPLE__
 		/*
 		 * If we are in the global zone, but this dataset is exported
@@ -611,7 +610,6 @@ changelist_gather(zfs_handle_t *zhp, zfs_prop_t prop, int flags)
 	cn->cn_handle = temp;
 	cn->cn_mounted = zfs_is_mounted(temp, NULL);
 	cn->cn_shared = zfs_is_shared(temp);
-
 #ifndef	__APPLE__
 	cn->cn_zoned = zfs_prop_get_int(zhp, ZFS_PROP_ZONED);
 #endif	/*!__APPLE__*/

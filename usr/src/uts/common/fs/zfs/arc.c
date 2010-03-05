@@ -759,6 +759,8 @@ add_reference(arc_buf_hdr_t *ab, kmutex_t *hash_lock, void *tag)
 		}
 		ASSERT(delta > 0);
 		ASSERT3U(*size, >=, delta);
+// XXX There's an atomic_add_64 - should we use that instead?
+// Issue 26
 #ifdef __APPLE__
 		*size -= delta;
 #else
@@ -789,6 +791,8 @@ remove_reference(arc_buf_hdr_t *ab, kmutex_t *hash_lock, void *tag)
 		ASSERT(!list_link_active(&ab->b_arc_node));
 		list_insert_head(&state->arcs_list[ab->b_type], ab);
 		ASSERT(ab->b_datacnt > 0);
+// XXX There's an atomic_add_64 - should we use that instead?
+// Issue 26
 #ifdef __APPLE__
 		*size += ab->b_size * ab->b_datacnt;
 #else
@@ -842,6 +846,8 @@ arc_change_state(arc_state_t *new_state, arc_buf_hdr_t *ab, kmutex_t *hash_lock)
 				from_delta = ab->b_size;
 			}
 			ASSERT3U(*size, >=, from_delta);
+// XXX There's an atomic_add_64 - should we use that instead?
+// Issue 26
 #ifdef __APPLE__
 			*size -= from_delta;
 #else
@@ -865,6 +871,8 @@ arc_change_state(arc_state_t *new_state, arc_buf_hdr_t *ab, kmutex_t *hash_lock)
 				ASSERT(ab->b_buf == NULL);
 				to_delta = ab->b_size;
 			}
+// XXX There's an atomic_add_64 - should we use that instead?
+// Issue 26
 #ifdef __APPLE__
 			*size += to_delta;
 #else
@@ -888,6 +896,8 @@ arc_change_state(arc_state_t *new_state, arc_buf_hdr_t *ab, kmutex_t *hash_lock)
 
 		if (use_mutex)
 			mutex_enter(&new_state->arcs_mtx);
+// XXX There's an atomic_add_64 - should we use that instead?
+// Issue 26
 		new_state->arcs_size += to_delta;
 		if (use_mutex)
 			mutex_exit(&new_state->arcs_mtx);
@@ -902,6 +912,8 @@ arc_change_state(arc_state_t *new_state, arc_buf_hdr_t *ab, kmutex_t *hash_lock)
 
 		if (use_mutex)
 			mutex_enter(&old_state->arcs_mtx);
+// XXX There's an atomic_add_64 - should we use that instead?
+// Issue 26
 		old_state->arcs_size -= from_delta;
 		if (use_mutex)
 			mutex_exit(&old_state->arcs_mtx);
@@ -1069,6 +1081,8 @@ arc_buf_destroy(arc_buf_t *buf, boolean_t recycle, boolean_t all)
 			ASSERT(state != arc_anon);
 
 			ASSERT3U(*cnt, >=, size);
+// XXX There's an atomic_add_64 - should we use that instead?
+// Issue 26
 #ifdef __APPLE__
 			if (!MUTEX_HELD(&state->arcs_mtx)) {
 				mutex_enter(&state->arcs_mtx);
@@ -1082,6 +1096,9 @@ arc_buf_destroy(arc_buf_t *buf, boolean_t recycle, boolean_t all)
 #endif
 		}
 		ASSERT3U(state->arcs_size, >=, size);
+// XXX There's an atomic_add_64 - should we use that instead?
+// Issue 26
+
 #ifdef __APPLE__
 		if (!MUTEX_HELD(&state->arcs_mtx)) {
 			mutex_enter(&state->arcs_mtx);
@@ -1367,7 +1384,9 @@ arc_evict_ghost(arc_state_t *state, int64_t bytes)
 	kmutex_t *hash_lock;
 	uint64_t bytes_deleted = 0;
 	uint64_t bufs_skipped = 0;
+#ifdef __APPLE__
 	boolean_t have_lock;
+#endif
 
 	ASSERT(GHOST_STATE(state));
 top:
@@ -1375,8 +1394,13 @@ top:
 	for (ab = list_tail(list); ab; ab = ab_prev) {
 		ab_prev = list_prev(list, ab);
 		hash_lock = HDR_LOCK(ab);
+#ifdef __APPLE__
 		have_lock = MUTEX_HELD(hash_lock);
-		if (!have_lock && mutex_tryenter(hash_lock)) {
+		if (!have_lock && mutex_tryenter(hash_lock)) 
+#else
+		if (mutex_tryenter(hash_lock)) 
+#endif
+		{
 			ASSERT(!HDR_IO_IN_PROGRESS(ab));
 			ASSERT(ab->b_buf == NULL);
 			arc_change_state(arc_anon, ab, hash_lock);
@@ -1665,7 +1689,6 @@ arc_kmem_reap_now(arc_reclaim_strategy_t strat)
 	}
 	kmem_cache_reap_now(buf_cache);
 	kmem_cache_reap_now(hdr_cache);
-
 #ifdef __APPLE__
 	/*
 	 * Go after these mega caches as well
@@ -1809,9 +1832,8 @@ arc_evict_needed(arc_buf_contents_t type)
 	    vmem_size(zio_arena, VMEM_FREE) <
 	    (vmem_size(zio_arena, VMEM_ALLOC) >> 5))
 		return (1);
-#endif
-#endif
-
+#endif /* _KERNEL */
+#endif /* !__APPLE__ */
 	if (arc_reclaim_needed())
 		return (1);
 
@@ -1863,7 +1885,6 @@ arc_get_data_buf(arc_buf_t *buf)
 			buf->b_data = zio_data_buf_alloc(size);
 			atomic_add_64(&arc_size, size);
 		}
-
 #ifdef __APPLE__
 		if (arc_size > arc_c_peak)
 			arc_c_peak = arc_size;
@@ -1899,7 +1920,6 @@ arc_get_data_buf(arc_buf_t *buf)
 			buf->b_data = zio_data_buf_alloc(size);
 			atomic_add_64(&arc_size, size);
 		}
-
 #ifdef __APPLE__
 		if (arc_size > arc_c_peak)
 			arc_c_peak = arc_size;
@@ -2632,6 +2652,8 @@ arc_release(arc_buf_t *buf, void *tag)
 		nhdr->b_freeze_cksum = NULL;
 		(void) refcount_add(&nhdr->b_refcnt, tag);
 		buf->b_hdr = nhdr;
+// XXX There's an atomic_add_64 - should we use that instead?
+// Issue 26
 #ifdef __APPLE__
 		if (!MUTEX_HELD(&arc_anon->arcs_mtx)) {
 			mutex_enter(&arc_anon->arcs_mtx);

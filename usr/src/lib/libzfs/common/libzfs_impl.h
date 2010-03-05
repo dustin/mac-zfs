@@ -154,8 +154,10 @@ void namespace_clear(libzfs_handle_t *);
  * libshare (sharemgr) interfaces used internally.
  */
 
+#ifndef __APPLE__
 extern int zfs_init_libshare(libzfs_handle_t *, int);
 extern void zfs_uninit_libshare(libzfs_handle_t *);
+#endif /* __APPLE__ */
 extern int zfs_parse_options(char *, char *);
 #ifdef __APPLE__
 off_t get_disk_size(int);

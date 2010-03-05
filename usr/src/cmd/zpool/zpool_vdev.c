@@ -131,7 +131,7 @@ vdev_error(const char *fmt, ...)
 	va_end(ap);
 }
 
-#if 0
+#ifndef __APPLE__ 
 static void
 libdiskmgt_error(int error)
 {
@@ -149,7 +149,7 @@ libdiskmgt_error(int error)
 /*
  * Validate a device, passing the bulk of the work off to libdiskmgt.
  */
-int
+static int
 check_slice(const char *path, int force, boolean_t wholedisk, boolean_t isspare)
 {
 	char *msg;
@@ -265,7 +265,7 @@ check_disk(const char *name, dm_descriptor_t disk, int force, int isspare)
 /*
  * Validate a device.
  */
-int
+static int
 check_device(const char *path, boolean_t force, boolean_t isspare)
 {
 	dm_descriptor_t desc;
@@ -286,13 +286,13 @@ check_device(const char *path, boolean_t force, boolean_t isspare)
 
 	return (check_slice(path, force, B_FALSE, isspare));
 }
-#endif
+#endif /* !__APPLE__ */
 
 /*
  * Check that a file is valid.  All we can do in this case is check that it's
  * not in use by another pool, and not in use by swap.
  */
-int
+static int
 check_file(const char *file, boolean_t force, boolean_t isspare)
 {
 	char  *name;
@@ -311,7 +311,7 @@ check_file(const char *file, boolean_t force, boolean_t isspare)
 			    "Please see swap(1M).\n"), file);
 		return (-1);
 	}
-#endif
+#endif /* !__APPLE__ */
 
 	if ((fd = open(file, O_RDONLY)) < 0)
 		return (0);
@@ -391,7 +391,7 @@ is_whole_disk(const char *arg)
 		return (B_FALSE);
 	}
 	efi_free(label);
-#endif
+#endif /* !__APPLE__ */
 	(void) close(fd);
 	return (B_TRUE);
 }
@@ -634,7 +634,7 @@ get_replication(nvlist_t *nvroot, boolean_t fatal)
 			for (c = 0; c < children; c++) {
 				nvlist_t *cnv = child[c];
 				char *path;
-				struct stat statbuf;
+				struct stat64 statbuf;
 				uint64_t size = -1ULL;
 				char *childtype;
 				int fd, err;
@@ -931,7 +931,7 @@ make_disks(zpool_handle_t *zhp, nvlist_t *nv)
 		    &wholedisk) != 0 || !wholedisk)
 			return (0);
 
-#if 0
+#ifndef __APPLE__ 
 		diskname = strrchr(path, '/');
 		assert(diskname != NULL);
 		diskname++;
@@ -977,7 +977,7 @@ make_disks(zpool_handle_t *zhp, nvlist_t *nv)
 #else
 		fprintf(stderr, "zpool: whole disk mode unsupported\n");
 		return (-1);
-#endif
+#endif /* !__APPLE__ */
 	}
 
 	for (c = 0; c < children; c++)
@@ -993,7 +993,7 @@ make_disks(zpool_handle_t *zhp, nvlist_t *nv)
 	return (0);
 }
 
-#if 0
+#ifndef __APPLE__
 /*
  * Determine if the given path is a hot spare within the given configuration.
  */
@@ -1047,11 +1047,11 @@ is_spare(nvlist_t *config, const char *path)
  * Go through and find any devices that are in use.  We rely on libdiskmgt for
  * the majority of this task.
  */
-int
+static int
 check_in_use(nvlist_t *config, nvlist_t *nv, int force, int isreplacing,
     int isspare)
 {
-#if 0
+#ifndef __APPLE__ 
 	nvlist_t **child;
 	uint_t c, children;
 	char *type, *path;
@@ -1102,7 +1102,6 @@ check_in_use(nvlist_t *config, nvlist_t *nv, int force, int isreplacing,
 			if ((ret = check_in_use(config, child[c], force,
 			    isreplacing, B_TRUE)) != 0)
 				return (ret);
-
 #endif
 	return (0);
 }

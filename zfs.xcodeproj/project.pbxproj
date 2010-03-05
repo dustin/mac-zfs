@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 44;
+	objectVersion = 45;
 	objects = {
 
 /* Begin PBXAggregateTarget section */
@@ -83,7 +83,6 @@
 		FA0D2A8810A39F8000C63936 /* uu_dprintf.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93758710A38E6300754C9E /* uu_dprintf.c */; };
 		FA0D2A8910A39F8000C63936 /* uu_ident.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93758510A38E6300754C9E /* uu_ident.c */; };
 		FA0D2A8A10A39F8000C63936 /* uu_list.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93757E10A38E6300754C9E /* uu_list.c */; };
-		FA0D2A8B10A39F8000C63936 /* uu_misc.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93757F10A38E6300754C9E /* uu_misc.c */; };
 		FA0D2A8C10A39F8000C63936 /* uu_open.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93758810A38E6300754C9E /* uu_open.c */; };
 		FA0D2A8D10A39F8000C63936 /* uu_pname.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93758410A38E6300754C9E /* uu_pname.c */; };
 		FA0D2A8E10A39F8000C63936 /* uu_strtoint.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93758310A38E6300754C9E /* uu_strtoint.c */; };
@@ -190,6 +189,17 @@
 		FAB331D010C3C88B00BF4948 /* nvpair_alloc_system.c in Sources */ = {isa = PBXBuildFile; fileRef = FAB331CF10C3C88B00BF4948 /* nvpair_alloc_system.c */; };
 		FAB331F810C3CC7C00BF4948 /* xdr_array.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93759210A38E6300754C9E /* xdr_array.c */; };
 		FAB3322610C3CDB700BF4948 /* zfs_context.c in Sources */ = {isa = PBXBuildFile; fileRef = FAB331B510BFD6A000BF4948 /* zfs_context.c */; };
+		FACE32B4113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
+		FACE32B5113A769500A513AE /* assfail.h in Headers */ = {isa = PBXBuildFile; fileRef = FACE32B3113A769500A513AE /* assfail.h */; };
+		FACE32B6113A769500A513AE /* assfail.c in CopyFiles */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
+		FACE32B7113A769500A513AE /* assfail.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = FACE32B3113A769500A513AE /* assfail.h */; };
+		FACE32B8113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
+		FACE32B9113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
+		FACE32BA113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
+		FACE32BB113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
+		FACE32BC113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
+		FACE32BD113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
+		FACE32C9113A779E00A513AE /* uu_misc.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93757F10A38E6300754C9E /* uu_misc.c */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -269,6 +279,27 @@
 			proxyType = 1;
 			remoteGlobalIDString = DAD6B3CE109409E4008A0395;
 			remoteInfo = "fix-nofs";
+		};
+		FA63A71C1139EC5600754FDD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2696406B0AACEAD20073456B;
+			remoteInfo = libzfs;
+		};
+		FA63A71E1139EC7500754FDD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2696406B0AACEAD20073456B;
+			remoteInfo = libzfs;
+		};
+		FA63A7201139EC8000754FDD /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 089C1669FE841209C02AAC07 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2696406B0AACEAD20073456B;
+			remoteInfo = libzfs;
 		};
 /* End PBXContainerItemProxy section */
 
@@ -351,6 +382,8 @@
 			files = (
 				DAD6B4D110941B8C008A0395 /* fix-nofs in CopyFiles */,
 				DAD6B4D010941B6F008A0395 /* post-install.sh in CopyFiles */,
+				FACE32B6113A769500A513AE /* assfail.c in CopyFiles */,
+				FACE32B7113A769500A513AE /* assfail.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -620,6 +653,8 @@
 		FA93776F10A3924300754C9E /* ztest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ztest; sourceTree = BUILT_PRODUCTS_DIR; };
 		FAB331B510BFD6A000BF4948 /* zfs_context.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = zfs_context.c; path = maczfs/zfs_context.c; sourceTree = "<group>"; };
 		FAB331CF10C3C88B00BF4948 /* nvpair_alloc_system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = nvpair_alloc_system.c; sourceTree = "<group>"; };
+		FACE32B2113A769500A513AE /* assfail.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = assfail.c; path = maczfs/assfail.c; sourceTree = "<group>"; };
+		FACE32B3113A769500A513AE /* assfail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = assfail.h; path = maczfs/assfail.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1317,6 +1352,8 @@
 		FAB331B210BFD5ED00BF4948 /* maczfs */ = {
 			isa = PBXGroup;
 			children = (
+				FACE32B2113A769500A513AE /* assfail.c */,
+				FACE32B3113A769500A513AE /* assfail.h */,
 				FAB331B510BFD6A000BF4948 /* zfs_context.c */,
 			);
 			name = maczfs;
@@ -1351,6 +1388,7 @@
 				FA0D2AC510A39F8000C63936 /* zfs_namecheck.h in Headers */,
 				FA0D2AC710A39F8000C63936 /* zfs_prop.h in Headers */,
 				FA0D2AE710A39F8000C63936 /* zvol.h in Headers */,
+				FACE32B5113A769500A513AE /* assfail.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1368,6 +1406,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				FA63A71D1139EC5600754FDD /* PBXTargetDependency */,
 			);
 			name = zfs.util;
 			productName = zfs.util;
@@ -1439,6 +1478,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				FA63A71F1139EC7500754FDD /* PBXTargetDependency */,
 			);
 			name = zoink;
 			productName = zoink;
@@ -1507,6 +1547,7 @@
 			buildRules = (
 			);
 			dependencies = (
+				FA63A7211139EC8000754FDD /* PBXTargetDependency */,
 			);
 			name = ztest;
 			productName = ztest;
@@ -1518,8 +1559,11 @@
 /* Begin PBXProject section */
 		089C1669FE841209C02AAC07 /* Project object */ = {
 			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+			};
 			buildConfigurationList = 1DEB91C708733DAC0010E9CD /* Build configuration list for PBXProject "zfs" */;
-			compatibilityVersion = "Xcode 3.0";
+			compatibilityVersion = "Xcode 3.1";
 			hasScannedForEncodings = 1;
 			mainGroup = 089C166AFE841209C02AAC07 /* zfs */;
 			projectDirPath = "";
@@ -1564,6 +1608,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2611F7400ACDD29E00E5D4E2 /* zfsutil.c in Sources */,
+				FACE32BA113A769500A513AE /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1594,7 +1639,6 @@
 				FA0D2A8810A39F8000C63936 /* uu_dprintf.c in Sources */,
 				FA0D2A8910A39F8000C63936 /* uu_ident.c in Sources */,
 				FA0D2A8A10A39F8000C63936 /* uu_list.c in Sources */,
-				FA0D2A8B10A39F8000C63936 /* uu_misc.c in Sources */,
 				FA0D2A8C10A39F8000C63936 /* uu_open.c in Sources */,
 				FA0D2A8D10A39F8000C63936 /* uu_pname.c in Sources */,
 				FA0D2A8E10A39F8000C63936 /* uu_strtoint.c in Sources */,
@@ -1604,6 +1648,8 @@
 				FA0D2AB910A39F8000C63936 /* zfs_deleg.c in Sources */,
 				FA0D2AC410A39F8000C63936 /* zfs_namecheck.c in Sources */,
 				FA0D2AC610A39F8000C63936 /* zfs_prop.c in Sources */,
+				FACE32B4113A769500A513AE /* assfail.c in Sources */,
+				FACE32C9113A779E00A513AE /* uu_misc.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1615,6 +1661,7 @@
 				FA93776710A391FD00754C9E /* zpool_vdev.c in Sources */,
 				FA93776810A391FD00754C9E /* zpool_util.c in Sources */,
 				FA93776910A391FD00754C9E /* zpool_main.c in Sources */,
+				FACE32BB113A769500A513AE /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1623,6 +1670,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				26E59EC70B87AAE600CFC573 /* zoink.c in Sources */,
+				FACE32BC113A769500A513AE /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1632,6 +1680,7 @@
 			files = (
 				FA93776A10A3922300754C9E /* zfs_iter.c in Sources */,
 				FA93776B10A3922300754C9E /* zfs_main.c in Sources */,
+				FACE32B9113A769500A513AE /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1720,6 +1769,7 @@
 				FAB331D010C3C88B00BF4948 /* nvpair_alloc_system.c in Sources */,
 				FAB331F810C3CC7C00BF4948 /* xdr_array.c in Sources */,
 				FAB3322610C3CDB700BF4948 /* zfs_context.c in Sources */,
+				FACE32B8113A769500A513AE /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1739,6 +1789,7 @@
 				FA93777510A3925300754C9E /* kernel.c in Sources */,
 				FA93777610A3925300754C9E /* util.c in Sources */,
 				FA93777710A3925300754C9E /* taskq.c in Sources */,
+				FACE32BD113A769500A513AE /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1799,6 +1850,21 @@
 			isa = PBXTargetDependency;
 			target = DAD6B3CE109409E4008A0395 /* fix-nofs */;
 			targetProxy = DAD6B3F610940D03008A0395 /* PBXContainerItemProxy */;
+		};
+		FA63A71D1139EC5600754FDD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2696406B0AACEAD20073456B /* libzfs */;
+			targetProxy = FA63A71C1139EC5600754FDD /* PBXContainerItemProxy */;
+		};
+		FA63A71F1139EC7500754FDD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2696406B0AACEAD20073456B /* libzfs */;
+			targetProxy = FA63A71E1139EC7500754FDD /* PBXContainerItemProxy */;
+		};
+		FA63A7211139EC8000754FDD /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2696406B0AACEAD20073456B /* libzfs */;
+			targetProxy = FA63A7201139EC8000754FDD /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
 
@@ -1887,6 +1953,7 @@
 				MODULE_STOP = zfs_module_stop;
 				MODULE_VERSION = 8.0;
 				PRODUCT_NAME = zfs;
+				VALID_ARCHS = "i386 ppc ppc7400 ppc970 x86_64";
 				VERSIONING_SYSTEM = "apple-generic";
 				WARNING_CFLAGS = "";
 				WRAPPER_EXTENSION = kext;
@@ -1942,7 +2009,16 @@
 		1DEB91C908733DAC0010E9CD /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					x86_64,
+					i386,
+				);
+				"ARCHS[sdk=macosx10.5]" = (
+					ppc,
+					i386,
+				);
 				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_VERSION = 4.2;
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
 				OTHER_CFLAGS = (
 					"-isystem",

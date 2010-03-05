@@ -34,6 +34,9 @@
 #ifndef _SYS_CRED_H
 #define	_SYS_CRED_H
 
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
+
+#ifdef __APPLE__
 #include <sys/zfs_context.h>
 #include <sys/kauth.h>
 #include <sys/ucred.h>
@@ -41,5 +44,148 @@
 #ifdef _KERNEL
 typedef struct opaque_cred_t  cred_t;
 #endif
+#else
+
+#include <sys/types.h>
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+/*
+ * The credential is an opaque kernel private data structure defined in
+ * <sys/cred_impl.h>.
+ */
+
+typedef struct cred cred_t;
+
+#ifdef _KERNEL
+
+#define	CRED()		curthread->t_cred
+
+struct proc;				/* cred.h is included in proc.h */
+struct prcred;
+struct ksid;
+struct ksidlist;
+
+struct auditinfo_addr;			/* cred.h is included in audit.h */
+
+extern int ngroups_max;
+/*
+ * kcred is used when you need all privileges.
+ */
+extern struct cred *kcred;
+
+extern void cred_init(void);
+extern void crhold(cred_t *);
+extern void crfree(cred_t *);
+extern cred_t *cralloc(void);		/* all but ref uninitialized */
+extern cred_t *cralloc_ksid(void);	/* cralloc() + ksid alloc'ed */
+extern cred_t *crget(void);		/* initialized */
+extern cred_t *crcopy(cred_t *);
+extern void crcopy_to(cred_t *, cred_t *);
+extern cred_t *crdup(cred_t *);
+extern void crdup_to(cred_t *, cred_t *);
+extern cred_t *crgetcred(void);
+extern void crset(struct proc *, cred_t *);
+extern int groupmember(gid_t, const cred_t *);
+extern int supgroupmember(gid_t, const cred_t *);
+extern int hasprocperm(const cred_t *, const cred_t *);
+extern int prochasprocperm(struct proc *, struct proc *, const cred_t *);
+extern int crcmp(const cred_t *, const cred_t *);
+extern cred_t *zone_kcred(void);
+
+extern uid_t crgetuid(const cred_t *);
+extern uid_t crgetruid(const cred_t *);
+extern uid_t crgetsuid(const cred_t *);
+extern gid_t crgetgid(const cred_t *);
+extern gid_t crgetrgid(const cred_t *);
+extern gid_t crgetsgid(const cred_t *);
+extern zoneid_t crgetzoneid(const cred_t *);
+extern projid_t crgetprojid(const cred_t *);
+
+extern cred_t *crgetmapped(const cred_t *);
+
+
+extern const struct auditinfo_addr *crgetauinfo(const cred_t *);
+extern struct auditinfo_addr *crgetauinfo_modifiable(cred_t *);
+
+extern uint_t crgetref(const cred_t *);
+
+extern const gid_t *crgetgroups(const cred_t *);
+
+extern int crgetngroups(const cred_t *);
+
+/*
+ * Sets real, effective and/or saved uid/gid;
+ * -1 argument accepted as "no change".
+ */
+extern int crsetresuid(cred_t *, uid_t, uid_t, uid_t);
+extern int crsetresgid(cred_t *, gid_t, gid_t, gid_t);
+
+/*
+ * Sets real, effective and saved uids/gids all to the same
+ * values.  Both values must be non-negative and <= MAXUID
+ */
+extern int crsetugid(cred_t *, uid_t, gid_t);
+
+extern int crsetgroups(cred_t *, int, gid_t *);
+
+/*
+ * Private interface for setting zone association of credential.
+ */
+struct zone;
+extern void crsetzone(cred_t *, struct zone *);
+extern struct zone *crgetzone(const cred_t *);
+
+/*
+ * Private interface for setting project id in credential.
+ */
+extern void crsetprojid(cred_t *, projid_t);
+
+/*
+ * Private interface for nfs.
+ */
+extern cred_t *crnetadjust(cred_t *);
+
+/*
+ * Private interface for procfs.
+ */
+extern void cred2prcred(const cred_t *, struct prcred *);
+
+/*
+ * Private interfaces for Rampart Trusted Solaris.
+ */
+struct ts_label_s;
+extern struct ts_label_s *crgetlabel(const cred_t *);
+extern boolean_t crisremote(const cred_t *);
+
+/*
+ * Private interfaces for ephemeral uids.
+ */
+#define	VALID_UID(id)					\
+	((id) <= MAXUID || valid_ephemeral_uid((id)))
+#define	VALID_GID(id)					\
+	((id) <= MAXUID || valid_ephemeral_gid((id)))
+
+extern boolean_t valid_ephemeral_uid(uid_t);
+extern boolean_t valid_ephemeral_gid(gid_t);
+
+extern int eph_uid_alloc(int, uid_t *, int);
+extern int eph_gid_alloc(int, gid_t *, int);
+
+extern void crsetsid(cred_t *, struct ksid *, int);
+extern void crsetsidlist(cred_t *, struct ksidlist *);
+
+extern struct ksid *crgetsid(const cred_t *, int);
+extern struct ksidlist *crgetsidlist(const cred_t *);
+
+#endif	/* _KERNEL */
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif /* !__APPLE__ */
 
 #endif	/* _SYS_CRED_H */

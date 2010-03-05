@@ -25,7 +25,6 @@
  * Use is subject to license terms.
  */
 
-
 #ifndef	_SYS_KSTAT_H
 #define	_SYS_KSTAT_H
 
@@ -36,6 +35,7 @@
  */
 
 #include <sys/types.h>
+#include <sys/types32.h>
 #include <sys/time.h>
 
 #ifdef	__cplusplus
@@ -703,16 +703,125 @@ typedef struct kstat_timer {
 
 #if	defined(_KERNEL)
 
-#ifndef __APPLE__
-#include <sys/t_lock.h>
-#endif
-
+#ifdef __APPLE__
 
 extern kstat_t *kstat_create(const char *, int, const char *, const char *,
     uchar_t, uint_t, uchar_t);
 extern void kstat_install(kstat_t *);
 extern void kstat_delete(kstat_t *);
 
+#else
+#include <sys/t_lock.h>
+
+extern kid_t	kstat_chain_id;		/* bumped at each state change */
+extern void	kstat_init(void);	/* initialize kstat framework */
+
+/*
+ * Adding and deleting kstats.
+ *
+ * The typical sequence to add a kstat is:
+ *
+ *	ksp = kstat_create(module, instance, name, class, type, ndata, flags);
+ *	if (ksp) {
+ *		... provider initialization, if necessary
+ *		kstat_install(ksp);
+ *	}
+ *
+ * There are three logically distinct steps here:
+ *
+ * Step 1: System Initialization (kstat_create)
+ *
+ * kstat_create() performs system initialization.  kstat_create()
+ * allocates memory for the entire kstat (header plus data), initializes
+ * all header fields, initializes the data section to all zeroes, assigns
+ * a unique KID, and puts the kstat onto the system's kstat chain.
+ * The returned kstat is marked invalid (KSTAT_FLAG_INVALID is set),
+ * because the provider (caller) has not yet had a chance to initialize
+ * the data section.
+ *
+ * By default, kstats are exported to all zones on the system.  A kstat may be
+ * created via kstat_create_zone() to specify a zone to which the statistics
+ * should be exported.  kstat_zone_add() may be used to specify additional
+ * zones to which the statistics are to be exported.
+ *
+ * Step 2: Provider Initialization
+ *
+ * The provider performs any necessary initialization of the data section,
+ * e.g. setting the name fields in a KSTAT_TYPE_NAMED.  Virtual kstats set
+ * the ks_data field at this time.  The provider may also set the ks_update,
+ * ks_snapshot, ks_private, and ks_lock fields if necessary.
+ *
+ * Step 3: Installation (kstat_install)
+ *
+ * Once the kstat is completely initialized, kstat_install() clears the
+ * INVALID flag, thus making the kstat accessible to the outside world.
+ * kstat_install() also clears the DORMANT flag for persistent kstats.
+ *
+ * Removing a kstat from the system
+ *
+ * kstat_delete(ksp) removes ksp from the kstat chain and frees all
+ * associated system resources.  NOTE: When you call kstat_delete(),
+ * you must NOT be holding that kstat's ks_lock.  Otherwise, you may
+ * deadlock with a kstat reader.
+ *
+ * Persistent kstats
+ *
+ * From the provider's point of view, persistence is transparent.  The only
+ * difference between ephemeral (normal) kstats and persistent kstats
+ * is that you pass KSTAT_FLAG_PERSISTENT to kstat_create().  Magically,
+ * this has the effect of making your data visible even when you're
+ * not home.  Persistence is important to tools like iostat, which want
+ * to get a meaningful picture of disk activity.  Without persistence,
+ * raw disk i/o statistics could never accumulate: they would come and
+ * go with each open/close of the raw device.
+ *
+ * The magic of persistence works by slightly altering the behavior of
+ * kstat_create() and kstat_delete().  The first call to kstat_create()
+ * creates a new kstat, as usual.  However, kstat_delete() does not
+ * actually delete the kstat: it performs one final update of the data
+ * (i.e., calls the ks_update routine), marks the kstat as dormant, and
+ * sets the ks_lock, ks_update, ks_private, and ks_snapshot fields back
+ * to their default values (since they might otherwise point to garbage,
+ * e.g. if the provider is going away).  kstat clients can still access
+ * the dormant kstat just like a live kstat; they just continue to see
+ * the final data values as long as the kstat remains dormant.
+ * All subsequent kstat_create() calls simply find the already-existing,
+ * dormant kstat and return a pointer to it, without altering any fields.
+ * The provider then performs its usual initialization sequence, and
+ * calls kstat_install().  kstat_install() uses the old data values to
+ * initialize the native data (i.e., ks_update is called with KSTAT_WRITE),
+ * thus making it seem like you were never gone.
+ */
+
+extern kstat_t *kstat_create(const char *, int, const char *, const char *,
+    uchar_t, uint_t, uchar_t);
+extern kstat_t *kstat_create_zone(const char *, int, const char *,
+    const char *, uchar_t, uint_t, uchar_t, zoneid_t);
+extern void kstat_install(kstat_t *);
+extern void kstat_delete(kstat_t *);
+extern void kstat_named_setstr(kstat_named_t *knp, const char *src);
+extern void kstat_set_string(char *, const char *);
+extern void kstat_delete_byname(const char *, int, const char *);
+extern void kstat_delete_byname_zone(const char *, int, const char *, zoneid_t);
+extern void kstat_named_init(kstat_named_t *, const char *, uchar_t);
+extern void kstat_timer_init(kstat_timer_t *, const char *);
+extern void kstat_waitq_enter(kstat_io_t *);
+extern void kstat_waitq_exit(kstat_io_t *);
+extern void kstat_runq_enter(kstat_io_t *);
+extern void kstat_runq_exit(kstat_io_t *);
+extern void kstat_waitq_to_runq(kstat_io_t *);
+extern void kstat_runq_back_to_waitq(kstat_io_t *);
+extern void kstat_timer_start(kstat_timer_t *);
+extern void kstat_timer_stop(kstat_timer_t *);
+
+extern void kstat_zone_add(kstat_t *, zoneid_t);
+extern void kstat_zone_remove(kstat_t *, zoneid_t);
+extern int kstat_zone_find(kstat_t *, zoneid_t);
+
+extern kstat_t *kstat_hold_bykid(kid_t kid, zoneid_t);
+extern kstat_t *kstat_hold_byname(const char *, int, const char *, zoneid_t);
+extern void kstat_rele(kstat_t *);
+#endif /* !__APPLE__ */
 
 #endif	/* defined(_KERNEL) */
 

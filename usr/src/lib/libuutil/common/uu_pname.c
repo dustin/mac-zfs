@@ -26,7 +26,7 @@
  * Use is subject to license terms.
  */
 
-#pragma ident	"@(#)uu_pname.c	1.4	05/08/29 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 #include "libuutil_common.h"
 
@@ -46,7 +46,7 @@ static const char ERRNO_FMT[] = ": %s\n";
 static const char *pname;
 
 static void
-uu_die_internal(int status, const char *format, va_list alist);
+uu_die_internal(int status, const char *format, va_list alist) __NORETURN;
 
 int uu_exit_ok_value = EXIT_SUCCESS;
 int uu_exit_fatal_value = EXIT_FAILURE;

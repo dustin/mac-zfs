@@ -67,7 +67,6 @@ extern int zfs_dirlook(znode_t *, struct componentname *, struct vnode **);
 #else
 extern int zfs_dirlook(znode_t *, char *, vnode_t **);
 #endif
-
 extern void zfs_mknode(znode_t *, vattr_t *, uint64_t *,
     dmu_tx_t *, cred_t *, uint_t, znode_t **, int);
 extern void zfs_rmnode(znode_t *);

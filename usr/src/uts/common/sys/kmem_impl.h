@@ -26,7 +26,6 @@
  * Use is subject to license terms.
  */
 
-
 #ifndef _SYS_KMEM_IMPL_H
 #define	_SYS_KMEM_IMPL_H
 
@@ -35,12 +34,18 @@
 #include <sys/kmem.h>
 #include <sys/vmem.h>
 #include <sys/thread.h>
-//#include <sys/t_lock.h>
+#ifndef __APPLE__
+#include <sys/t_lock.h>
+#endif /* __APPLE__ */
 #include <sys/time.h>
-//#include <sys/kstat.h>
-//#include <sys/cpuvar.h>
+#ifndef __APPLE__
+#include <sys/kstat.h>
+#include <sys/cpuvar.h>
+#endif /* __APPLE__ */
 #include <sys/systm.h>
-//#include <vm/page.h>
+#ifndef __APPLE__
+#include <vm/page.h>
+#endif /* __APPLE__ */
 
 #ifdef	__cplusplus
 extern "C" {
@@ -176,7 +181,6 @@ typedef struct kmem_buftag_lite {
 	    (cp)->cache_magtype->mt_cache)
 #endif /* __APPLE__ */
 
-
 #define	KMEM_SLAB_MEMBER(sp, buf)	\
 	((size_t)(buf) - (size_t)(sp)->slab_base < \
 	    (sp)->slab_cache->cache_slabsize)
@@ -290,7 +294,6 @@ struct kmem_cache {
 #else
 	kstat_t		*cache_kstat;		/* exported statistics */
 #endif /* __APPLE__ */
-
 	kmem_cache_t	*cache_next;		/* forward cache linkage */
 	kmem_cache_t	*cache_prev;		/* backward cache linkage */
 

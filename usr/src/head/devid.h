@@ -27,7 +27,7 @@
 #ifndef	_DEVID_H
 #define	_DEVID_H
 
-#pragma ident	"@(#)devid.h	1.14	05/06/08 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 #ifndef	_KERNEL
 #include <sys/types.h>
@@ -48,7 +48,6 @@ typedef struct devid_nmlist {
  * Opaque Device id
  */
 typedef struct __ddi_devid *ddi_devid_t;
-
 
 extern int	devid_get(int fd, ddi_devid_t *retdevid);
 extern void	devid_free(ddi_devid_t devid);

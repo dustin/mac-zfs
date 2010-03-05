@@ -36,7 +36,8 @@
  * Portions Copyright 2007 Apple Inc. All rights reserved.
  * Use is subject to license terms.
  */
-#pragma ident	"@(#)xdr.c	1.29	06/01/05 SMI"
+
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 /*
  * Generic XDR routines implementation.
@@ -48,7 +49,9 @@
 #include "mt.h"
 #include <stdlib.h>
 #include <sys/types.h>
-//#include <sys/isa_defs.h>
+#ifndef __APPLE__
+#include <sys/isa_defs.h>
+#endif
 #include <syslog.h>
 #include <stdio.h>
 #include <stdlib.h>

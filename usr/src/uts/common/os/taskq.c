@@ -107,6 +107,10 @@
  *	  TASKQ_PREPOPULATE: Prepopulate task queue with threads.
  *		Also prepopulate the task queue with 'minalloc' task structures.
  *
+ *	  TASKQ_CPR_SAFE: This flag specifies that users of the task queue will
+ * 		use their own protocol for handling CPR issues. This flag is not
+ *		supported for DYNAMIC task queues.
+ *
  *	The 'pri' field specifies the default priority for the threads that
  *	service all scheduled tasks.
  *
@@ -178,6 +182,11 @@
  *	intended use is to ASSERT that a given function is called in taskq
  *	context only.
  *
+ * system_taskq
+ *
+ *	Global system-wide dynamic task queue for common uses. It may be used by
+ *	any subsystem that needs to schedule tasks and does not need to manage
+ *	its own task queues. It is initialized quite early during system boot.
  *
  * IMPLEMENTATION.
  *
@@ -328,7 +337,19 @@
  *
  * DEBUG FACILITIES.
  *
+ * For DEBUG kernels it is possible to induce random failures to
+ * taskq_dispatch() function when it is given TQ_NOSLEEP argument. The value of
+ * taskq_dmtbf and taskq_smtbf tunables control the mean time between induced
+ * failures for dynamic and static task queues respectively.
+ *
+ * Setting TASKQ_STATISTIC to 0 will disable per-bucket statistics.
+ *
  * TUNABLES
+ *
+ *	system_taskq_size	- Size of the global system_taskq.
+ *				  This value is multiplied by nCPUs to determine
+ *				  actual size.
+ *				  Default value: 64
  *
  *	taskq_thread_timeout	- Maximum idle time for taskq_d_thread()
  *				  Default value: 5 minutes
@@ -338,6 +359,18 @@
  *
  *	taskq_search_depth	- Maximum # of buckets searched for a free entry
  *				  Default value: 4
+ *
+ *	taskq_dmtbf		- Mean time between induced dispatch failures
+ *				  for dynamic task queues.
+ *				  Default value: UINT_MAX (no induced failures)
+ *
+ *	taskq_smtbf		- Mean time between induced dispatch failures
+ *				  for static task queues.
+ *				  Default value: UINT_MAX (no induced failures)
+ *
+ * CONDITIONAL compilation.
+ *
+ *    TASKQ_STATISTIC	- If set will enable bucket statistic (default).
  *
  */
 
@@ -352,10 +385,27 @@
 #include <sys/debug.h>
 #include <sys/vmsystm.h>	/* For throttlefree */
 #include <sys/sysmacros.h>
-
+#ifndef __APPLE__
+#include <sys/cpuvar.h>
+#include <sys/sdt.h>
+#endif /* !__APPLE__ */
 
 static kmem_cache_t *taskq_ent_cache, *taskq_cache;
 
+/*
+ * Pseudo instance numbers for taskqs without explicitely provided instance.
+ */
+static vmem_t *taskq_id_arena;
+
+/* Global system task queue for common use */
+taskq_t	*system_taskq;
+
+/*
+ * Maxmimum number of entries in global system taskq is
+ * 	system_taskq_size * max_ncpus
+ */
+#define	SYSTEM_TASKQ_SIZE 64
+int system_taskq_size = SYSTEM_TASKQ_SIZE;
 
 /*
  * Dynamic task queue threads that don't get any work within
@@ -413,9 +463,129 @@ static taskq_ent_t *taskq_bucket_dispatch(taskq_bucket_t *, task_func_t,
 /*
  * Task queue statistics and fault injection not used in Mac OS X
  */
+#ifdef __APPLE__
 #define	TQ_STAT(b, x)
 #define	TASKQ_S_RANDOM_DISPATCH_FAILURE(tq, flag)
 #define	TASKQ_D_RANDOM_DISPATCH_FAILURE(tq, flag)
+#else
+struct taskq_kstat {
+	kstat_named_t	tq_tasks;
+	kstat_named_t	tq_executed;
+	kstat_named_t	tq_maxtasks;
+	kstat_named_t	tq_totaltime;
+	kstat_named_t	tq_nalloc;
+	kstat_named_t	tq_nactive;
+	kstat_named_t	tq_pri;
+	kstat_named_t	tq_nthreads;
+} taskq_kstat = {
+	{ "tasks",		KSTAT_DATA_UINT64 },
+	{ "executed",		KSTAT_DATA_UINT64 },
+	{ "maxtasks",		KSTAT_DATA_UINT64 },
+	{ "totaltime",		KSTAT_DATA_UINT64 },
+	{ "nactive",		KSTAT_DATA_UINT64 },
+	{ "nalloc",		KSTAT_DATA_UINT64 },
+	{ "priority",		KSTAT_DATA_UINT64 },
+	{ "threads",		KSTAT_DATA_UINT64 },
+};
+
+struct taskq_d_kstat {
+	kstat_named_t	tqd_pri;
+	kstat_named_t	tqd_btasks;
+	kstat_named_t	tqd_bexecuted;
+	kstat_named_t	tqd_bmaxtasks;
+	kstat_named_t	tqd_bnalloc;
+	kstat_named_t	tqd_bnactive;
+	kstat_named_t	tqd_btotaltime;
+	kstat_named_t	tqd_hits;
+	kstat_named_t	tqd_misses;
+	kstat_named_t	tqd_overflows;
+	kstat_named_t	tqd_tcreates;
+	kstat_named_t	tqd_tdeaths;
+	kstat_named_t	tqd_maxthreads;
+	kstat_named_t	tqd_nomem;
+	kstat_named_t	tqd_disptcreates;
+	kstat_named_t	tqd_totaltime;
+	kstat_named_t	tqd_nalloc;
+	kstat_named_t	tqd_nfree;
+} taskq_d_kstat = {
+	{ "priority",		KSTAT_DATA_UINT64 },
+	{ "btasks",		KSTAT_DATA_UINT64 },
+	{ "bexecuted",		KSTAT_DATA_UINT64 },
+	{ "bmaxtasks",		KSTAT_DATA_UINT64 },
+	{ "bnalloc",		KSTAT_DATA_UINT64 },
+	{ "bnactive",		KSTAT_DATA_UINT64 },
+	{ "btotaltime",		KSTAT_DATA_UINT64 },
+	{ "hits",		KSTAT_DATA_UINT64 },
+	{ "misses",		KSTAT_DATA_UINT64 },
+	{ "overflows",		KSTAT_DATA_UINT64 },
+	{ "tcreates",		KSTAT_DATA_UINT64 },
+	{ "tdeaths",		KSTAT_DATA_UINT64 },
+	{ "maxthreads",		KSTAT_DATA_UINT64 },
+	{ "nomem",		KSTAT_DATA_UINT64 },
+	{ "disptcreates",	KSTAT_DATA_UINT64 },
+	{ "totaltime",		KSTAT_DATA_UINT64 },
+	{ "nalloc",		KSTAT_DATA_UINT64 },
+	{ "nfree",		KSTAT_DATA_UINT64 },
+};
+
+static kmutex_t taskq_kstat_lock;
+static kmutex_t taskq_d_kstat_lock;
+static int taskq_kstat_update(kstat_t *, int);
+static int taskq_d_kstat_update(kstat_t *, int);
+
+
+/*
+ * Collect per-bucket statistic when TASKQ_STATISTIC is defined.
+ */
+#define	TASKQ_STATISTIC 1
+
+#if TASKQ_STATISTIC
+#define	TQ_STAT(b, x)	b->tqbucket_stat.x++
+#else
+#define	TQ_STAT(b, x)
+#endif
+
+/*
+ * Random fault injection.
+ */
+uint_t taskq_random;
+uint_t taskq_dmtbf = UINT_MAX;    /* mean time between injected failures */
+uint_t taskq_smtbf = UINT_MAX;    /* mean time between injected failures */
+
+/*
+ * TQ_NOSLEEP dispatches on dynamic task queues are always allowed to fail.
+ *
+ * TQ_NOSLEEP dispatches on static task queues can't arbitrarily fail because
+ * they could prepopulate the cache and make sure that they do not use more
+ * then minalloc entries.  So, fault injection in this case insures that
+ * either TASKQ_PREPOPULATE is not set or there are more entries allocated
+ * than is specified by minalloc.  TQ_NOALLOC dispatches are always allowed
+ * to fail, but for simplicity we treat them identically to TQ_NOSLEEP
+ * dispatches.
+ */
+#ifdef DEBUG
+#define	TASKQ_D_RANDOM_DISPATCH_FAILURE(tq, flag)		\
+	taskq_random = (taskq_random * 2416 + 374441) % 1771875;\
+	if ((flag & TQ_NOSLEEP) &&				\
+	    taskq_random < 1771875 / taskq_dmtbf) {		\
+		return (NULL);					\
+	}
+
+#define	TASKQ_S_RANDOM_DISPATCH_FAILURE(tq, flag)		\
+	taskq_random = (taskq_random * 2416 + 374441) % 1771875;\
+	if ((flag & (TQ_NOSLEEP | TQ_NOALLOC)) &&		\
+	    (!(tq->tq_flags & TASKQ_PREPOPULATE) ||		\
+	    (tq->tq_nalloc > tq->tq_minalloc)) &&		\
+	    (taskq_random < (1771875 / taskq_smtbf))) {		\
+		mutex_exit(&tq->tq_lock);			\
+		return (NULL);					\
+	}
+#else
+#define	TASKQ_S_RANDOM_DISPATCH_FAILURE(tq, flag)
+#define	TASKQ_D_RANDOM_DISPATCH_FAILURE(tq, flag)
+#endif
+
+#endif /* !__APPLE__ */
 
 #define	IS_EMPTY(l) (((l).tqent_prev == (l).tqent_next) &&	\
 	((l).tqent_prev == &(l)))
@@ -448,12 +618,10 @@ static taskq_ent_t *taskq_bucket_dispatch(taskq_bucket_t *, task_func_t,
  * Do-nothing task which may be used to prepopulate thread caches.
  */
 /*ARGSUSED*/
-#ifndef __APPLE__
 void
 nulltask(void *unused)
 {
 }
-#endif /*!__APPLE__*/
 
 /*ARGSUSED*/
 static int
@@ -499,7 +667,6 @@ taskq_ent_constructor(void *buf, void *cdrarg, int kmflags)
 	mutex_init(&tqe->tqent_thread_lock, NULL, MUTEX_DEFAULT, NULL);
 	cv_init(&tqe->tqent_thread_cv, NULL, CV_DEFAULT, NULL);
 #endif /*__APPLE*/
-
 	return (0);
 }
 
@@ -694,17 +861,17 @@ taskq_dispatch(taskq_t *tq, task_func_t func, void *arg, uint_t flags)
 		 * TQ_NOQUEUE flag can't be used with non-dynamic task queues.
 		 */
 		ASSERT(! (flags & TQ_NOQUEUE));
-	/*
-	 * Enqueue the task to the underlying queue.
-	 */
-	mutex_enter(&tq->tq_lock);
+		/*
+		 * Enqueue the task to the underlying queue.
+		 */
+		mutex_enter(&tq->tq_lock);
 
-	TASKQ_S_RANDOM_DISPATCH_FAILURE(tq, flags);
+		TASKQ_S_RANDOM_DISPATCH_FAILURE(tq, flags);
 
-	if ((tqe = taskq_ent_alloc(tq, flags)) == NULL) {
-		mutex_exit(&tq->tq_lock);
-		return ((taskqid_t)NULL);
-	}
+		if ((tqe = taskq_ent_alloc(tq, flags)) == NULL) {
+			mutex_exit(&tq->tq_lock);
+			return (NULL);
+		}
 		TQ_ENQUEUE(tq, tqe, func, arg);
 		mutex_exit(&tq->tq_lock);
 		return ((taskqid_t)tqe);
@@ -1169,6 +1336,44 @@ taskq_create(const char *name, int nthreads, pri_t pri, int minalloc,
 	}
 
 	/* Note: kstats currently not used for Mac OS X */
+#ifndef __APPLE__
+	/*
+	 * Install kstats.
+	 * We have two cases:
+	 *   1) Instance is provided to taskq_create_instance(). In this case it
+	 * 	should be >= 0 and we use it.
+	 *
+	 *   2) Instance is not provided and is automatically generated
+	 */
+	if (flags & TASKQ_NOINSTANCE) {
+		instance = tq->tq_instance =
+		    (int)(uintptr_t)vmem_alloc(taskq_id_arena, 1, VM_SLEEP);
+	}
+
+	if (flags & TASKQ_DYNAMIC) {
+		if ((tq->tq_kstat = kstat_create("unix", instance,
+			tq->tq_name, "taskq_d", KSTAT_TYPE_NAMED,
+			sizeof (taskq_d_kstat) / sizeof (kstat_named_t),
+			KSTAT_FLAG_VIRTUAL)) != NULL) {
+			tq->tq_kstat->ks_lock = &taskq_d_kstat_lock;
+			tq->tq_kstat->ks_data = &taskq_d_kstat;
+			tq->tq_kstat->ks_update = taskq_d_kstat_update;
+			tq->tq_kstat->ks_private = tq;
+			kstat_install(tq->tq_kstat);
+		}
+	} else {
+		if ((tq->tq_kstat = kstat_create("unix", instance, tq->tq_name,
+			"taskq", KSTAT_TYPE_NAMED,
+			sizeof (taskq_kstat) / sizeof (kstat_named_t),
+			KSTAT_FLAG_VIRTUAL)) != NULL) {
+			tq->tq_kstat->ks_lock = &taskq_kstat_lock;
+			tq->tq_kstat->ks_data = &taskq_kstat;
+			tq->tq_kstat->ks_update = taskq_kstat_update;
+			tq->tq_kstat->ks_private = tq;
+			kstat_install(tq->tq_kstat);
+		}
+	}
+#endif /* !__APPLE__ */
 
 	return (tq);
 }
@@ -1186,6 +1391,26 @@ taskq_destroy(taskq_t *tq)
 	int bid = 0;
 
 	/* Note: kstats currently not used for Mac OS X */
+#ifndef __APPLE__
+	ASSERT(! (tq->tq_flags & TASKQ_CPR_SAFE));
+
+	/*
+	 * Destroy kstats.
+	 */
+	if (tq->tq_kstat != NULL) {
+		kstat_delete(tq->tq_kstat);
+		tq->tq_kstat = NULL;
+	}
+
+	/*
+	 * Destroy instance if needed.
+	 */
+	if (tq->tq_flags & TASKQ_NOINSTANCE) {
+		vmem_free(taskq_id_arena, (void *)(uintptr_t)(tq->tq_instance),
+		    1);
+		tq->tq_instance = 0;
+	}
+#endif /* !__APPLE__ */
 
 	/*
 	 * Wait for any pending entries to complete.
@@ -1338,6 +1563,14 @@ taskq_bucket_extend(void *arg)
 	b->tqbucket_nfree++;
 	TQ_STAT(b, tqs_tcreates);
 
+#ifndef __APPLE__
+#if TASKQ_STATISTIC
+	nthreads = b->tqbucket_stat.tqs_tcreates -
+	    b->tqbucket_stat.tqs_tdeaths;
+	b->tqbucket_stat.tqs_maxthreads = MAX(nthreads,
+	    b->tqbucket_stat.tqs_maxthreads);
+#endif
+#endif /* !__APPLE__ */
 	mutex_exit(&b->tqbucket_lock);
 	/*
 	 * Start the stopped thread.
@@ -1356,4 +1589,75 @@ taskq_bucket_extend(void *arg)
 #endif /*__APPLE__*/
 }
 
+#ifndef __APPLE__
+static int
+taskq_kstat_update(kstat_t *ksp, int rw)
+{
+	struct taskq_kstat *tqsp = &taskq_kstat;
+	taskq_t *tq = ksp->ks_private;
 
+	if (rw == KSTAT_WRITE)
+		return (EACCES);
+
+	tqsp->tq_tasks.value.ui64 = tq->tq_tasks;
+	tqsp->tq_executed.value.ui64 = tq->tq_executed;
+	tqsp->tq_maxtasks.value.ui64 = tq->tq_maxtasks;
+	tqsp->tq_totaltime.value.ui64 = tq->tq_totaltime;
+	tqsp->tq_nactive.value.ui64 = tq->tq_active;
+	tqsp->tq_nalloc.value.ui64 = tq->tq_nalloc;
+	tqsp->tq_pri.value.ui64 = tq->tq_pri;
+	tqsp->tq_nthreads.value.ui64 = tq->tq_nthreads;
+	return (0);
+}
+
+static int
+taskq_d_kstat_update(kstat_t *ksp, int rw)
+{
+	struct taskq_d_kstat *tqsp = &taskq_d_kstat;
+	taskq_t *tq = ksp->ks_private;
+	taskq_bucket_t *b = tq->tq_buckets;
+	int bid = 0;
+
+	if (rw == KSTAT_WRITE)
+		return (EACCES);
+
+	ASSERT(tq->tq_flags & TASKQ_DYNAMIC);
+
+	tqsp->tqd_btasks.value.ui64 = tq->tq_tasks;
+	tqsp->tqd_bexecuted.value.ui64 = tq->tq_executed;
+	tqsp->tqd_bmaxtasks.value.ui64 = tq->tq_maxtasks;
+	tqsp->tqd_bnalloc.value.ui64 = tq->tq_nalloc;
+	tqsp->tqd_bnactive.value.ui64 = tq->tq_active;
+	tqsp->tqd_btotaltime.value.ui64 = tq->tq_totaltime;
+	tqsp->tqd_pri.value.ui64 = tq->tq_pri;
+
+	tqsp->tqd_hits.value.ui64 = 0;
+	tqsp->tqd_misses.value.ui64 = 0;
+	tqsp->tqd_overflows.value.ui64 = 0;
+	tqsp->tqd_tcreates.value.ui64 = 0;
+	tqsp->tqd_tdeaths.value.ui64 = 0;
+	tqsp->tqd_maxthreads.value.ui64 = 0;
+	tqsp->tqd_nomem.value.ui64 = 0;
+	tqsp->tqd_disptcreates.value.ui64 = 0;
+	tqsp->tqd_totaltime.value.ui64 = 0;
+	tqsp->tqd_nalloc.value.ui64 = 0;
+	tqsp->tqd_nfree.value.ui64 = 0;
+
+	for (; (b != NULL) && (bid < tq->tq_nbuckets); b++, bid++) {
+		tqsp->tqd_hits.value.ui64 += b->tqbucket_stat.tqs_hits;
+		tqsp->tqd_misses.value.ui64 += b->tqbucket_stat.tqs_misses;
+		tqsp->tqd_overflows.value.ui64 += b->tqbucket_stat.tqs_overflow;
+		tqsp->tqd_tcreates.value.ui64 += b->tqbucket_stat.tqs_tcreates;
+		tqsp->tqd_tdeaths.value.ui64 += b->tqbucket_stat.tqs_tdeaths;
+		tqsp->tqd_maxthreads.value.ui64 +=
+		    b->tqbucket_stat.tqs_maxthreads;
+		tqsp->tqd_nomem.value.ui64 += b->tqbucket_stat.tqs_nomem;
+		tqsp->tqd_disptcreates.value.ui64 +=
+		    b->tqbucket_stat.tqs_disptcreates;
+		tqsp->tqd_totaltime.value.ui64 += b->tqbucket_totaltime;
+		tqsp->tqd_nalloc.value.ui64 += b->tqbucket_nalloc;
+		tqsp->tqd_nfree.value.ui64 += b->tqbucket_nfree;
+	}
+return (0);
+}
+#endif

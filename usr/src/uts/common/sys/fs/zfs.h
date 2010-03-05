@@ -235,13 +235,6 @@ extern zpool_prop_t zpool_prop_iter(zpool_prop_f, void *);
 #define	ZPL_VERSION_STRING		"2"
 
 #define	ZPL_VERSION_INITIAL		ZPL_VERSION_1
-/*
- * XXX-DJB
- * Note that Mac OS X 10.5 (Leopard) and existing zfs
- * beta seeds used a ZPL version of 1 even though those
- * ZPL implementations were creating/using embedded
- * dirent types (ie they were effectively ZPL ver 2).
- */
 #define	ZPL_VERSION_DIRENT_TYPE		ZPL_VERSION_2
 
 /*

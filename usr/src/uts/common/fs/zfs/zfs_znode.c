@@ -49,7 +49,6 @@
 #include <sys/cmn_err.h>
 #include <sys/errno.h>
 #include <sys/unistd.h>
-#include <sys/stat.h>
 #ifndef __APPLE__
 #include <sys/mode.h>
 #endif /*!__APPLE__*/
@@ -57,7 +56,7 @@
 #ifndef __APPLE__
 #include <vm/pvn.h>
 #include "fs/fs_subr.h"
-#endif
+#endif /*!__APPLE__*/
 #include <sys/zfs_dir.h>
 #include <sys/zfs_acl.h>
 #include <sys/zfs_ioctl.h>
@@ -85,6 +84,7 @@ znode_pageout_func(dmu_buf_t *dbuf, void *user_ptr)
 {
 	znode_t *zp = user_ptr;
 
+#ifdef __APPLE__
 #ifdef ZFS_DEBUG
 	znode_stalker(zp, N_znode_pageout);
 #endif
@@ -98,6 +98,20 @@ znode_pageout_func(dmu_buf_t *dbuf, void *user_ptr)
 	} else {
         	mutex_exit(&zp->z_lock);
         }
+#else
+	vnode_t *vp = ZTOV(zp);
+
+	mutex_enter(&zp->z_lock);
+	if (vp->v_count == 0) {
+		mutex_exit(&zp->z_lock);
+		vn_invalid(vp);
+		zfs_znode_free(zp);
+	} else {
+		/* signal force unmount that this znode can be freed */
+		zp->z_dbuf = NULL;
+		mutex_exit(&zp->z_lock);
+	}
+#endif /* __APPLE__ */
 }
 
 /*ARGSUSED*/
@@ -146,7 +160,6 @@ zfs_znode_cache_destructor(void *buf, void *cdarg)
 	mutex_destroy(&zp->z_range_lock);
 
 	ASSERT(zp->z_dbuf_held == 0);
-
 #ifdef __APPLE__
 	cv_destroy(&zp->z_cv);
 #else
@@ -176,7 +189,6 @@ zfs_znode_fini(void)
 #ifndef __APPLE__
 	zfs_remove_op_tables();
 #endif /*!__APPLE__*/
-
 	/*
 	 * Cleanup zcache
 	 */
@@ -312,23 +324,7 @@ zfs_init_fs(zfsvfs_t *zfsvfs, znode_t **zpp, cred_t *cr)
 		dmu_tx_hold_bonus(tx, DMU_NEW_OBJECT); /* root node */
 		error = dmu_tx_assign(tx, TXG_WAIT);
 		ASSERT3U(error, ==, 0);
-#ifdef __APPLE__
-		/*
-		 * XXX-DJB
-		 * Note that Mac OS X 10.5 (Leopard) and early zfs R/W
-		 * beta seeds used a ZPL version of 1 even though those
-		 * ZPL implementations were creating/using embedded
-		 * dirent types (ie they were effectively ZPL ver 2).
-		 * 
-		 * For now, continue to create using version 1 so that
-		 * new file systems will be backwards compatible. Once
-		 * 10.5 is updated to support ZPL_VERSION_2, we can bump
-		 * this to the current ZPL_VERSION (2).
-		 */
-		zfs_create_fs(os, cr, ZPL_VERSION_1, tx);
-#else
 		zfs_create_fs(os, cr, ZPL_VERSION, tx);
-#endif
 		dmu_tx_commit(tx);
 	}
 
@@ -359,7 +355,6 @@ zfs_init_fs(zfsvfs_t *zfsvfs, znode_t **zpp, cred_t *cr)
 	zfsvfs->z_vfs->vfs_fsid.val[1] = ((fsid_guid>>32) << 8) |
 	    zfsfstype & 0xFF;
 #endif /*!__APPLE__*/
-
 	error = zap_lookup(os, MASTER_NODE_OBJ, ZFS_ROOT_OBJ, 8, 1,
 	    &zfsvfs->z_root);
 	if (error)
@@ -460,7 +455,9 @@ static znode_t *
 zfs_znode_alloc(zfsvfs_t *zfsvfs, dmu_buf_t *db, uint64_t obj_num, int blksz)
 {
 	znode_t	*zp;
-
+#ifndef __APPLE__
+	vnode_t *vp;
+#endif
 	zp = kmem_cache_alloc(znode_cache, KM_SLEEP);
 
 	ASSERT(zp->z_dirlocks == NULL);
@@ -481,6 +478,7 @@ zfs_znode_alloc(zfsvfs_t *zfsvfs, dmu_buf_t *db, uint64_t obj_num, int blksz)
 	zp->z_blksz = blksz;
 	zp->z_seq = 0x7A4653;
 	zp->z_sync_cnt = 0;
+#ifdef __APPLE__
 	zp->z_vnode = NULL;
 	zp->z_vid = 0;
 
@@ -488,7 +486,52 @@ zfs_znode_alloc(zfsvfs_t *zfsvfs, dmu_buf_t *db, uint64_t obj_num, int blksz)
 	list_create(&zp->z_stalker, sizeof (findme_t),
 		       	offsetof(findme_t, n_elem));
 	znode_stalker(zp, N_znode_alloc);
-#endif
+#endif /* ZFS_DEBUG */
+#else /* OpenSolaris */
+	/* NOTE: Quite a lot of this switch is duplicated in the
+	 * below 'zfs_attach_znode' function; if elemetns get added
+	 * here, then they may need to be added there too */
+        mutex_enter(&zfsvfs->z_znodes_lock);
+        list_insert_tail(&zfsvfs->z_all_znodes, zp);
+        mutex_exit(&zfsvfs->z_znodes_lock);
+
+        vp = ZTOV(zp);
+        vn_reinit(vp);
+
+        vp->v_vfsp = zfsvfs->z_parent->z_vfs;
+        vp->v_type = IFTOVT((mode_t)zp->z_phys->zp_mode);
+
+        switch (vp->v_type) {
+        case VDIR:
+                if (zp->z_phys->zp_flags & ZFS_XATTR) {
+                        vn_setops(vp, zfs_xdvnodeops);
+                        vp->v_flag |= V_XATTRDIR;
+                } else
+                        vn_setops(vp, zfs_dvnodeops);
+                zp->z_zn_prefetch = B_TRUE; /* z_prefetch default is enabled */
+                break;
+        case VBLK:
+        case VCHR:
+                vp->v_rdev = zfs_cmpldev(zp->z_phys->zp_rdev);
+                /*FALLTHROUGH*/
+        case VFIFO:
+        case VSOCK:
+        case VDOOR:
+                vn_setops(vp, zfs_fvnodeops);
+                break;
+        case VREG:
+                vp->v_flag |= VMODSORT;
+                vn_setops(vp, zfs_fvnodeops);
+                break;
+        case VLNK:
+                vn_setops(vp, zfs_symvnodeops);
+                break;
+        default:
+                vn_setops(vp, zfs_evnodeops);
+                break;
+        }
+
+#endif /* __APPLE__ */
 	return (zp);
 }
 
@@ -534,8 +577,9 @@ zfs_attach_vnode(znode_t *zp)
 	case VDIR:
 		if (zp->z_phys->zp_flags & ZFS_XATTR) {
 			vfsp.vnfs_vops = zfs_xdvnodeops;
-		} else
+		} else {
 			vfsp.vnfs_vops = zfs_dvnodeops;
+		}
 		zp->z_zn_prefetch = B_TRUE; /* z_prefetch default is enabled */
 		break;
 	case VBLK:
@@ -614,6 +658,9 @@ zfs_znode_dmu_init(znode_t *zp)
 	zp->z_dbuf_held = 1;
 	VFS_HOLD(zfsvfs->z_vfs);
 	mutex_exit(&zp->z_lock);
+#ifndef __APPLE__
+	vn_exists(ZTOV(zp));
+#endif
 }
 
 /*
@@ -644,8 +691,13 @@ zfs_znode_dmu_init(znode_t *zp)
  *	zfs_make_xattrdir
  */
 void
+#ifdef __APPLE__
 zfs_mknode(znode_t *dzp, struct vnode_attr *vap, uint64_t *oid, dmu_tx_t *tx, cred_t *cr,
 	uint_t flag, znode_t **zpp, int bonuslen)
+#else
+zfs_mknode(znode_t *dzp, vattr_t *vap, uint64_t *oid, dmu_tx_t *tx, cred_t *cr,
+	uint_t flag, znode_t **zpp, int bonuslen)
+#endif
 {
 	dmu_buf_t	*dbp;
 	znode_phys_t	*pzp;
@@ -661,8 +713,11 @@ zfs_mknode(znode_t *dzp, struct vnode_attr *vap, uint64_t *oid, dmu_tx_t *tx, cr
 		*oid = vap->va_fileid;
 		flag |= IS_REPLAY;
 		now = vap->va_ctime;		/* see zfs_replay_create() */
-	//	gen = vap->va_nblocks;		/* ditto */
+#ifdef __APPLE__
 		gen = 0;
+#else
+		gen = vap->va_nblocks;		/* ditto */
+#endif /* __APPLE__ */
 	} else {
 		*oid = 0;
 		gethrestime(&now);
@@ -768,17 +823,27 @@ zfs_mknode(znode_t *dzp, struct vnode_attr *vap, uint64_t *oid, dmu_tx_t *tx, cr
 		zfs_znode_dmu_init(zp);
 		mutex_exit(hash_mtx);
 		*zpp = zp;
-	} else /* called from zfs_create_fs */{
+	} else {
+#ifdef __APPLE__
 #ifdef ZFS_DEBUG
+		/* called from zfs_create_fs */
 		znode_stalker(zp, N_mknode_err);
-#endif	
+#endif /* ZFS_DEBUG */
+#else
+		ZTOV(zp)->v_count = 0;
+#endif /*__APPLE__ */
 		dmu_buf_rele(dbp, NULL);
 		zfs_znode_free(zp);
 	}
 }
 
+#ifdef __APPLE__
 static int
 zfs_zget_internal(zfsvfs_t *zfsvfs, uint64_t obj_num, znode_t **zpp, int skip_vnode)
+#else
+int
+zfs_zget(zfsvfs_t *zfsvfs, uint64_t obj_num, znode_t **zpp)
+#endif /* __APPLE__ */
 {
 	dmu_object_info_t doi;
 	dmu_buf_t	*db;
@@ -786,7 +851,11 @@ zfs_zget_internal(zfsvfs_t *zfsvfs, uint64_t obj_num, znode_t **zpp, int skip_vn
 	int err;
 
 	*zpp = NULL;
+
+#ifdef __APPLE__
 again:
+#endif
+
 	ZFS_OBJ_HOLD_ENTER(zfsvfs, obj_num);
 
 	err = dmu_bonus_hold(zfsvfs->z_os, obj_num, NULL, &db);
@@ -812,6 +881,7 @@ again:
 	if (zp != NULL) {
 		mutex_enter(&zp->z_lock);
 
+#ifdef __APPLE__
 	        /* 
 		 * Make sure the vnode exists, if it doesn't we're
 		 * racing with zfs_attach_vnode and need to wait.
@@ -854,8 +924,14 @@ again:
 			goto again;
 		}
 
+#else
+		ASSERT3U(zp->z_id, ==, obj_num);
+#endif /* __APPLE__ */
+
 		if (zp->z_unlinked) {
+#ifdef __APPLE__
 			vnode_put(ZTOV(zp));
+#endif
 			dmu_buf_rele(db, NULL);
 			mutex_exit(&zp->z_lock);
 			ZFS_OBJ_HOLD_EXIT(zfsvfs, obj_num);
@@ -867,6 +943,9 @@ again:
 			VFS_HOLD(zfsvfs->z_vfs);
 		}
 
+#ifndef __APPLE__
+		VN_HOLD(ZTOV(zp));
+#endif
 		mutex_exit(&zp->z_lock);
 		ZFS_OBJ_HOLD_EXIT(zfsvfs, obj_num);
 		*zpp = zp;
@@ -880,6 +959,7 @@ again:
 	ASSERT3U(zp->z_id, ==, obj_num);
 	zfs_znode_dmu_init(zp);
 	ZFS_OBJ_HOLD_EXIT(zfsvfs, obj_num);
+#ifdef __APPLE__
 	if (skip_vnode) {
 		mutex_enter(&zfsvfs->z_znodes_lock);
 		list_insert_tail(&zfsvfs->z_all_znodes, zp);
@@ -887,10 +967,12 @@ again:
 	} else {
 		zfs_attach_vnode(zp);
 	}
+#endif
 	*zpp = zp;
 	return (0);
 }
 
+#ifdef __APPLE__
 /*
  * Get a znode from cache or create one if necessary.
  */
@@ -909,6 +991,7 @@ zfs_zget_sans_vnode(zfsvfs_t *zfsvfs, uint64_t obj_num, znode_t **zpp)
 {
 	return zfs_zget_internal(zfsvfs, obj_num, zpp, 1);
 }
+#endif /* __APPLE__ */
 
 
 void
@@ -918,9 +1001,11 @@ zfs_znode_delete(znode_t *zp, dmu_tx_t *tx)
 	int error;
 
 	ZFS_OBJ_HOLD_ENTER(zfsvfs, zp->z_id);
+#ifdef __APPLE__
 #ifdef ZFS_DEBUG
 	znode_stalker(zp, N_znode_delete);
 #endif
+#endif /* __APPLE__ */
 
 	if (zp->z_phys->zp_acl.z_acl_extern_obj) {
 		error = dmu_object_free(zfsvfs->z_os,
@@ -934,32 +1019,49 @@ zfs_znode_delete(znode_t *zp, dmu_tx_t *tx)
 	dmu_buf_rele(zp->z_dbuf, NULL);
 }
 
-#ifdef __APPLE__
-/*
- *
- * zfs_zreclaim similar to zfs_zinactive except that
- * this reclaim variant will always free the znode.
- */
 void
-zfs_zreclaim(znode_t *zp, int get_zhold_lock)
+zfs_zinactive(znode_t *zp)
 {
+#ifndef __APPLE__
+	vnode_t	*vp = ZTOV(zp);
+#endif
 	zfsvfs_t *zfsvfs = zp->z_zfsvfs;
 	uint64_t z_id = zp->z_id;
 
-	ASSERT(zp->z_phys);
-
-#ifdef ZFS_DEBUG
-	znode_stalker(zp, N_zreclaim);
+#ifdef __APPLE__
+	ASSERT(/*zp->z_dbuf && */ zp->z_phys);
+#else
+	ASSERT(zp->z_dbuf_held && zp->z_phys);
 #endif
-
 	/*
 	 * Don't allow a zfs_zget() while were trying to release this znode
 	 */
-	if (get_zhold_lock)
-		ZFS_OBJ_HOLD_ENTER(zfsvfs, z_id);
+	ZFS_OBJ_HOLD_ENTER(zfsvfs, z_id);
 
 	mutex_enter(&zp->z_lock);
-	
+#ifndef __APPLE__
+	mutex_enter(&vp->v_lock);
+	vp->v_count--;
+	if (vp->v_count > 0 || vn_has_cached_data(vp)) {
+		/*
+		 * If the hold count is greater than zero, somebody has
+		 * obtained a new reference on this znode while we were
+		 * processing it here, so we are done.  If we still have
+		 * mapped pages then we are also done, since we don't
+		 * want to inactivate the znode until the pages get pushed.
+		 *
+		 * XXX - if vn_has_cached_data(vp) is true, but count == 0,
+		 * this seems like it would leave the znode hanging with
+		 * no chance to go inactive...
+		 */
+		mutex_exit(&vp->v_lock);
+		mutex_exit(&zp->z_lock);
+		ZFS_OBJ_HOLD_EXIT(zfsvfs, z_id);
+		return;
+	}
+	mutex_exit(&vp->v_lock);
+#endif /* !__APPLE__ */
+
 	/*
 	 * If this was the last reference to a file with no links,
 	 * remove the file from the file system.
@@ -967,38 +1069,48 @@ zfs_zreclaim(znode_t *zp, int get_zhold_lock)
 	if (zp->z_unlinked) {
 		mutex_exit(&zp->z_lock);
 		ZFS_OBJ_HOLD_EXIT(zfsvfs, z_id);
-
 		zfs_rmnode(zp);
+#ifdef __APPLE__
 		zfs_znode_free(zp);
+#else
+                VFS_RELE(zfsvfs->z_vfs);
+#endif /* __APPLE__ */
 		return;
 	}
-	
-	ASSERT(zp->z_phys);
-	ASSERT(zp->z_dbuf_held);
-	zp->z_dbuf_held = 0;
-	mutex_exit(&zp->z_lock);
+#ifndef __APPLE__
+        ASSERT(zp->z_phys);
+        ASSERT(zp->z_dbuf_held);
 
-	dmu_buf_rele(zp->z_dbuf, NULL);
-
-	zfs_znode_free(zp);
-	ZFS_OBJ_HOLD_EXIT(zfsvfs, z_id);
-}
+        zp->z_dbuf_held = 0;
 #endif /* __APPLE__ */
+	
+	mutex_exit(&zp->z_lock);
+	dmu_buf_rele(zp->z_dbuf, NULL);
+	ZFS_OBJ_HOLD_EXIT(zfsvfs, z_id);
+#ifdef __APPLE__
+        zfs_znode_free(zp);
+#else
+        VFS_RELE(zfsvfs->z_vfs);
+#endif /* __APPLE__ */
+}
 
 void
 zfs_znode_free(znode_t *zp)
 {
 	zfsvfs_t *zfsvfs = zp->z_zfsvfs;
 
+#ifdef __APPLE__
 	/* 
 	 * Note: the znode isn't inserted into the zfsvfs->z_all_znodes
 	 * list until after the vnode is attached so make sure its in
 	 * the list before attempting to remove it.
 	 */
 	if (zp->z_link_node.list_next || zp->z_link_node.list_prev) {
+#endif
 		mutex_enter(&zfsvfs->z_znodes_lock);
 		list_remove(&zfsvfs->z_all_znodes, zp);
 		mutex_exit(&zfsvfs->z_znodes_lock);
+#ifdef __APPLE__
 	}
 
 	ASSERT(zp->z_dbuf_held == 0);
@@ -1011,9 +1123,13 @@ zfs_znode_free(znode_t *zp)
 
 #ifdef ZFS_DEBUG
 	znode_stalker_fini(zp);
-#endif
+#endif /* ZFS_DEBUG */
+
+#endif __APPLE__
+
 	kmem_cache_free(znode_cache, zp);
 
+#ifdef __APPLE__
 	/*
 	 * If we're beyond our target footprint, start up a reclaim thread
 	 */
@@ -1028,6 +1144,7 @@ zfs_znode_free(znode_t *zp)
 			kmem_reap();
 		}
 	}
+#endif /* __APPLE__ */
 }
 
 void
@@ -1077,7 +1194,7 @@ zfs_time_stamper_locked(znode_t *zp, uint_t flag, dmu_tx_t *tx)
 		ZFS_TIME_ENCODE(&now, mzp->z_phys->zp_mtime);
 		mutex_exit(&mzp->z_lock);
 	}
-#endif
+#endif /* __APPLE__ */
 }
 
 /*
@@ -1135,6 +1252,22 @@ zfs_grow_blocksize(znode_t *zp, uint64_t size, dmu_tx_t *tx)
 	dmu_object_size_from_db(zp->z_dbuf, &zp->z_blksz, &dummy);
 }
 
+#ifndef __APPLE__
+/*
+ * This is a dummy interface used when pvn_vplist_dirty() should *not*
+ * be calling back into the fs for a putpage().  E.g.: when truncating
+ * a file, the pages being "thrown away" don't need to be written out.
+ */
+/* ARGSUSED */
+static int
+zfs_no_putpage(vnode_t *vp, page_t *pp, u_offset_t *offp, size_t *lenp,
+    int flags, cred_t *cr)
+{
+	ASSERT(0);
+	return (0);
+}
+#endif /* !__APPLE__ */
+
 /*
  * Free space in a file.
  *
@@ -1149,7 +1282,12 @@ zfs_grow_blocksize(znode_t *zp, uint64_t size, dmu_tx_t *tx)
 int
 zfs_freesp(znode_t *zp, uint64_t off, uint64_t len, int flag, boolean_t log)
 {
+// Issue 27
+#ifdef __APPLE__
 	struct vnode *vp = ZTOV(zp);
+#else
+	vnode_t *vp = ZTOV(zp);
+#endif /* __APPLE__ */
 	dmu_tx_t *tx;
 	zfsvfs_t *zfsvfs = zp->z_zfsvfs;
 	zilog_t *zilog = zfsvfs->z_log;
@@ -1158,7 +1296,11 @@ zfs_freesp(znode_t *zp, uint64_t off, uint64_t len, int flag, boolean_t log)
 	uint64_t size, new_blksz;
 	int error;
 
+#ifdef __APPLE__
 	if (vnode_isfifo(ZTOV(zp)))
+#else
+	if (ZTOV(zp)->v_type == VFIFO)
+#endif
 		return (0);
 
 	/*
@@ -1301,8 +1443,14 @@ zfs_create_fs(objset_t *os, cred_t *cr, uint64_t version, dmu_tx_t *tx)
 	uint64_t	moid, doid, roid = 0;
 	int		error;
 	znode_t		*rootzp = NULL;
+// Issue 27
+#ifdef __APPLE__
 	struct vnode	*vp;
 	struct vnode_attr vattr;
+#else
+	vnode_t		*vp;
+	vattr_t		vattr;
+#endif /* __APPLE__ */
 
 	/*
 	 * First attempt to create master node.
@@ -1348,6 +1496,11 @@ zfs_create_fs(objset_t *os, cred_t *cr, uint64_t version, dmu_tx_t *tx)
 	rootzp->z_dbuf_held = 0;
 
 	vp = ZTOV(rootzp);
+#ifndef __APPLE__
+	vn_reinit(vp);
+	vp->v_type = VDIR;
+#endif
+
 	bzero(&zfsvfs, sizeof (zfsvfs_t));
 
 	zfsvfs.z_os = os;
@@ -1363,6 +1516,9 @@ zfs_create_fs(objset_t *os, cred_t *cr, uint64_t version, dmu_tx_t *tx)
 	error = zap_add(os, moid, ZFS_ROOT_OBJ, 8, 1, &roid, tx);
 	ASSERT(error == 0);
 
+#ifndef __APPLE__
+	ZTOV(rootzp)->v_count = 0;
+#endif
 	kmem_cache_free(znode_cache, rootzp);
 }
 #endif /* _KERNEL */
@@ -1504,7 +1660,6 @@ zfs_setbsdflags(znode_t *zp, uint32_t bsdflags)
 
 	zp->z_phys->zp_flags = zflags;
 }
-#endif /* __APPLE__ */
 
 #ifdef ZFS_DEBUG
 char *
@@ -1519,8 +1674,6 @@ n_event_to_str(whereami_t event)
                 return("N_vnop_inactive");
         case N_zinactive:
                 return("N_zinactive");
-        case N_zreclaim:
-                return("N_zreclaim");
         case N_vnop_reclaim:
                 return("N_vnop_reclaim");
         case N_znode_delete:
@@ -1566,4 +1719,5 @@ znode_stalker_fini(znode_t *zp)
         }
 	list_destroy(&zp->z_stalker);
 }
-#endif
+#endif /* ZFS_DEBUG */
+#endif /* __APPLE__ */

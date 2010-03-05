@@ -174,7 +174,6 @@ typedef enum whereami {
 	N_znode_alloc = 0,
 	N_vnop_inactive,
 	N_zinactive,
-	N_zreclaim,
 	N_vnop_reclaim,
 	N_znode_delete,
 	N_znode_pageout,
@@ -343,7 +342,6 @@ extern void	zfs_zinactive(znode_t *);
 #ifdef __APPLE__
 extern int	zfs_attach_vnode(znode_t *zp);
 extern int	zfs_zget_sans_vnode(zfsvfs_t *, uint64_t, znode_t **);
-extern void	zfs_zreclaim(znode_t *, int get_zhold_lock);
 extern uint32_t	zfs_getbsdflags(znode_t *zp);
 extern void	zfs_setbsdflags(znode_t *zp, uint32_t bsdflags);
 #endif

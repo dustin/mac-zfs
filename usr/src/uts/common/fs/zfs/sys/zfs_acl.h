@@ -115,5 +115,5 @@ void zfs_acl_free(zfs_acl_t *);
 
 #ifdef	__cplusplus
 }
-#endif
+#endif  /* !__APPLE__ */
 #endif	/* _SYS_FS_ZFS_ACL_H */

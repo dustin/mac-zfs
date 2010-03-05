@@ -78,6 +78,7 @@ extern taskq_t	*taskq_create_instance(const char *, int, int, pri_t, int,
     int, uint_t);
 #endif /*!__APPLE__*/
 extern taskqid_t taskq_dispatch(taskq_t *, task_func_t, void *, uint_t);
+extern void	nulltask(void *); // Maybe we don't need this?
 extern void	taskq_destroy(taskq_t *);
 extern void	taskq_wait(taskq_t *);
 extern void	taskq_suspend(taskq_t *);

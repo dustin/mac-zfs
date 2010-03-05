@@ -40,16 +40,16 @@
  * Volumes are persistent through reboot.  No user command needs to be
  * run before opening and using a device.
  */
+
 #if 0
 
 #include <sys/types.h>
 #include <sys/param.h>
 #include <sys/errno.h>
-//#include <sys/aio_req.h>
 #include <sys/uio.h>
 #include <sys/buf.h>
-//#include <sys/modctl.h>
-//#include <sys/open.h>
+#include <sys/modctl.h>
+#include <sys/open.h>
 #include <sys/kmem.h>
 #include <sys/conf.h>
 #include <sys/cmn_err.h>
@@ -59,21 +59,19 @@
 #include <sys/zio.h>
 #include <sys/dsl_prop.h>
 #include <sys/dkio.h>
-//#include <sys/efi_partition.h>
+#include <sys/efi_partition.h>
 #include <sys/byteorder.h>
 #include <sys/pathname.h>
-//#include <sys/ddi.h>
-//#include <sys/sunddi.h>
-//#include <sys/crc32.h>
+#include <sys/ddi.h>
+#include <sys/sunddi.h>
+#include <sys/crc32.h>
 #include <sys/dirent.h>
-//#include <sys/policy.h>
+#include <sys/policy.h>
 #include <sys/fs/zfs.h>
 #include <sys/zfs_ioctl.h>
-//#include <sys/mkdev.h>
+#include <sys/mkdev.h>
 #include <sys/zil.h>
 #include <sys/refcount.h>
-
-#include <sys/zvol.h>
 #include <sys/zfs_znode.h>
 #include <sys/zfs_rlock.h>
 
@@ -123,7 +121,7 @@ static void
 zvol_size_changed(zvol_state_t *zv, major_t maj)
 {
 #ifndef __APPLE__
-	dev = makedevice(getmajor(dev), zv->zv_minor);
+	dev_t dev = makedevice(maj, zv->zv_minor);
 
 	VERIFY(ddi_prop_update_int64(dev, zfs_dip,
 	    "Size", zv->zv_volsize) == DDI_SUCCESS);
@@ -194,7 +192,7 @@ zvol_get_stats(objset_t *os, nvlist_t *nv)
 /*
  * Find a free minor number.
  */
-#if 0
+#ifndef __APPLE__
 static minor_t
 zvol_minor_alloc(void)
 {

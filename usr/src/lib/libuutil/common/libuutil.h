@@ -29,7 +29,7 @@
 #ifndef	_LIBUUTIL_H
 #define	_LIBUUTIL_H
 
-#pragma ident	"@(#)libuutil.h	1.3	05/08/29 SMI"
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
 
 #include <sys/types.h>
 #include <stdarg.h>
@@ -90,11 +90,11 @@ extern const char *uu_getpname(void);
 extern void uu_warn(const char *, ...);
 extern void uu_vwarn(const char *, va_list);
 /*PRINTFLIKE1*/
-extern void uu_die(const char *, ...);
-extern void uu_vdie(const char *, va_list);
+extern void uu_die(const char *, ...) __NORETURN;
+extern void uu_vdie(const char *, va_list) __NORETURN;
 /*PRINTFLIKE2*/
-extern void uu_xdie(int, const char *, ...);
-extern void uu_vxdie(int, const char *, va_list);
+extern void uu_xdie(int, const char *, ...) __NORETURN;
+extern void uu_vxdie(int, const char *, va_list) __NORETURN;
 
 /*
  * Exit status functions (not to be used directly)

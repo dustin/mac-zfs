@@ -60,7 +60,7 @@
  * read I/Os, there  are basically three 'types' of I/O, which form a roughly
  * layered diagram:
  *
- *      +---------------+
+ *  +---------------+
  * 	| Aggregate I/O |	No associated logical data or device
  * 	+---------------+
  *              |
@@ -100,6 +100,7 @@ zfs_ereport_post(const char *subclass, spa_t *spa, vdev_t *vd, zio_t *zio,
     uint64_t stateoroffset, uint64_t size)
 {
 #ifndef __APPLE__
+#ifdef _KERNEL
 	nvlist_t *ereport, *detector;
 	uint64_t ena;
 	char class[64];
@@ -292,13 +293,15 @@ zfs_ereport_post(const char *subclass, spa_t *spa, vdev_t *vd, zio_t *zio,
 
 	fm_nvlist_destroy(ereport, FM_NVA_FREE);
 	fm_nvlist_destroy(detector, FM_NVA_FREE);
-#endif
+#endif /* _KERNEL */
+#endif /* !__APPLE__ */
 }
 
 static void
 zfs_post_common(spa_t *spa, vdev_t *vd, const char *name)
 {
 #ifndef __APPLE__
+#ifdef _KERNEL
 	nvlist_t *resource;
 	char class[64];
 
@@ -318,7 +321,8 @@ zfs_post_common(spa_t *spa, vdev_t *vd, const char *name)
 	fm_ereport_post(resource, EVCH_SLEEP);
 
 	fm_nvlist_destroy(resource, FM_NVA_FREE);
-#endif
+#endif /* _KERNEL */
+#endif /* !__APPLE__ */
 }
 
 /*
@@ -331,7 +335,7 @@ zfs_post_ok(spa_t *spa, vdev_t *vd)
 {
 #ifndef __APPLE__
 	zfs_post_common(spa, vd, FM_RESOURCE_OK);
-#endif
+#endif /* !__APPLE__ */
 }
 
 /*
@@ -345,7 +349,7 @@ zfs_post_remove(spa_t *spa, vdev_t *vd)
 {
 #ifndef __APPLE__
 	zfs_post_common(spa, vd, FM_RESOURCE_REMOVED);
-#endif
+#endif /* !__APPLE__ */
 }
 
 /*
@@ -358,5 +362,5 @@ zfs_post_autoreplace(spa_t *spa, vdev_t *vd)
 {
 #ifndef __APPLE__
 	zfs_post_common(spa, vd, FM_RESOURCE_AUTOREPLACE);
-#endif
+#endif /* !__APPLE__ */
 }

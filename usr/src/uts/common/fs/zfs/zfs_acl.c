@@ -348,7 +348,12 @@ zfs_acl_valid(znode_t *zp, ace_t *uace, int aclcnt, int *inherit)
 
 	*inherit = 0;
 
+#ifdef __APPLE__
+        /* OS X - ACLs with zero ACE count are permitted */
 	if (aclcnt > MAX_ACL_ENTRIES || aclcnt < 0) {
+#else
+	if (aclcnt > MAX_ACL_ENTRIES || aclcnt <= 0) {
+#endif
 		return (B_FALSE);
 	}
 
@@ -383,11 +388,19 @@ zfs_acl_valid(znode_t *zp, ace_t *uace, int aclcnt, int *inherit)
 		/*
 		 * Only directories should have inheritance flags.
 		 */
+#ifdef __APPLE__
 		if (!vnode_isdir(ZTOV(zp)) && (acep->a_flags &
 		    (ACE_FILE_INHERIT_ACE|ACE_DIRECTORY_INHERIT_ACE|
 		    ACE_INHERIT_ONLY_ACE|ACE_NO_PROPAGATE_INHERIT_ACE))) {
 			return (B_FALSE);
 		}
+#else
+		if (ZTOV(zp)->v_type != VDIR && (acep->a_flags &
+		    (ACE_FILE_INHERIT_ACE|ACE_DIRECTORY_INHERIT_ACE|
+		    ACE_INHERIT_ONLY_ACE|ACE_NO_PROPAGATE_INHERIT_ACE))) {
+			return (B_FALSE);
+		}
+#endif
 
 		if (acep->a_flags &
 		    (ACE_FILE_INHERIT_ACE|ACE_DIRECTORY_INHERIT_ACE))
@@ -985,14 +998,23 @@ zfs_acl_inherit(znode_t *zp, zfs_acl_t *paclp)
 
 				if ((pacep[i].a_flags &
 				    ACE_NO_PROPAGATE_INHERIT_ACE) ||
-				    !vnode_isdir(ZTOV(zp))) {
+#ifdef __APPLE__
+				    !vnode_isdir(ZTOV(zp)) 
+#else
+				    (ZTOV(zp)->v_type != VDIR)
+#endif
+				) {
 					acep[j].a_flags &= ~ALL_INHERIT;
 					zfs_securemode_update(zfsvfs, &acep[j]);
 					j++;
 					continue;
 				}
 
+#ifdef __APPLE__
 				ASSERT(vnode_isdir(ZTOV(zp)));
+#else
+				ASSERT(ZTOV(zp)->v_type == VDIR);
+#endif
 
 				/*
 				 * If we are inheriting an ACE targeted for
@@ -1632,10 +1654,11 @@ zfs_zaccess(znode_t *zp, int mode, cred_t *cr)
 
 	is_attr = ((zp->z_phys->zp_flags & ZFS_XATTR) &&
 #ifdef __APPLE__
-	    vnode_isdir(ZTOV(zp)));
+	    vnode_isdir(ZTOV(zp))
 #else
-	    (ZTOV(zp)->v_type == VDIR));
+	    (ZTOV(zp)->v_type == VDIR)
 #endif
+	);
 	/*
 	 * If attribute then validate against base file
 	 */
@@ -1847,10 +1870,11 @@ zfs_zaccess_rename(znode_t *sdzp, znode_t *szp, znode_t *tdzp,
 
 #ifdef __APPLE__
 	add_perm = vnode_isdir(ZTOV(szp)) ?
+	    ACE_ADD_SUBDIRECTORY : ACE_ADD_FILE;
 #else
 	add_perm = (ZTOV(szp)->v_type == VDIR) ?
-#endif
 	    ACE_ADD_SUBDIRECTORY : ACE_ADD_FILE;
+#endif
 
 	/*
 	 * Rename permissions are combination of delete permission +

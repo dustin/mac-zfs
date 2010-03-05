@@ -28,6 +28,593 @@
 #ifndef _SYS_ZONE_H
 #define	_SYS_ZONE_H
 
-/* This header file intentionally left blank */
+#ifndef __APPLE__
 
-#endif /* _SYS_ZONE_H */
+#pragma ident	"%Z%%M%	%I%	%E% SMI"
+
+#include <sys/types.h>
+#include <sys/mutex.h>
+#include <sys/param.h>
+#include <sys/rctl.h>
+#include <sys/ipc_rctl.h>
+#include <sys/pset.h>
+#include <sys/tsol/label.h>
+#include <sys/cred.h>
+#include <sys/netstack.h>
+#include <sys/uadmin.h>
+
+#ifdef	__cplusplus
+extern "C" {
+#endif
+
+/*
+ * NOTE
+ *
+ * The contents of this file are private to the implementation of
+ * Solaris and are subject to change at any time without notice.
+ * Applications and drivers using these interfaces may fail to
+ * run on future releases.
+ */
+
+/* Available both in kernel and for user space */
+
+/* zone id restrictions and special ids */
+#define	MAX_ZONEID	9999
+#define	MIN_USERZONEID	1	/* lowest user-creatable zone ID */
+#define	MIN_ZONEID	0	/* minimum zone ID on system */
+#define	GLOBAL_ZONEID	0
+#define	ZONEID_WIDTH	4	/* for printf */
+
+/*
+ * Special zoneid_t token to refer to all zones.
+ */
+#define	ALL_ZONES	(-1)
+
+/* system call subcodes */
+#define	ZONE_CREATE		0
+#define	ZONE_DESTROY		1
+#define	ZONE_GETATTR		2
+#define	ZONE_ENTER		3
+#define	ZONE_LIST		4
+#define	ZONE_SHUTDOWN		5
+#define	ZONE_LOOKUP		6
+#define	ZONE_BOOT		7
+#define	ZONE_VERSION		8
+#define	ZONE_SETATTR		9
+#define	ZONE_ADD_DATALINK	10
+#define	ZONE_DEL_DATALINK	11
+#define	ZONE_CHECK_DATALINK	12
+#define	ZONE_LIST_DATALINK	13
+
+/* zone attributes */
+#define	ZONE_ATTR_ROOT		1
+#define	ZONE_ATTR_NAME		2
+#define	ZONE_ATTR_STATUS	3
+#define	ZONE_ATTR_PRIVSET	4
+#define	ZONE_ATTR_UNIQID	5
+#define	ZONE_ATTR_POOLID	6
+#define	ZONE_ATTR_INITPID	7
+#define	ZONE_ATTR_SLBL		8
+#define	ZONE_ATTR_INITNAME	9
+#define	ZONE_ATTR_BOOTARGS	10
+#define	ZONE_ATTR_BRAND		11
+#define	ZONE_ATTR_PHYS_MCAP	12
+#define	ZONE_ATTR_SCHED_CLASS	13
+#define	ZONE_ATTR_FLAGS		14
+
+/* Start of the brand-specific attribute namespace */
+#define	ZONE_ATTR_BRAND_ATTRS	32768
+
+#define	ZONE_EVENT_CHANNEL	"com.sun:zones:status"
+#define	ZONE_EVENT_STATUS_CLASS	"status"
+#define	ZONE_EVENT_STATUS_SUBCLASS	"change"
+
+#define	ZONE_EVENT_UNINITIALIZED	"uninitialized"
+#define	ZONE_EVENT_READY		"ready"
+#define	ZONE_EVENT_RUNNING		"running"
+#define	ZONE_EVENT_SHUTTING_DOWN	"shutting_down"
+
+#define	ZONE_CB_NAME		"zonename"
+#define	ZONE_CB_NEWSTATE	"newstate"
+#define	ZONE_CB_OLDSTATE	"oldstate"
+#define	ZONE_CB_TIMESTAMP	"when"
+#define	ZONE_CB_ZONEID		"zoneid"
+
+/*
+ * Exit values that may be returned by scripts or programs invoked by various
+ * zone commands.
+ *
+ * These are defined as:
+ *
+ *	ZONE_SUBPROC_OK
+ *	===============
+ *	The subprocess completed successfully.
+ *
+ *	ZONE_SUBPROC_USAGE
+ *	==================
+ *	The subprocess failed with a usage message, or a usage message should
+ *	be output in its behalf.
+ *
+ *	ZONE_SUBPROC_NOTCOMPLETE
+ *	========================
+ *	The subprocess did not complete, but the actions performed by the
+ *	subprocess require no recovery actions by the user.
+ *
+ *	For example, if the subprocess were called by "zoneadm install," the
+ *	installation of the zone did not succeed but the user need not perform
+ *	a "zoneadm uninstall" before attempting another install.
+ *
+ *	ZONE_SUBPROC_FATAL
+ *	==================
+ *	The subprocess failed in a fatal manner, usually one that will require
+ *	some type of recovery action by the user.
+ *
+ *	For example, if the subprocess were called by "zoneadm install," the
+ *	installation of the zone did not succeed and the user will need to
+ *	perform a "zoneadm uninstall" before another install attempt is
+ *	possible.
+ *
+ *	The non-success exit values are large to avoid accidental collision
+ *	with values used internally by some commands (e.g. "Z_ERR" and
+ *	"Z_USAGE" as used by zoneadm.)
+ */
+#define	ZONE_SUBPROC_OK			0
+#define	ZONE_SUBPROC_USAGE		253
+#define	ZONE_SUBPROC_NOTCOMPLETE	254
+#define	ZONE_SUBPROC_FATAL		255
+
+#ifdef _SYSCALL32
+typedef struct {
+	caddr32_t zone_name;
+	caddr32_t zone_root;
+	caddr32_t zone_privs;
+	size32_t zone_privssz;
+	caddr32_t rctlbuf;
+	size32_t rctlbufsz;
+	caddr32_t extended_error;
+	caddr32_t zfsbuf;
+	size32_t  zfsbufsz;
+	int match;			/* match level */
+	uint32_t doi;			/* DOI for label */
+	caddr32_t label;		/* label associated with zone */
+	int flags;
+} zone_def32;
+#endif
+typedef struct {
+	const char *zone_name;
+	const char *zone_root;
+	const struct priv_set *zone_privs;
+	size_t zone_privssz;
+	const char *rctlbuf;
+	size_t rctlbufsz;
+	int *extended_error;
+	const char *zfsbuf;
+	size_t zfsbufsz;
+	int match;			/* match level */
+	uint32_t doi;			/* DOI for label */
+	const bslabel_t *label;		/* label associated with zone */
+	int flags;
+} zone_def;
+
+/* extended error information */
+#define	ZE_UNKNOWN	0	/* No extended error info */
+#define	ZE_CHROOTED	1	/* tried to zone_create from chroot */
+#define	ZE_AREMOUNTS	2	/* there are mounts within the zone */
+#define	ZE_LABELINUSE	3	/* label is already in use by some other zone */
+
+/* zone_status */
+typedef enum {
+	ZONE_IS_UNINITIALIZED = 0,
+	ZONE_IS_READY,
+	ZONE_IS_BOOTING,
+	ZONE_IS_RUNNING,
+	ZONE_IS_SHUTTING_DOWN,
+	ZONE_IS_EMPTY,
+	ZONE_IS_DOWN,
+	ZONE_IS_DYING,
+	ZONE_IS_DEAD
+} zone_status_t;
+#define	ZONE_MIN_STATE		ZONE_IS_UNINITIALIZED
+#define	ZONE_MAX_STATE		ZONE_IS_DEAD
+
+/*
+ * Valid commands which may be issued by zoneadm to zoneadmd.  The kernel also
+ * communicates with zoneadmd, but only uses Z_REBOOT and Z_HALT.
+ */
+typedef enum zone_cmd {
+	Z_READY, Z_BOOT, Z_FORCEBOOT, Z_REBOOT, Z_HALT, Z_NOTE_UNINSTALLING,
+	Z_MOUNT, Z_FORCEMOUNT, Z_UNMOUNT
+} zone_cmd_t;
+
+/*
+ * The structure of a request to zoneadmd.
+ */
+typedef struct zone_cmd_arg {
+	uint64_t	uniqid;		/* unique "generation number" */
+	zone_cmd_t	cmd;		/* requested action */
+	uint32_t	_pad;		/* need consistent 32/64 bit alignmt */
+	char locale[MAXPATHLEN];	/* locale in which to render messages */
+	char bootbuf[BOOTARGS_MAX];	/* arguments passed to zone_boot() */
+} zone_cmd_arg_t;
+
+/*
+ * Structure of zoneadmd's response to a request.  A NULL return value means
+ * the caller should attempt to restart zoneadmd and retry.
+ */
+typedef struct zone_cmd_rval {
+	int rval;			/* return value of request */
+	char errbuf[1];	/* variable-sized buffer containing error messages */
+} zone_cmd_rval_t;
+
+/*
+ * The zone support infrastructure uses the zone name as a component
+ * of unix domain (AF_UNIX) sockets, which are limited to 108 characters
+ * in length, so ZONENAME_MAX is limited by that.
+ */
+#define	ZONENAME_MAX		64
+
+#define	GLOBAL_ZONENAME		"global"
+
+/*
+ * Extended Regular expression (see regex(5)) which matches all valid zone
+ * names.
+ */
+#define	ZONENAME_REGEXP		"[a-zA-Z0-9][-_.a-zA-Z0-9]{0,62}"
+
+/*
+ * Where the zones support infrastructure places temporary files.
+ */
+#define	ZONES_TMPDIR		"/var/run/zones"
+
+/*
+ * The path to the door used by clients to communicate with zoneadmd.
+ */
+#define	ZONE_DOOR_PATH		ZONES_TMPDIR "/%s.zoneadmd_door"
+
+/* zone_flags */
+#define	ZF_DESTROYED		0x1	/* ZSD destructor callbacks run */
+#define	ZF_HASHED_LABEL		0x2	/* zone has a unique label */
+#define	ZF_IS_SCRATCH		0x4	/* scratch zone */
+#define	ZF_NET_EXCL		0x8	/* Zone has an exclusive IP stack */
+
+/* zone_create flags */
+#define	ZCF_NET_EXCL		0x1	/* Create a zone with exclusive IP */
+
+#ifdef _KERNEL
+/*
+ * We need to protect the definition of 'list_t' from userland applications and
+ * libraries which may be defining ther own versions.
+ */
+#include <sys/list.h>
+
+#define	GLOBAL_ZONEUNIQID	0	/* uniqid of the global zone */
+
+struct pool;
+struct brand;
+struct dlnamelist;
+
+/*
+ * Structure to record list of ZFS datasets exported to a zone.
+ */
+typedef struct zone_dataset {
+	char		*zd_dataset;
+	list_node_t	zd_linkage;
+} zone_dataset_t;
+
+/*
+ * structure for zone kstats
+ */
+typedef struct zone_kstat {
+	kstat_named_t zk_zonename;
+	kstat_named_t zk_usage;
+	kstat_named_t zk_value;
+} zone_kstat_t;
+
+struct cpucap;
+
+typedef struct zone {
+	/*
+	 * zone_name is never modified once set.
+	 */
+	char		*zone_name;	/* zone's configuration name */
+	/*
+	 * zone_nodename and zone_domain are never freed once allocated.
+	 */
+	char		*zone_nodename;	/* utsname.nodename equivalent */
+	char		*zone_domain;	/* srpc_domain equivalent */
+	/*
+	 * zone_lock protects the following fields of a zone_t:
+	 * 	zone_ref
+	 * 	zone_cred_ref
+	 * 	zone_ntasks
+	 * 	zone_flags
+	 * 	zone_zsd
+	 */
+	kmutex_t	zone_lock;
+	/*
+	 * zone_linkage is the zone's linkage into the active or
+	 * death-row list.  The field is protected by zonehash_lock.
+	 */
+	list_node_t	zone_linkage;
+	zoneid_t	zone_id;	/* ID of zone */
+	uint_t		zone_ref;	/* count of zone_hold()s on zone */
+	uint_t		zone_cred_ref;	/* count of zone_hold_cred()s on zone */
+	/*
+	 * zone_rootvp and zone_rootpath can never be modified once set.
+	 */
+	struct vnode	*zone_rootvp;	/* zone's root vnode */
+	char		*zone_rootpath;	/* Path to zone's root + '/' */
+	ushort_t	zone_flags;	/* misc flags */
+	zone_status_t	zone_status;	/* protected by zone_status_lock */
+	uint_t		zone_ntasks;	/* number of tasks executing in zone */
+	kmutex_t	zone_nlwps_lock; /* protects zone_nlwps, and *_nlwps */
+					/* counters in projects and tasks */
+					/* that are within the zone */
+	rctl_qty_t	zone_nlwps;	/* number of lwps in zone */
+	rctl_qty_t	zone_nlwps_ctl; /* protected by zone_rctls->rcs_lock */
+	rctl_qty_t	zone_shmmax;	/* System V shared memory usage */
+	ipc_rqty_t	zone_ipc;	/* System V IPC id resource usage */
+
+	uint_t		zone_rootpathlen; /* strlen(zone_rootpath) + 1 */
+	uint32_t	zone_shares;	/* FSS shares allocated to zone */
+	rctl_set_t	*zone_rctls;	/* zone-wide (zone.*) rctls */
+	kmutex_t	zone_mem_lock;	/* protects zone_locked_mem and */
+					/* kpd_locked_mem for all */
+					/* projects in zone. */
+					/* Also protects zone_max_swap */
+					/* grab after p_lock, before rcs_lock */
+	rctl_qty_t	zone_locked_mem;	/* bytes of locked memory in */
+						/* zone */
+	rctl_qty_t	zone_locked_mem_ctl;	/* Current locked memory */
+						/* limit.  Protected by */
+						/* zone_rctls->rcs_lock */
+	rctl_qty_t	zone_max_swap; /* bytes of swap reserved by zone */
+	rctl_qty_t	zone_max_swap_ctl;	/* current swap limit. */
+						/* Protected by */
+						/* zone_rctls->rcs_lock */
+	list_t		zone_zsd;	/* list of Zone-Specific Data values */
+	kcondvar_t	zone_cv;	/* used to signal state changes */
+	struct proc	*zone_zsched;	/* Dummy kernel "zsched" process */
+	pid_t		zone_proc_initpid; /* pid of "init" for this zone */
+	char		*zone_initname;	/* fs path to 'init' */
+	int		zone_boot_err;  /* for zone_boot() if boot fails */
+	char		*zone_bootargs;	/* arguments passed via zone_boot() */
+	uint64_t	zone_phys_mcap;	/* physical memory cap */
+	/*
+	 * zone_kthreads is protected by zone_status_lock.
+	 */
+	kthread_t	*zone_kthreads;	/* kernel threads in zone */
+	struct priv_set	*zone_privset;	/* limit set for zone */
+	/*
+	 * zone_vfslist is protected by vfs_list_lock().
+	 */
+	struct vfs	*zone_vfslist;	/* list of FS's mounted in zone */
+	uint64_t	zone_uniqid;	/* unique zone generation number */
+	struct cred	*zone_kcred;	/* kcred-like, zone-limited cred */
+	/*
+	 * zone_pool is protected by pool_lock().
+	 */
+	struct pool	*zone_pool;	/* pool the zone is bound to */
+	hrtime_t	zone_pool_mod;	/* last pool bind modification time */
+	/* zone_psetid is protected by cpu_lock */
+	psetid_t	zone_psetid;	/* pset the zone is bound to */
+	/*
+	 * The following two can be read without holding any locks.  They are
+	 * updated under cpu_lock.
+	 */
+	int		zone_ncpus;  /* zone's idea of ncpus */
+	int		zone_ncpus_online; /* zone's idea of ncpus_online */
+	/*
+	 * List of ZFS datasets exported to this zone.
+	 */
+	list_t		zone_datasets;	/* list of datasets */
+
+	ts_label_t	*zone_slabel;	/* zone sensitivity label */
+	int		zone_match;	/* require label match for packets */
+	tsol_mlp_list_t zone_mlps;	/* MLPs on zone-private addresses */
+
+	boolean_t	zone_restart_init;	/* Restart init if it dies? */
+	struct brand	*zone_brand;		/* zone's brand */
+	void 		*zone_brand_data;	/* store brand specific data */
+	id_t		zone_defaultcid;	/* dflt scheduling class id */
+	kstat_t		*zone_swapresv_kstat;
+	kstat_t		*zone_lockedmem_kstat;
+	/*
+	 * zone_dl_list is protected by zone_lock
+	 */
+	struct dlnamelist *zone_dl_list;
+	netstack_t	*zone_netstack;
+	struct cpucap	*zone_cpucap;	/* CPU caps data */
+	/*
+	 * Solaris Auditing per-zone audit context
+	 */
+	struct au_kcontext	*zone_audit_kctxt;
+} zone_t;
+
+/*
+ * Special value of zone_psetid to indicate that pools are disabled.
+ */
+#define	ZONE_PS_INVAL	PS_MYID
+
+
+extern zone_t zone0;
+extern zone_t *global_zone;
+extern uint_t maxzones;
+extern rctl_hndl_t rc_zone_nlwps;
+
+extern long zone(int, void *, void *, void *, void *);
+extern void zone_zsd_init(void);
+extern void zone_init(void);
+extern void zone_hold(zone_t *);
+extern void zone_rele(zone_t *);
+extern void zone_cred_hold(zone_t *);
+extern void zone_cred_rele(zone_t *);
+extern void zone_task_hold(zone_t *);
+extern void zone_task_rele(zone_t *);
+extern zone_t *zone_find_by_id(zoneid_t);
+extern zone_t *zone_find_by_label(const ts_label_t *);
+extern zone_t *zone_find_by_name(char *);
+extern zone_t *zone_find_by_any_path(const char *, boolean_t);
+extern zone_t *zone_find_by_path(const char *);
+extern zoneid_t getzoneid(void);
+extern zone_t *zone_find_by_id_nolock(zoneid_t);
+
+/*
+ * Zone-specific data (ZSD) APIs
+ */
+/*
+ * The following is what code should be initializing its zone_key_t to if it
+ * calls zone_getspecific() without necessarily knowing that zone_key_create()
+ * has been called on the key.
+ */
+#define	ZONE_KEY_UNINITIALIZED	0
+
+typedef uint_t zone_key_t;
+
+extern void	zone_key_create(zone_key_t *, void *(*)(zoneid_t),
+    void (*)(zoneid_t, void *), void (*)(zoneid_t, void *));
+extern int 	zone_key_delete(zone_key_t);
+extern void	*zone_getspecific(zone_key_t, zone_t *);
+extern int	zone_setspecific(zone_key_t, zone_t *, const void *);
+
+/*
+ * The definition of a zsd_entry is truly private to zone.c and is only
+ * placed here so it can be shared with mdb.
+ */
+struct zsd_entry {
+	zone_key_t		zsd_key;	/* Key used to lookup value */
+	void			*zsd_data;	/* Caller-managed value */
+	/*
+	 * Callbacks to be executed when a zone is created, shutdown, and
+	 * destroyed, respectively.
+	 */
+	void			*(*zsd_create)(zoneid_t);
+	void			(*zsd_shutdown)(zoneid_t, void *);
+	void			(*zsd_destroy)(zoneid_t, void *);
+	list_node_t		zsd_linkage;
+};
+
+/*
+ * Macros to help with zone visibility restrictions.
+ */
+
+/*
+ * Is process in the global zone?
+ */
+#define	INGLOBALZONE(p) \
+	((p)->p_zone == global_zone)
+
+/*
+ * Can process view objects in given zone?
+ */
+#define	HASZONEACCESS(p, zoneid) \
+	((p)->p_zone->zone_id == (zoneid) || INGLOBALZONE(p))
+
+/*
+ * Convenience macro to see if a resolved path is visible from within a
+ * given zone.
+ *
+ * The basic idea is that the first (zone_rootpathlen - 1) bytes of the
+ * two strings must be equal.  Since the rootpathlen has a trailing '/',
+ * we want to skip everything in the path up to (but not including) the
+ * trailing '/'.
+ */
+#define	ZONE_PATH_VISIBLE(path, zone) \
+	(strncmp((path), (zone)->zone_rootpath,		\
+	    (zone)->zone_rootpathlen - 1) == 0)
+
+/*
+ * Convenience macro to go from the global view of a path to that seen
+ * from within said zone.  It is the responsibility of the caller to
+ * ensure that the path is a resolved one (ie, no '..'s or '.'s), and is
+ * in fact visible from within the zone.
+ */
+#define	ZONE_PATH_TRANSLATE(path, zone)	\
+	(ASSERT(ZONE_PATH_VISIBLE(path, zone)),	\
+	(path) + (zone)->zone_rootpathlen - 2)
+
+/*
+ * Special processes visible in all zones.
+ */
+#define	ZONE_SPECIALPID(x)	 ((x) == 0 || (x) == 1)
+
+/*
+ * Zone-safe version of thread_create() to be used when the caller wants to
+ * create a kernel thread to run within the current zone's context.
+ */
+extern kthread_t *zthread_create(caddr_t, size_t, void (*)(), void *, size_t,
+    pri_t);
+extern void zthread_exit(void);
+
+/*
+ * Functions for an external observer to register interest in a zone's status
+ * change.  Observers will be woken up when the zone status equals the status
+ * argument passed in (in the case of zone_status_timedwait, the function may
+ * also return because of a timeout; zone_status_wait_sig may return early due
+ * to a signal being delivered; zone_status_timedwait_sig may return for any of
+ * the above reasons).
+ *
+ * Otherwise these behave identically to cv_timedwait(), cv_wait(), and
+ * cv_wait_sig() respectively.
+ */
+extern clock_t zone_status_timedwait(zone_t *, clock_t, zone_status_t);
+extern clock_t zone_status_timedwait_sig(zone_t *, clock_t, zone_status_t);
+extern void zone_status_wait(zone_t *, zone_status_t);
+extern int zone_status_wait_sig(zone_t *, zone_status_t);
+
+/*
+ * Get the status  of the zone (at the time it was called).  The state may
+ * have progressed by the time it is returned.
+ */
+extern zone_status_t zone_status_get(zone_t *);
+
+/*
+ * Get the "kcred" credentials corresponding to the given zone.
+ */
+extern struct cred *zone_get_kcred(zoneid_t);
+
+/*
+ * Get/set the pool the zone is currently bound to.
+ */
+extern struct pool *zone_pool_get(zone_t *);
+extern void zone_pool_set(zone_t *, struct pool *);
+
+/*
+ * Get/set the pset the zone is currently using.
+ */
+extern psetid_t zone_pset_get(zone_t *);
+extern void zone_pset_set(zone_t *, psetid_t);
+
+/*
+ * Get the number of cpus/online-cpus visible from the given zone.
+ */
+extern int zone_ncpus_get(zone_t *);
+extern int zone_ncpus_online_get(zone_t *);
+
+/*
+ * Returns true if the named pool/dataset is visible in the current zone.
+ */
+extern int zone_dataset_visible(const char *, int *);
+
+/*
+ * zone version of kadmin()
+ */
+extern int zone_kadmin(int, int, const char *, cred_t *);
+extern void zone_shutdown_global(void);
+
+extern void mount_in_progress(void);
+extern void mount_completed(void);
+
+extern int zone_walk(int (*)(zone_t *, void *), void *);
+
+extern rctl_hndl_t rc_zone_locked_mem;
+extern rctl_hndl_t rc_zone_max_swap;
+
+#endif	/* _KERNEL */
+
+#ifdef	__cplusplus
+}
+#endif
+
+#endif  /* !__APPLE__ */
+#endif	/* _SYS_ZONE_H */

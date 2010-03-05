@@ -63,13 +63,16 @@
 #include <sys/zfs_ctldir.h>
 #include <sys/zfs_ioctl.h>
 #include <sys/zfs_vfsops.h>
-//#include <sys/vfs_opreg.h>
-//#include <sys/gfs.h>
+#ifndef __APPLE__
+#include <sys/vfs_opreg.h>
+#include <sys/gfs.h>
+#endif /* !__APPLE__ */
 #include <sys/stat.h>
 #include <sys/dmu.h>
 #include <sys/dsl_deleg.h>
 #include <sys/mount.h>
 
+// Issue 5
 #if 0
 typedef struct {
 	char		*se_name;
@@ -77,7 +80,7 @@ typedef struct {
 	struct vnode	*se_root;
 #else
 	vnode_t		*se_root;
-#endif
+#endif /* __APPLE __*/
 	avl_node_t	se_node;
 } zfs_snapentry_t;
 
@@ -104,6 +107,7 @@ static const fs_operation_def_t zfsctl_tops_root[];
 static const fs_operation_def_t zfsctl_tops_snapdir[];
 static const fs_operation_def_t zfsctl_tops_snapshot[];
 
+// Issue 27
 #ifdef __APPLE__
 static struct vnode *zfsctl_mknode_snapdir(struct vnode *);
 static struct vnode *zfsctl_snapshot_mknode(struct vnode *, uint64_t objset);
@@ -180,6 +184,7 @@ zfsctl_fini(void)
  */
 /* ARGSUSED */
 static ino64_t
+// Issue 27
 #ifdef __APPLE__
 zfsctl_root_inode_cb(struct vnode *vp, int index)
 #else
@@ -199,6 +204,7 @@ zfsctl_root_inode_cb(vnode_t *vp, int index)
 void
 zfsctl_create(zfsvfs_t *zfsvfs)
 {
+// Issue 27
 #ifdef __APPLE__
 	struct vnode *vp, *rvp;
 #else
@@ -244,6 +250,7 @@ zfsctl_destroy(zfsvfs_t *zfsvfs)
  * Given a root znode, retrieve the associated .zfs directory.
  * Add a hold to the vnode and return it.
  */
+// Issue 27
 #ifdef __APPLE__
 struct vnode *
 #else
@@ -261,6 +268,7 @@ zfsctl_root(znode_t *zp)
  */
 /* ARGSUSED */
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_common_open(struct vnode **vpp, int flags, cred_t *cr)
 #else
@@ -278,6 +286,7 @@ zfsctl_common_open(vnode_t **vpp, int flags, cred_t *cr)
  */
 /* ARGSUSED */
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_common_close(struct vnode *vpp, int flags, int count, offset_t off, cred_t *cr)
 #else
@@ -292,6 +301,7 @@ zfsctl_common_close(vnode_t *vpp, int flags, int count, offset_t off, cred_t *cr
  */
 /* ARGSUSED */
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_common_access(struct vnode *vp, int mode, int flags, cred_t *cr)
 #else
@@ -308,6 +318,7 @@ zfsctl_common_access(vnode_t *vp, int mode, int flags, cred_t *cr)
  * Common getattr function.  Fill in basic information.
  */
 static void
+// Issue 27
 #ifdef __APPLE__
 zfsctl_common_getattr(struct vnode *vp, vattr_t *vap)
 #else
@@ -340,6 +351,7 @@ zfsctl_common_getattr(vnode_t *vp, vattr_t *vap)
 }
 
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_common_fid(struct vnode *vp, fid_t *fidp)
 #else
@@ -394,6 +406,7 @@ zfsctl_common_fid(vnode_t *vp, fid_t *fidp)
  */
 /* ARGSUSED */
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_root_getattr(struct vnode *vp, vattr_t *vap, int flags, cred_t *cr)
 #else
@@ -417,6 +430,7 @@ zfsctl_root_getattr(vnode_t *vp, vattr_t *vap, int flags, cred_t *cr)
  */
 /* ARGSUSED */
 int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_root_lookup(struct vnode *dvp, char *nm, struct vnode **vpp, pathname_t *pnp,
     int flags, struct vnode *rdir, cred_t *cr)
@@ -456,6 +470,7 @@ static const fs_operation_def_t zfsctl_tops_root[] = {
 };
 
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_snapshot_zname(struct vnode *vp, const char *name, int len, char *zname)
 #else
@@ -473,6 +488,7 @@ zfsctl_snapshot_zname(vnode_t *vp, const char *name, int len, char *zname)
 }
 
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_unmount_snap(struct vnode *dvp, const char *name, int force, cred_t *cr)
 #else
@@ -567,6 +583,7 @@ zfsctl_rename_snap(zfsctl_snapdir_t *sdp, zfs_snapentry_t *sep, const char *nm)
 }
 
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_snapdir_rename(struct vnode *sdvp, char *snm, struct vnode *tdvp, char *tnm,
     cred_t *cr)
@@ -619,6 +636,7 @@ zfsctl_snapdir_rename(vnode_t *sdvp, char *snm, vnode_t *tdvp, char *tnm,
 
 /* ARGSUSED */
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_snapdir_remove(struct vnode *dvp, char *name, struct vnode *cwd, cred_t *cr)
 #else
@@ -687,6 +705,7 @@ zfsctl_snapdir_mkdir(vnode_t *dvp, char *dirname, vattr_t *vap, vnode_t  **vpp,
  */
 /* ARGSUSED */
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_snapdir_lookup(struct vnode *dvp, char *nm, struct vnode **vpp, pathname_t *pnp,
     int flags, struct vnode *rdir, cred_t *cr)
@@ -823,6 +842,7 @@ domount:
 
 /* ARGSUSED */
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_snapdir_readdir_cb(struct vnode *vp, struct dirent64 *dp, int *eofp,
     offset_t *offp, offset_t *nextp, void *data)
@@ -854,15 +874,18 @@ zfsctl_snapdir_readdir_cb(vnode_t *vp, struct dirent64 *dp, int *eofp,
 	return (0);
 }
 
+// Issue 27
 #ifdef __APPLE__
 struct vnode *
 zfsctl_mknode_snapdir(struct vnode *pvp)
-{
-	struct vnode *vp;
 #else
 vnode_t *
 zfsctl_mknode_snapdir(vnode_t *pvp)
+#endif
 {
+#ifdef __APPLE__
+	struct vnode *vp;
+#else
 	vnode_t *vp;
 #endif
 	zfsctl_snapdir_t *sdp;
@@ -881,6 +904,7 @@ zfsctl_mknode_snapdir(vnode_t *pvp)
 
 /* ARGSUSED */
 static int
+// Issue 27
 #ifdef __APPLE__
 zfsctl_snapdir_getattr(struct vnode *vp, vattr_t *vap, int flags, cred_t *cr)
 #else
@@ -901,6 +925,7 @@ zfsctl_snapdir_getattr(vnode_t *vp, vattr_t *vap, int flags, cred_t *cr)
 
 /* ARGSUSED */
 static void
+// Issue 27
 #ifdef __APPLE__
 zfsctl_snapdir_inactive(struct vnode *vp, cred_t *cr)
 #else
@@ -936,15 +961,18 @@ static const fs_operation_def_t zfsctl_tops_snapdir[] = {
 	{ NULL }
 };
 
+// Issue 27
 #ifdef __APPLE__
 static struct vnode *
 zfsctl_snapshot_mknode(struct vnode *pvp, uint64_t objset)
-{
-	struct vnode *vp;
 #else
 static vnode_t *
 zfsctl_snapshot_mknode(vnode_t *pvp, uint64_t objset)
+#endif
 {
+#ifdef __APPLE__
+	struct vnode *vp;
+#else
 	vnode_t *vp;
 #endif
 	zfsctl_node_t *zcp;
@@ -958,6 +986,7 @@ zfsctl_snapshot_mknode(vnode_t *pvp, uint64_t objset)
 }
 
 static void
+// Issue 27
 #ifdef __APPLE__
 zfsctl_snapshot_inactive(struct vnode *vp, cred_t *cr)
 #else
@@ -966,12 +995,12 @@ zfsctl_snapshot_inactive(vnode_t *vp, cred_t *cr)
 {
 	zfsctl_snapdir_t *sdp;
 	zfs_snapentry_t *sep, *next;
+// Issue 27
 #ifdef __APPLE__
 	struct vnode *dvp;
 #else
 	vnode_t *dvp;
 #endif
-
 	VERIFY(gfs_dir_lookup(vp, "..", &dvp) == 0);
 	sdp = dvp->v_data;
 
@@ -1024,6 +1053,7 @@ int
 zfsctl_lookup_objset(vfs_t *vfsp, uint64_t objsetid, zfsvfs_t **zfsvfsp)
 {
 	zfsvfs_t *zfsvfs = vfsp->vfs_data;
+// Issue 27
 #ifdef __APPLE__
 	struct vnode *dvp, *vp;
 #else
@@ -1082,6 +1112,7 @@ int
 zfsctl_umount_snapshots(vfs_t *vfsp, int fflags, cred_t *cr)
 {
 	zfsvfs_t *zfsvfs = vfsp->vfs_data;
+// Issue 27
 #ifdef __APPLE__
 	struct vnode *dvp, *svp;
 #else
@@ -1141,6 +1172,4 @@ out:
 
 	return (error);
 }
-
-#endif
-
+#endif /* Entire File */

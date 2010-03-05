@@ -27,12 +27,12 @@
 #ifndef	_LIBDEVID_H
 #define	_LIBDEVID_H
 
-#pragma ident	"@(#)libdevid.h	1.8	05/06/08 SMI"
-
 #include <errno.h>
 #include <sys/param.h>
-//#include <sys/sunddi.h>
-//#include <sys/ddi_impldefs.h>
+#ifndef __APPLE__
+#include <sys/sunddi.h>
+#include <sys/ddi_impldefs.h>
+#endif
 #include <sys/dkio.h>
 #include <devid.h>
 

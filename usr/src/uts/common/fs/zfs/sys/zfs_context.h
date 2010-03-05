@@ -35,40 +35,11 @@
 extern "C" {
 #endif
 
-
-#if 0
-#include <sys/note.h>
-#include <sys/types.h>
-#include <sys/t_lock.h>
-#include <sys/atomic.h>
-#include <sys/sysmacros.h>
-#include <sys/bitmap.h>
-#include <sys/cmn_err.h>
-#include <sys/kmem.h>
-#include <sys/taskq.h>
-#include <sys/buf.h>
-#include <sys/param.h>
-#include <sys/systm.h>
-#include <sys/cpuvar.h>
-#include <sys/kobj.h>
-#include <sys/conf.h>
-#include <sys/disp.h>
-#include <sys/debug.h>
-#include <sys/random.h>
-#include <sys/byteorder.h>
-#include <sys/systm.h>
-#include <sys/list.h>
-#include <sys/uio.h>
-#include <sys/dirent.h>
-#include <sys/time.h>
-#include <vm/seg_kmem.h>
-#include <sys/zone.h>
-#include <sys/uio.h>
-#include <sys/zfs_debug.h>
-#endif
+#ifdef __APPLE__ 
 
 #define _SYS_KERNEL_H_
 
+#include <AvailabilityMacros.h>
 #include <sys/types.h>
 #include <sys/param.h>
 
@@ -193,8 +164,28 @@ extern  int   rw_tryupgrade(krwlock_t *);
 extern  int   rw_write_held(krwlock_t *);
 extern  int   rw_lock_held(krwlock_t *);
 
+// Used to signify that a fn doesn't return in the OpenSolaris codebase
+#define __NORETURN
+	
+#ifndef MAC_OS_X_VERSION_MIN_REQUIRED
+#error Mac OS X Version undefined (AvailabilityMacros missing?)
+#else
+	
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
+#fail This does not build on Mac OS X 10.4 or below
+#endif
 
-
+#ifndef MAC_OS_X_VERSION_10_6
+#define MAC_OS_X_VERSION_10_6 1060
+#endif
+	
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_6 
+#define ZFS_LEOPARD_ONLY 1
+// Missing in 10.5, present in 10.6, needed in zfs_vfsops.c
+typedef char* user32_addr_t;
+#endif /* Leopard */
+	
+#endif /* MAC_OS_X_VERSION_MIN_REQUIRED */
 /*
  * CONDITION VARIABLES
  */
@@ -720,6 +711,41 @@ extern int zfs_dprintf_enabled;
 
 extern void dprint_stack_internal(char func_name[], char file_name[], int line);
 #define dprint_stack dprint_stack_internal(__func__, __FILE__, __LINE__)
+
+#else  /* __APPLE__ */
+#include <sys/note.h>
+#include <sys/types.h>
+#include <sys/t_lock.h>
+#include <sys/atomic.h>
+#include <sys/sysmacros.h>
+#include <sys/bitmap.h>
+#include <sys/cmn_err.h>
+#include <sys/kmem.h>
+#include <sys/taskq.h>
+#include <sys/buf.h>
+#include <sys/param.h>
+#include <sys/systm.h>
+#include <sys/cpuvar.h>
+#include <sys/kobj.h>
+#include <sys/conf.h>
+#include <sys/disp.h>
+#include <sys/debug.h>
+#include <sys/random.h>
+#include <sys/byteorder.h>
+#include <sys/systm.h>
+#include <sys/list.h>
+#include <sys/uio.h>
+#include <sys/dirent.h>
+#include <sys/time.h>
+#include <vm/seg_kmem.h>
+#include <sys/zone.h>
+#include <sys/uio.h>
+#include <sys/zfs_debug.h>
+#include <sys/sysevent.h>
+#include <sys/sysevent/eventdefs.h>
+
+#define	CPU_SEQID	(CPU->cpu_seqid)
+#endif /* __APPLE__ */
 
 #ifdef	__cplusplus
 }
