@@ -9,11 +9,6 @@
 # hgext.bookmarks=
 # hggit=
 #
-# [extensions]
-hgext.convert=
-hgext.bookmarks=
-hggit=
-#
 # convert from 'onnv-gate' to 'onnv-gate-zfs' mercurial repository, up to onnv_72
 # hg convert --filemap .../hg.convert.filemap onnv-gate [--rev onnv_72]  onnv-gate-zfs
 #
