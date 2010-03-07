@@ -1963,6 +1963,14 @@
 		1DEB91C808733DAC0010E9CD /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
+				ARCHS = (
+					i386,
+					x86_64,
+				);
+				"ARCHS[sdk=macosx10.5]" = (
+					i386,
+					ppc,
+				);
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
@@ -2010,12 +2018,12 @@
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ARCHS = (
-					x86_64,
 					i386,
+					x86_64,
 				);
 				"ARCHS[sdk=macosx10.5]" = (
-					ppc,
 					i386,
+					ppc,
 				);
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_VERSION = 4.2;
