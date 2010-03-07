@@ -1,0 +1,11 @@
+#!/bin/bash
+CONFIGURATION=Debug
+# CONFIGURATION=Release
+
+[ -d build/${CONFIGURATION} ] || echo build/${CONFIGURATION} not found; exit 1
+
+sudo cp -r build/${CONFIGURATION}/zfs.kext /System/Library/Extensions
+sudo cp -r build/${CONFIGURATION}/zfs.fs /System/Library/Filesystems
+sudo cp -r build/${CONFIGURATION}/zfs /usr/sbin
+sudo cp -r build/${CONFIGURATION}/zpool /usr/sbin
+sudo cp -r build/${CONFIGURATION}/libzfs.dylib /usr/lib
