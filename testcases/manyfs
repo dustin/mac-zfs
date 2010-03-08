@@ -1,0 +1,9 @@
+sudo kextload /target/zfs.kext
+/usr/sbin/mkfile 100m /tmp/foobar
+/target/zpool create foobar /tmp/foobar
+sleep 1
+for i in 0 1 2 3 4 5 6 7 8 9 ; do for j in 0 1 2 3 4 5 6 7 8 9 ; do /target/zfs create foobar/zfs-$i-$j; done; done
+cd /Volumes/foobar
+for i in zfs-*-9; do /target/zfs set compression=on foobar/$i; done
+for i in zfs-5-*; do cp -R /System/Library/Frameworks/AppleShareClient.framework $i; done
+ 

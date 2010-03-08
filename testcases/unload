@@ -1,0 +1,8 @@
+sudo kextload /target/zfs.kext
+/usr/sbin/mkfile 100m /tmp/foobar
+/target/zpool create foobar /tmp/foobar
+sleep 1
+echo Foo > /Volumes/foobar/foo
+sleep 1
+/target/zpool export -f foobar
+sudo kextunload /target/zfs.kext
