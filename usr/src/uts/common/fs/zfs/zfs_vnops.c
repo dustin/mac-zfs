@@ -4416,6 +4416,13 @@ zfs_vnop_reclaim(struct vnop_reclaim_args *ap)
 {
 	struct vnode  *vp = ap->a_vp;
 	znode_t *zp = VTOZ(vp);
+	if (zp == NULL)
+	{
+		// Issue 39
+		vnode_clearfsnode(vp);
+		return(0);
+	}
+	
 	zfsvfs_t *zfsvfs = zp->z_zfsvfs;
 
 	rw_enter(&zfsvfs->z_unmount_inactive_lock, RW_READER);
