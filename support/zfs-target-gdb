@@ -1,0 +1,4 @@
+source /Volumes/KernelDebugKit/kgmacros
+target remote-kdp
+add-kext zfs.kext
+attach target

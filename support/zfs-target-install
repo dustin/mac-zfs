@@ -1,0 +1,6 @@
+ssh target sudo rm -rf /target/*
+rsync -cav . target:/target
+ssh target sudo chown -R root:wheel /target
+ssh target sudo kextload -s /target /target/zfs.kext
+rsync -cav target:/target/*.sym .
+gdb -arch i386 /Volumes/KernelDebugKit/mach_kernel -x ../../support/zfs-target-gdb
