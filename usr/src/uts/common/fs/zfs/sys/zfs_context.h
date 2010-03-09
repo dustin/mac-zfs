@@ -40,6 +40,27 @@ extern "C" {
 #define _SYS_KERNEL_H_
 
 #include <AvailabilityMacros.h>
+
+#ifndef MAC_OS_X_VERSION_MIN_REQUIRED
+#error Mac OS X Version undefined (AvailabilityMacros missing?)
+#else
+	
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
+#fail This does not build on Mac OS X 10.4 or below
+#endif
+	
+#ifndef MAC_OS_X_VERSION_10_6
+#define MAC_OS_X_VERSION_10_6 1060
+#endif
+	
+#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_6 
+#define ZFS_LEOPARD_ONLY 1
+	// Missing in 10.5, present in 10.6, needed in zfs_vfsops.c
+	typedef char* user32_addr_t;
+#endif /* Leopard */
+	
+#endif /* MAC_OS_X_VERSION_MIN_REQUIRED */
+		
 #include <sys/types.h>
 #include <sys/param.h>
 
@@ -167,25 +188,6 @@ extern  int   rw_lock_held(krwlock_t *);
 // Used to signify that a fn doesn't return in the OpenSolaris codebase
 #define __NORETURN
 	
-#ifndef MAC_OS_X_VERSION_MIN_REQUIRED
-#error Mac OS X Version undefined (AvailabilityMacros missing?)
-#else
-	
-#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_5
-#fail This does not build on Mac OS X 10.4 or below
-#endif
-
-#ifndef MAC_OS_X_VERSION_10_6
-#define MAC_OS_X_VERSION_10_6 1060
-#endif
-	
-#if MAC_OS_X_VERSION_MIN_REQUIRED < MAC_OS_X_VERSION_10_6 
-#define ZFS_LEOPARD_ONLY 1
-// Missing in 10.5, present in 10.6, needed in zfs_vfsops.c
-typedef char* user32_addr_t;
-#endif /* Leopard */
-	
-#endif /* MAC_OS_X_VERSION_MIN_REQUIRED */
 /*
  * CONDITION VARIABLES
  */

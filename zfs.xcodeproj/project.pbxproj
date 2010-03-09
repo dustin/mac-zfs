@@ -191,8 +191,6 @@
 		FAB3322610C3CDB700BF4948 /* zfs_context.c in Sources */ = {isa = PBXBuildFile; fileRef = FAB331B510BFD6A000BF4948 /* zfs_context.c */; };
 		FACE32B4113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
 		FACE32B5113A769500A513AE /* assfail.h in Headers */ = {isa = PBXBuildFile; fileRef = FACE32B3113A769500A513AE /* assfail.h */; };
-		FACE32B6113A769500A513AE /* assfail.c in CopyFiles */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
-		FACE32B7113A769500A513AE /* assfail.h in CopyFiles */ = {isa = PBXBuildFile; fileRef = FACE32B3113A769500A513AE /* assfail.h */; };
 		FACE32B8113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
 		FACE32B9113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
 		FACE32BA113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
@@ -382,8 +380,6 @@
 			files = (
 				DAD6B4D110941B8C008A0395 /* fix-nofs in CopyFiles */,
 				DAD6B4D010941B6F008A0395 /* post-install.sh in CopyFiles */,
-				FACE32B6113A769500A513AE /* assfail.c in CopyFiles */,
-				FACE32B7113A769500A513AE /* assfail.h in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
