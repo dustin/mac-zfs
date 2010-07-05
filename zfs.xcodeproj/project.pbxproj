@@ -1414,6 +1414,7 @@
 			buildConfigurationList = 2611F7600ACDD4E200E5D4E2 /* Build configuration list for PBXNativeTarget "zfs.fs" */;
 			buildPhases = (
 				2611F75A0ACDD4E100E5D4E2 /* Resources */,
+				FA2B7C1311E71A34000DE8DF /* ShellScript */,
 				2611F8000ACDE6EF00E5D4E2 /* CopyFiles */,
 				265DACE90AE8948A00EBFDCE /* CopyFiles */,
 				D9B898020BF3AD2500F648C1 /* CopyFiles */,
@@ -1504,6 +1505,7 @@
 			buildConfigurationList = 1DEB91C308733DAC0010E9CD /* Build configuration list for PBXNativeTarget "zfs.kext" */;
 			buildPhases = (
 				32A4FEBB0562C75700D090E7 /* Resources */,
+				FA17B50211E1D47A00D5C55B /* ShellScript */,
 				32A4FEBD0562C75700D090E7 /* Sources */,
 				32A4FEBF0562C75700D090E7 /* Frameworks */,
 			);
@@ -1597,6 +1599,36 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		FA17B50211E1D47A00D5C55B /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "# Get a list of all maczfs_* tags, sorted in reverse numerical order\n# Note that both Git and awk needs to be on the path, or this step won't work\n# TODO Consider packing this into a script\n\nDESCRIPTION=`git describe --tags --long --match 'maczfs*' 2> /dev/null`\n\nif [ -n \"${DESCRIPTION}\" ]\nthen\n\t/usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString ${DESCRIPTION}\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n\tVERSION=`echo ${DESCRIPTION} | awk -f ${SOURCE_ROOT}/support/version.awk`\n\tif [ -n \"${VERSION}\" ]\n\tthen\n\t\t/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion ${VERSION}\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n\t\tsed -e \"s/0\\\\.0\\\\.0/${VERSION}/\" -i \"~\" ${DERIVED_FILE_DIR}/zfs_info.c\n\t\tsed -e \"s/zfs-/${DESCRIPTION}/\" -i \"~\" ${DERIVED_FILE_DIR}/zfs_vers.c\n\tfi\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+		FA2B7C1311E71A34000DE8DF /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/bash;
+			shellScript = "# Get a list of all maczfs_* tags, sorted in reverse numerical order\n# Note that both Git and awk needs to be on the path, or this step won't work\n# TODO Consider packing this into a script\n\nDESCRIPTION=`git describe --tags --long --match 'maczfs*' 2> /dev/null`\n\nif [ -n \"${DESCRIPTION}\" ]\nthen\n\t/usr/libexec/PlistBuddy -c \"Set :CFBundleShortVersionString ${DESCRIPTION}\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n\tVERSION=`echo ${DESCRIPTION} | awk -f ${SOURCE_ROOT}/support/version.awk`\n\tif [ -n \"${VERSION}\" ]\n\tthen\n\t\t/usr/libexec/PlistBuddy -c \"Set :CFBundleVersion ${VERSION}\" \"${TARGET_BUILD_DIR}/${INFOPLIST_PATH}\"\n\tfi\nfi\n";
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		2611F7330ACDD13900E5D4E2 /* Sources */ = {
@@ -1908,10 +1940,10 @@
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
 				INSTALL_PATH = "$(SYSTEM_LIBRARY_DIR)/Extensions";
-				MODULE_NAME = com.apple.filesystems.zfs;
+				MODULE_NAME = com.bandlem.mac.zfs.fs;
 				MODULE_START = zfs_module_start;
 				MODULE_STOP = zfs_module_stop;
-				MODULE_VERSION = 8.0;
+				MODULE_VERSION = 0.0.0;
 				OTHER_LDFLAGS = "";
 				PRODUCT_NAME = zfs;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -1944,10 +1976,10 @@
 				GCC_WARN_UNUSED_VARIABLE = NO;
 				INFOPLIST_FILE = zfs_kext/Info.plist;
 				INSTALL_PATH = "$(SYSTEM_LIBRARY_DIR)/Extensions";
-				MODULE_NAME = com.apple.filesystems.zfs;
+				MODULE_NAME = com.bandlem.mac.zfs.fs;
 				MODULE_START = zfs_module_start;
 				MODULE_STOP = zfs_module_stop;
-				MODULE_VERSION = 8.0;
+				MODULE_VERSION = 0.0.0;
 				PRODUCT_NAME = zfs;
 				VALID_ARCHS = "i386 ppc ppc7400 ppc970 x86_64";
 				VERSIONING_SYSTEM = "apple-generic";

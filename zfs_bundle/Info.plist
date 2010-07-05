@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>English</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.apple.filesystems.util.zfs</string>
+	<string>com.bandlem.mac.zfs.util</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -15,9 +15,9 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>8.0</string>
+	<string>0.0</string>
 	<key>CFBundleShortVersionString</key>
-	<string>8.0</string>
+	<string>0.0</string>
 	<key>FSMediaTypes</key>
 	<dict>
 		<key>6A898CC3-1DD2-11B2-99A6-080020736631</key>
