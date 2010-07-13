@@ -1913,18 +1913,15 @@
 			buildSettings = {
 				COPY_PHASE_STRIP = NO;
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
-				FRAMEWORK_SEARCH_PATHS = "";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"NAMEDSTREAMS=1",
+					NAMEDSTREAMS,
 					__APPLE_API_UNSTABLE,
-					__APPLE__,
 					_KERNEL,
 					ZFS_DEBUG,
-					ZFS_LEOPARD_ONLY,
 				);
 				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
@@ -1935,7 +1932,6 @@
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_LABEL = YES;
 				GCC_WARN_UNUSED_VARIABLE = NO;
-				HEADER_SEARCH_PATHS = "";
 				INFOPLIST_FILE = zfs_kext/Info.plist;
 				INSTALL_GROUP = wheel;
 				INSTALL_OWNER = root;
@@ -1961,11 +1957,9 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					"NAMEDSTREAMS=1",
+					NAMEDSTREAMS,
 					__APPLE_API_UNSTABLE,
-					__APPLE__,
 					_KERNEL,
-					ZFS_LEOPARD_ONLY,
 				);
 				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
 				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
@@ -2001,41 +1995,14 @@
 				);
 				GCC_C_LANGUAGE_STANDARD = c99;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_VERSION = "";
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/usr/**";
 				OTHER_CFLAGS = (
-					"-isystem",
-					"$(SRCROOT)/usr/src/head",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib/libzfs",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib/libuutil",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib/libuutil/common",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib/libnvpair",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib/libzfs/common",
-					"-isystem",
-					"$(SRCROOT)/usr/src/libgen/common",
-					"-isystem",
-					"$(SRCROOT)/usr/src/common",
-					"-isystem",
-					"$(SRCROOT)/usr/src/common/zfs",
-					"-isystem",
-					"$(SRCROOT)/usr/src/uts/common",
-					"-isystem",
-					"$(SRCROOT)/usr/src/uts/common/fs",
-					"-isystem",
-					"$(SRCROOT)/usr/src/uts/common/fs/zfs/",
-					"-isystem",
-					"$(SRCROOT)/usr/src/uts/common/sys",
-					"-include",
-					"$(SRCROOT)/usr/src/uts/common/sys/types.h",
+					"-v",
 					"-include",
 					"$(SRCROOT)/usr/src/uts/common/fs/zfs/sys/zfs_context.h",
-					"-v",
 					"-include",
 					"$(SRCROOT)/usr/src/uts/common/sys/types.h",
 				);
@@ -2054,42 +2021,13 @@
 					ppc,
 				);
 				GCC_C_LANGUAGE_STANDARD = c99;
-				GCC_VERSION = 4.2;
+				GCC_VERSION = "";
 				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/usr/**";
 				OTHER_CFLAGS = (
-					"-isystem",
-					"$(SRCROOT)/usr/src/head",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib/libzfs",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib/libuutil",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib/libuutil/common",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib/libnvpair",
-					"-isystem",
-					"$(SRCROOT)/usr/src/lib/libzfs/common",
-					"-isystem",
-					"$(SRCROOT)/usr/src/libgen/common",
-					"-isystem",
-					"$(SRCROOT)/usr/src/common",
-					"-isystem",
-					"$(SRCROOT)/usr/src/common/zfs",
-					"-isystem",
-					"$(SRCROOT)/usr/src/uts/common",
-					"-isystem",
-					"$(SRCROOT)/usr/src/uts/common/fs",
-					"-isystem",
-					"$(SRCROOT)/usr/src/uts/common/fs/zfs/",
-					"-isystem",
-					"$(SRCROOT)/usr/src/uts/common/sys",
-					"-include",
-					"$(SRCROOT)/usr/src/uts/common/sys/types.h",
+					"-v",
 					"-include",
 					"$(SRCROOT)/usr/src/uts/common/fs/zfs/sys/zfs_context.h",
-					"-v",
 					"-include",
 					"$(SRCROOT)/usr/src/uts/common/sys/types.h",
 				);
@@ -2355,6 +2293,221 @@
 			};
 			name = Release;
 		};
+		FA3B67B711EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ARCHS = (
+					i386,
+					x86_64,
+				);
+				"ARCHS[sdk=macosx10.5]" = (
+					i386,
+					ppc,
+				);
+				GCC_C_LANGUAGE_STANDARD = c99;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = DEBUG;
+				GCC_VERSION = com.apple.compilers.llvm.clang.1_0;
+				GCC_WARN_INHIBIT_ALL_WARNINGS = YES;
+				HEADER_SEARCH_PATHS = "$(SRCROOT)/usr/**";
+				OTHER_CFLAGS = (
+					"-v",
+					"-include",
+					"$(SRCROOT)/usr/src/uts/common/fs/zfs/sys/zfs_context.h",
+					"-include",
+					"$(SRCROOT)/usr/src/uts/common/sys/types.h",
+				);
+			};
+			name = DebugLLVM;
+		};
+		FA3B67B811EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				PRODUCT_NAME = "zfs aggregate";
+			};
+			name = DebugLLVM;
+		};
+		FA3B67B911EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					NAMEDSTREAMS,
+					__APPLE_API_UNSTABLE,
+					_KERNEL,
+					ZFS_DEBUG,
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = NO;
+				GCC_WARN_ABOUT_DEPRECATED_FUNCTIONS = NO;
+				GCC_WARN_ABOUT_MISSING_NEWLINE = YES;
+				GCC_WARN_ABOUT_MISSING_PROTOTYPES = YES;
+				GCC_WARN_SHADOW = YES;
+				GCC_WARN_TYPECHECK_CALLS_TO_PRINTF = NO;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_LABEL = YES;
+				GCC_WARN_UNUSED_VARIABLE = NO;
+				INFOPLIST_FILE = zfs_kext/Info.plist;
+				INSTALL_GROUP = wheel;
+				INSTALL_OWNER = root;
+				INSTALL_PATH = "$(SYSTEM_LIBRARY_DIR)/Extensions";
+				MODULE_NAME = com.bandlem.mac.zfs.fs;
+				MODULE_START = zfs_module_start;
+				MODULE_STOP = zfs_module_stop;
+				MODULE_VERSION = 0.0.0;
+				PRODUCT_NAME = zfs;
+				VERSIONING_SYSTEM = "apple-generic";
+				WARNING_CFLAGS = "";
+				WRAPPER_EXTENSION = kext;
+				ZERO_LINK = NO;
+			};
+			name = DebugLLVM;
+		};
+		FA3B67BA11EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				CURRENT_PROJECT_VERSION = "$(CURRENT_PROJECT_VERSION)";
+				EXECUTABLE_PREFIX = "";
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = "TEXT_DOMAIN=0";
+				INSTALL_PATH = /usr/lib;
+				PREBINDING = NO;
+				PRODUCT_NAME = libzfs;
+				ZERO_LINK = NO;
+			};
+			name = DebugLLVM;
+		};
+		FA3B67BB11EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/sbin;
+				OTHER_LDFLAGS = "-lzfs";
+				PREBINDING = NO;
+				PRODUCT_NAME = zpool;
+				ZERO_LINK = NO;
+			};
+			name = DebugLLVM;
+		};
+		FA3B67BC11EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/sbin;
+				OTHER_LDFLAGS = "-lzfs";
+				PREBINDING = NO;
+				PRODUCT_NAME = zfs;
+				ZERO_LINK = NO;
+			};
+			name = DebugLLVM;
+		};
+		FA3B67BD11EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = "$(SYSTEM_LIBRARY_DIR)/Filesystems/zfs.fs";
+				OTHER_LDFLAGS = "-lzfs";
+				PREBINDING = NO;
+				PRODUCT_NAME = zfs.util;
+				ZERO_LINK = NO;
+			};
+			name = DebugLLVM;
+		};
+		FA3B67BE11EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_GENERATE_DEBUGGING_SYMBOLS = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "";
+				INFOPLIST_FILE = zfs_bundle/Info.plist;
+				INSTALL_PATH = "$(SYSTEM_LIBRARY_DIR)/Filesystems";
+				OTHER_LDFLAGS = "";
+				PREBINDING = NO;
+				PRODUCT_NAME = zfs;
+				WRAPPER_EXTENSION = fs;
+				ZERO_LINK = NO;
+			};
+			name = DebugLLVM;
+		};
+		FA3B67BF11EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				OTHER_LDFLAGS = "-lcurses";
+				PREBINDING = NO;
+				PRODUCT_NAME = zoink;
+				ZERO_LINK = YES;
+			};
+			name = DebugLLVM;
+		};
+		FA3B67C011EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = "fix-nofs";
+			};
+			name = DebugLLVM;
+		};
+		FA3B67C111EB0B0F00307A88 /* DebugLLVM */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				COPY_PHASE_STRIP = NO;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_FIX_AND_CONTINUE = YES;
+				GCC_MODEL_TUNING = G5;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				INSTALL_PATH = /usr/local/bin;
+				PREBINDING = NO;
+				PRODUCT_NAME = ztest;
+			};
+			name = DebugLLVM;
+		};
 		FA93777110A3924400754C9E /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -2392,6 +2545,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91C408733DAC0010E9CD /* Debug */,
+				FA3B67B911EB0B0F00307A88 /* DebugLLVM */,
 				1DEB91C508733DAC0010E9CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2401,6 +2555,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				1DEB91C808733DAC0010E9CD /* Debug */,
+				FA3B67B711EB0B0F00307A88 /* DebugLLVM */,
 				1DEB91C908733DAC0010E9CD /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2410,6 +2565,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2611F73C0ACDD14700E5D4E2 /* Debug */,
+				FA3B67BD11EB0B0F00307A88 /* DebugLLVM */,
 				2611F73D0ACDD14700E5D4E2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2419,6 +2575,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				2611F7610ACDD4E200E5D4E2 /* Debug */,
+				FA3B67BE11EB0B0F00307A88 /* DebugLLVM */,
 				2611F7620ACDD4E200E5D4E2 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2428,6 +2585,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				269640730AACEAFA0073456B /* Debug */,
+				FA3B67BA11EB0B0F00307A88 /* DebugLLVM */,
 				269640740AACEAFA0073456B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2437,6 +2595,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				26A978430AA9373100FF1F22 /* Debug */,
+				FA3B67BB11EB0B0F00307A88 /* DebugLLVM */,
 				26A978440AA9373100FF1F22 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2446,6 +2605,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				26C84C260AB75E3E008B950C /* Debug */,
+				FA3B67B811EB0B0F00307A88 /* DebugLLVM */,
 				26C84C270AB75E3E008B950C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2455,6 +2615,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				26E59EC20B87AA4600CFC573 /* Debug */,
+				FA3B67BF11EB0B0F00307A88 /* DebugLLVM */,
 				26E59EC30B87AA4600CFC573 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2464,6 +2625,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				26F63DB80AABD48F000C5196 /* Debug */,
+				FA3B67BC11EB0B0F00307A88 /* DebugLLVM */,
 				26F63DB90AABD48F000C5196 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2473,6 +2635,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				DAD6B3D1109409E4008A0395 /* Debug */,
+				FA3B67C011EB0B0F00307A88 /* DebugLLVM */,
 				DAD6B3D2109409E4008A0395 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
@@ -2482,6 +2645,7 @@
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				FA93777110A3924400754C9E /* Debug */,
+				FA3B67C111EB0B0F00307A88 /* DebugLLVM */,
 				FA93777210A3924400754C9E /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
