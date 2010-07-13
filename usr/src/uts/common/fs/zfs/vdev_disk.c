@@ -61,7 +61,7 @@ vdev_disk_open(vdev_t *vd, uint64_t *psize, uint64_t *ashift)
 	vfs_context_t context = NULL;
 	uint64_t blkcnt;
 	uint32_t blksize;
-	int fmode;
+	int fmode = 0;
 #else
 	vdev_disk_t *dvd;
 	struct dk_minfo dkm;
@@ -563,8 +563,8 @@ vdev_disk_io_start(zio_t *zio)
 static void
 vdev_disk_io_done(zio_t *zio)
 {
-	vdev_t *vd = zio->io_vd;
-	vdev_disk_t *dvd = vd->vdev_tsd;
+	// vdev_t *vd = zio->io_vd;
+	// vdev_disk_t *dvd = vd->vdev_tsd;
 	int state;
 
 	vdev_queue_io_done(zio);

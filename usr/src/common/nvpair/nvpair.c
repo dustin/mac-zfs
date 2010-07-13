@@ -51,10 +51,6 @@
 #define	offsetof(s, m)	((size_t)(&(((s *)0)->m)))
 #endif
 
-#ifndef ASSERT
-#define ASSERT(x) 
-#endif
-
 /*
  * nvpair.c - Provides kernel & userland interfaces for manipulating
  *	name-value pairs.

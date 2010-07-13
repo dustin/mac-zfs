@@ -695,8 +695,8 @@ zfs_validate_properties(libzfs_handle_t *hdl, zfs_type_t type, char *pool_name,
 	nvpair_t *elem;
 	const char *propname;
 	zfs_prop_t prop;
-	uint64_t intval;
-	char *strval;
+	uint64_t intval = 0;
+	char *strval = NULL;
 	nvlist_t *ret;
 	int isuser;
 
@@ -1037,7 +1037,7 @@ zfs_validate_properties(libzfs_handle_t *hdl, zfs_type_t type, char *pool_name,
 			 * bootfs property value has to be a dataset name and
 			 * the dataset has to be in the same pool as it sets to.
 			 */
-			if (strval[0] != '\0' && (!zfs_name_valid(strval,
+			if (strval && strval[0] != '\0' && (!zfs_name_valid(strval,
 			    ZFS_TYPE_FILESYSTEM) || !bootfs_poolname_valid(
 			    pool_name, strval))) {
 
@@ -1272,24 +1272,24 @@ zfs_build_perms(zfs_handle_t *zhp, char *whostr, char *perms,
 	nvlist_t *perms_nvp = NULL;
 	nvlist_t *sets_nvp = NULL;
 	char errbuf[1024];
-	char *who_tok, *perm;
+	char *who_tok = NULL, *perm;
 	int error;
 
 	*nvp = NULL;
 
 	if (perms) {
-		if ((error = nvlist_alloc(&perms_nvp,
-		    NV_UNIQUE_NAME, 0)) != 0) {
+		if (nvlist_alloc(&perms_nvp,
+		    NV_UNIQUE_NAME, 0) != 0) {
 			return (1);
 		}
-		if ((error = nvlist_alloc(&sets_nvp,
-		    NV_UNIQUE_NAME, 0)) != 0) {
+		if (nvlist_alloc(&sets_nvp,
+		    NV_UNIQUE_NAME, 0) != 0) {
 			nvlist_free(perms_nvp);
 			return (1);
 		}
 	}
 
-	if ((error = nvlist_alloc(&who_nvp, NV_UNIQUE_NAME, 0)) != 0) {
+	if (nvlist_alloc(&who_nvp, NV_UNIQUE_NAME, 0) != 0) {
 		if (perms_nvp)
 			nvlist_free(perms_nvp);
 		if (sets_nvp)
@@ -1301,7 +1301,7 @@ zfs_build_perms(zfs_handle_t *zhp, char *whostr, char *perms,
 		namecheck_err_t why;
 		char what;
 
-		if ((error = permset_namecheck(whostr, &why, &what)) != 0) {
+		if (permset_namecheck(whostr, &why, &what) != 0) {
 			nvlist_free(who_nvp);
 			if (perms_nvp)
 				nvlist_free(perms_nvp);
@@ -1621,7 +1621,7 @@ zfs_perm_get(zfs_handle_t *zhp, zfs_allow_t **zfs_perms)
 	char *nvpname;
 	uid_t	uid;
 	gid_t	gid;
-	avl_tree_t *tree;
+	avl_tree_t *tree = NULL;
 	avl_index_t where;
 
 	(void) strlcpy(zc.zc_name, zhp->zfs_name, sizeof (zc.zc_name));
@@ -1679,7 +1679,7 @@ zfs_perm_get(zfs_handle_t *zhp, zfs_allow_t **zfs_perms)
 		    nvpair_name(source_pair),
 		    sizeof (zallowp->z_setpoint));
 
-		if ((error = nvpair_value_nvlist(source_pair, &sourcenv)) != 0)
+		if (nvpair_value_nvlist(source_pair, &sourcenv) != 0)
 			goto abort;
 
 		/*
@@ -2037,7 +2037,7 @@ zfs_prop_inherit(zfs_handle_t *zhp, const char *propname)
 	if ((ret = changelist_prefix(cl)) != 0)
 		goto error;
 
-	if ((ret = zfs_ioctl(zhp->zfs_hdl, ZFS_IOC_INHERIT_PROP, &zc)) != 0) {
+	if (zfs_ioctl(zhp->zfs_hdl, ZFS_IOC_INHERIT_PROP, &zc) != 0) {
 		return (zfs_standard_error(hdl, errno, errbuf));
 	} else {
 
@@ -3720,8 +3720,8 @@ zfs_receive(libzfs_handle_t *hdl, const char *tosnap, int isprefix,
 		/* Do the recvbackup ioctl to the fs's parent. */
 		*strrchr(zc.zc_name, '/') = '\0';
 
-		if (isprefix && (err = create_parents(hdl,
-		    zc.zc_value, strlen(tosnap))) != 0) {
+		if (isprefix && create_parents(hdl,
+		    zc.zc_value, strlen(tosnap)) != 0) {
 			return (zfs_error(hdl, EZFS_BADRESTORE, errbuf));
 		}
 
@@ -4037,7 +4037,7 @@ zfs_iter_dependents(zfs_handle_t *zhp, boolean_t allowrecursion,
 int
 zfs_rename(zfs_handle_t *zhp, const char *target, boolean_t recursive)
 {
-	int ret;
+	int ret = 0;
 	zfs_cmd_t zc = { 0 };
 	char *delim;
 	prop_changelist_t *cl = NULL;
@@ -4689,7 +4689,7 @@ zfs_iscsi_perm_check(libzfs_handle_t *hdl, char *dataset, struct ucred *cred)
 	size_t sz;
 	gid_t gid;
 	uid_t uid;
-	const gid_t *groups;
+	const gid_t *groups = NULL;
 	int group_cnt;
 	int error;
 

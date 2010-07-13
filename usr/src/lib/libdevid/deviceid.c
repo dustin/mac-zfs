@@ -121,9 +121,10 @@ devid_get_minor_name(int fd, char **minor_namep)
 	if (!S_ISCHR(statb.st_mode) && !S_ISBLK(statb.st_mode))
 		return (-1);
 
+#ifndef __APPLE__
 	spectype = statb.st_mode & S_IFMT;
 	dev = statb.st_rdev;
-#ifndef __APPLE__
+
 	/* Get the minor name size */
 	if (modctl(MODSIZEOF_MINORNAME, dev, spectype, &len) != 0)
 		return (-1);
@@ -230,7 +231,7 @@ int			devid_deviceid_to_nmlist_flg = 0;
 static di_devlink_handle_t devid_deviceid_to_nmlist_dlh = NULL;	/* SLINK */
 
 #define	DEVICEID_NMLIST_NRETRY	10
-#endif /* !__APPLE__
+#endif /* !__APPLE__ */
 
 /*
  * Convert the specified devid/minor_name into a devid_nmlist_t array
@@ -251,7 +252,7 @@ devid_deviceid_to_nmlist(
 	devid_nmlist_t	**retlist)
 {
 	char			*cp;
-	int			dev;
+	int			dev __attribute__((__unused__));;
 	char			*paths = NULL;
 	char			*path;
 	int			lens;

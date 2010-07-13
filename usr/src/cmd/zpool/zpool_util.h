@@ -40,7 +40,7 @@ extern "C" {
  */
 void *safe_malloc(size_t);
 char *safe_strdup(const char *);
-void zpool_no_memory(void);
+void zpool_no_memory(void) __attribute__((__noreturn__));
 uint_t num_logs(nvlist_t *nv);
 
 /*

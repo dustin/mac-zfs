@@ -508,7 +508,9 @@ traverse_zil_record(zilog_t *zilog, lr_t *lrc, void *arg, uint64_t claim_txg)
 
 		if (claim_txg != 0 && bp->blk_birth >= claim_txg) {
 			zb->zb_object = lr->lr_foid;
-			zb->zb_blkid = lr->lr_offset / BP_GET_LSIZE(bp);
+			uint64_t s = BP_GET_LSIZE(bp);
+			ASSERT(s!=0);
+			zb->zb_blkid = lr->lr_offset / s;
 			bc->bc_blkptr = *bp;
 			(void) traverse_callback(th, zseg, bc);
 		}

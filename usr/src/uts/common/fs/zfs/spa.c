@@ -2969,7 +2969,7 @@ spa_sync_props(void *arg1, void *arg2, cred_t *cr, dmu_tx_t *tx)
 	nvpair_t *nvpair;
 	objset_t *mos = spa->spa_meta_objset;
 	uint64_t zapobj;
-	uint64_t intval;
+	uint64_t intval = 0;
 
 	mutex_enter(&spa->spa_props_lock);
 	if (spa->spa_pool_props_object == 0) {
@@ -3318,7 +3318,7 @@ spa_get_props(spa_t *spa, nvlist_t **nvp)
 	zpool_prop_t prop;
 	nvlist_t *propval;
 	uint64_t value;
-	int err;
+	int err = 0;
 
 	VERIFY(nvlist_alloc(nvp, NV_UNIQUE_NAME, KM_SLEEP) == 0);
 

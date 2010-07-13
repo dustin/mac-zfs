@@ -749,7 +749,7 @@ raidz_parity_verify(zio_t *zio, raidz_map_t *rm)
 {
 	void *orig[VDEV_RAIDZ_MAXPARITY];
 	int c, ret = 0;
-	raidz_col_t *rc;
+	raidz_col_t *rc = NULL;
 
 	for (c = 0; c < rm->rm_firstdatacol; c++) {
 		rc = &rm->rm_col[c];

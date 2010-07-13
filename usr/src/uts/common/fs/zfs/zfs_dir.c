@@ -289,6 +289,7 @@ zfs_dirent_lock(zfs_dirlock_t **dlpp, znode_t *dzp, char *name, znode_t **zpp,
 				 */
 				if ((flag & ZNEW) == 0 &&
 				    (dzp->z_phys->zp_flags & ZFS_XATTR) == 0 &&
+					(cnp) &&
 				    (cnp->cn_flags & MAKEENTRY) &&
 				    (cnp->cn_nameiop != CREATE) &&
 				    (cnp->cn_nameiop != RENAME)) {
@@ -316,7 +317,7 @@ zfs_dirent_lock(zfs_dirlock_t **dlpp, znode_t *dzp, char *name, znode_t **zpp,
 		}
 		if (!(flag & ZXATTR))
 #ifdef __APPLE__
-			if (cnp->cn_flags & MAKEENTRY)
+			if (cnp && cnp->cn_flags & MAKEENTRY)
 				cache_enter(ZTOV(dzp), ZTOV(*zpp), cnp);
 #else
 			dnlc_update(ZTOV(dzp), name, ZTOV(*zpp));

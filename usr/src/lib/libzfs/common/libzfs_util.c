@@ -655,7 +655,7 @@ libzfs_init(void)
 		}
 
 		loaded = load_zfs_kext(kextpaths[pick]);
-
+		ASSERT(loaded == 0);
 	} 
 	/* Attempt to create "/etc/zfs" its not already there. */
 	if (getuid() == 0 && stat("/etc/zfs", &sb)!= 0 &&  errno == ENOENT)
@@ -874,7 +874,7 @@ zcmd_read_dst_nvlist(libzfs_handle_t *hdl, zfs_cmd_t *zc, nvlist_t **nvlp)
 static void
 zfs_print_prop_headers(libzfs_get_cbdata_t *cbp)
 {
-	zfs_proplist_t *pl = cbp->cb_proplist;
+	zfs_proplist_t *pl;
 	int i;
 	char *title;
 	size_t len;
@@ -977,7 +977,7 @@ libzfs_print_one_property(const char *name, libzfs_get_cbdata_t *cbp,
     const char *source)
 {
 	int i;
-	const char *str;
+	const char *str = NULL;
 	char buf[128];
 
 	/*

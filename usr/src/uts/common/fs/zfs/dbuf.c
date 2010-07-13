@@ -375,7 +375,7 @@ dbuf_verify(dmu_buf_impl_t *db)
 	}
 	if ((db->db_blkptr == NULL || BP_IS_HOLE(db->db_blkptr)) &&
 	    db->db.db_data && db->db_blkid != DB_BONUS_BLKID &&
-	    db->db_state != DB_FILL && !dn->dn_free_txg) {
+	    db->db_state != DB_FILL && dn && !dn->dn_free_txg) {
 		/*
 		 * If the blkptr isn't set but they have nonzero data,
 		 * it had better be dirty, otherwise we'll lose that
@@ -1684,7 +1684,7 @@ dbuf_hold_level(dnode_t *dn, int level, uint64_t blkid, void *tag)
 dmu_buf_impl_t *
 dbuf_create_bonus(dnode_t *dn)
 {
-	dmu_buf_impl_t *db = dn->dn_bonus;
+	dmu_buf_impl_t *db; // = dn->dn_bonus;
 
 	ASSERT(RW_WRITE_HELD(&dn->dn_struct_rwlock));
 

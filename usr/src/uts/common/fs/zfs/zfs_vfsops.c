@@ -1057,7 +1057,7 @@ zfs_vfs_mount(struct mount *mp, vnode_t devvp, user_addr_t data, vfs_context_t c
 zfs_mount(vfs_t *vfsp, vnode_t *mvp, struct mounta *uap, cred_t *cr)
 #endif
 {
-	char		*osname;
+	char		*osname = { '\0' };
 	int		error = 0;
 	int		canwrite;
 #ifdef __APPLE__

@@ -632,7 +632,7 @@ static void
 zfs_znode_dmu_init(znode_t *zp)
 {
 	znode_t		*nzp;
-	zfsvfs_t	*zfsvfs = zp->z_zfsvfs;
+	// zfsvfs_t	*zfsvfs = zp->z_zfsvfs;
 	dmu_buf_t	*db = zp->z_dbuf;
 
 	mutex_enter(&zp->z_lock);
@@ -1495,8 +1495,8 @@ zfs_create_fs(objset_t *os, cred_t *cr, uint64_t version, dmu_tx_t *tx)
 	rootzp->z_atime_dirty = 0;
 	rootzp->z_dbuf_held = 0;
 
-	vp = ZTOV(rootzp);
 #ifndef __APPLE__
+	vp = ZTOV(rootzp);
 	vn_reinit(vp);
 	vp->v_type = VDIR;
 #endif

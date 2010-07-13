@@ -1364,6 +1364,9 @@ zpool_iter_zvol(zpool_handle_t *zhp, int (*cb)(const char *, void *),
 	if ((base = open("/dev/zvol/dsk", O_RDONLY)) < 0)
 		return (errno == ENOENT ? 0 : -1);
 
+	// TODO Do we even get here? Does the above just fall over?
+	st.st_mode = 0;
+	
 #ifndef __APPLE__ 
 	if (fstatat(base, zhp->zpool_name, &st, 0) != 0) {
 		int err = errno;
@@ -1386,9 +1389,9 @@ zpool_iter_zvol(zpool_handle_t *zhp, int (*cb)(const char *, void *),
 	}
 
 	(void) strlcpy(paths[0], zhp->zpool_name, sizeof (paths[0]));
-	curr = 0;
 
 #ifndef __APPLE__ 
+	curr = 0;
 	while (curr >= 0) {
 		if (fstatat(base, paths[curr], &st, AT_SYMLINK_NOFOLLOW) != 0)
 			goto err;

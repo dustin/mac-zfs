@@ -62,7 +62,10 @@ typedef	uint32_t	mode32_t;
 typedef	uint32_t	uid32_t;
 typedef	uint32_t	gid32_t;
 typedef	uint32_t	nlink32_t;
+#ifndef __APPLE__
+// This is defined in zfs_context now
 typedef	uint32_t	dev32_t;
+#endif /* __APPLE__ */
 typedef	int32_t		pid32_t;
 typedef	uint32_t	size32_t;
 typedef	int32_t		ssize32_t;

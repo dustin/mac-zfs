@@ -108,7 +108,7 @@ typedef struct zfs_ioc_vec {
 void
 __dprintf(const char *file, const char *func, int line, const char *fmt, ...)
 {
-	const char *newfile;
+	const char *newfile __attribute__((__unused__));
 	char buf[256];
 	va_list adx;
 
@@ -1644,7 +1644,7 @@ zfs_ioc_set_fsacl(zfs_cmd_t *zc)
 	/*
 	 * Verify nvlist is constructed correctly
 	 */
-	if ((error = zfs_deleg_verify_nvlist(fsaclnv)) != 0) {
+	if (zfs_deleg_verify_nvlist(fsaclnv) != 0) {
 		nvlist_free(fsaclnv);
 		return (EINVAL);
 	}
@@ -1999,7 +1999,7 @@ zfs_ioc_recvbackup(zfs_cmd_t *zc)
 	 * soon as we have signed kexts so we are allowed to use the kernel 
 	 * interface to write to PIPE objects.
 	 */
-	if ((error = file_vnode_withvid(fd, &vp, NULL)))
+	if (file_vnode_withvid(fd, &vp, NULL))
 	       return (EBADF);	
 
 	error = dmu_recvbackup(zc->zc_value, &zc->zc_begin_record,
@@ -2075,7 +2075,7 @@ zfs_ioc_sendbackup(zfs_cmd_t *zc)
 	 * soon as we have signed kexts so we are allowed to use the kernel 
 	 * interface to write to PIPE objects.
 	 */
-	if ((error = file_vnode_withvid(zc->zc_cookie, &vp, NULL))) 
+	if (file_vnode_withvid(zc->zc_cookie, &vp, NULL))
 #else
 	fp = getf(zc->zc_cookie);
 	if (fp == NULL) 

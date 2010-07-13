@@ -224,7 +224,7 @@ zfs_log_write(zilog_t *zilog, dmu_tx_t *tx, int txtype,
 {
 	itx_wr_state_t write_state;
 	boolean_t slogging;
-	uintptr_t fsync_cnt;
+	uintptr_t fsync_cnt = 0;
 
 	if (zilog == NULL || zp->z_unlinked)
 		return;

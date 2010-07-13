@@ -384,12 +384,12 @@ get_configs(libzfs_handle_t *hdl, pool_list_t *pl)
 	pool_entry_t *pe;
 	vdev_entry_t *ve;
 	config_entry_t *ce;
-	nvlist_t *ret = NULL, *config = NULL, *tmp, *nvtop, *nvroot;
+	nvlist_t *ret = NULL, *config = NULL, *tmp = NULL, *nvtop, *nvroot;
 	nvlist_t **spares;
 	uint_t i, nspares;
 	boolean_t config_seen;
 	uint64_t best_txg;
-	char *name, *hostname;
+	char *name, *hostname = NULL;
 	zfs_cmd_t zc = { 0 };
 	uint64_t version, guid;
 	size_t len;
@@ -398,7 +398,7 @@ get_configs(libzfs_handle_t *hdl, pool_list_t *pl)
 	nvlist_t **child = NULL;
 	uint_t c;
 	boolean_t isactive;
-	uint64_t hostid;
+	uint64_t hostid = 0;
 
 	if (nvlist_alloc(&ret, 0, 0) != 0)
 		goto nomem;
@@ -655,7 +655,7 @@ get_configs(libzfs_handle_t *hdl, pool_list_t *pl)
 		    DATA_TYPE_UINT64);
 		(void) nvlist_remove(config, ZPOOL_CONFIG_HOSTNAME,
 		    DATA_TYPE_STRING);
-		if (hostid != 0) {
+		if (hostid != 0 && hostname) {
 			verify(nvlist_add_uint64(config, ZPOOL_CONFIG_HOSTID,
 			    hostid) == 0);
 			verify(nvlist_add_string(config, ZPOOL_CONFIG_HOSTNAME,

@@ -725,7 +725,7 @@ zfs_share_nfs(zfs_handle_t *zhp)
 {
 	char mountpoint[ZFS_MAXPROPLEN];
 	char shareopts[ZFS_MAXPROPLEN];
-	libzfs_handle_t *hdl = zhp->zfs_hdl;
+	libzfs_handle_t *hdl; // = zhp->zfs_hdl;
 #ifndef __APPLE__
 	sa_share_t share;
 #endif
@@ -946,6 +946,7 @@ zfs_is_shared_iscsi(zfs_handle_t *zhp)
 int
 zfs_share_iscsi(zfs_handle_t *zhp)
 {
+#ifndef __APPLE__
 	char shareopts[ZFS_MAXPROPLEN];
 	const char *dataset = zhp->zfs_name;
 	libzfs_handle_t *hdl = zhp->zfs_hdl;
@@ -958,7 +959,6 @@ zfs_share_iscsi(zfs_handle_t *zhp)
 	    strcmp(shareopts, "off") == 0)
 		return (0);
 
-#ifndef __APPLE__
 	if (iscsitgt_zfs_share == NULL || iscsitgt_zfs_share(dataset) != 0) {
 		int error = EZFS_SHAREISCSIFAILED;
 
@@ -980,6 +980,7 @@ zfs_share_iscsi(zfs_handle_t *zhp)
 int
 zfs_unshare_iscsi(zfs_handle_t *zhp)
 {
+#ifndef __APPLE__
 	const char *dataset = zfs_get_name(zhp);
 	libzfs_handle_t *hdl = zhp->zfs_hdl;
 
@@ -989,7 +990,6 @@ zfs_unshare_iscsi(zfs_handle_t *zhp)
 	if (!zfs_is_shared_iscsi(zhp))
 		return (0);
 
-#ifndef __APPLE__
 	/*
 	 * If this fails with ENODEV it indicates that zvol wasn't shared so
 	 * we should return success in that case.

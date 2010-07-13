@@ -130,6 +130,11 @@ typedef struct zfid_long {
 extern uint_t zfs_fsyncer_key;
 #endif
 
+#ifdef __APPLE__
+void zfs_init(void);
+void zfs_fini(void);
+#endif /* __APPLE__ */
+	
 #ifdef	__cplusplus
 }
 #endif

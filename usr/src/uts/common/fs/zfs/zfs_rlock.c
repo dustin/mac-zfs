@@ -344,8 +344,9 @@ zfs_range_add_reader(avl_tree_t *tree, rl_t *new, rl_t *prev, avl_index_t where)
 	}
 
 	/* Add the remaining end range. */
-	zfs_range_new_proxy(tree, prev->r_off + prev->r_len,
-	    (off + len) - (prev->r_off + prev->r_len));
+	if(prev)
+		zfs_range_new_proxy(tree, prev->r_off + prev->r_len,
+							(off + len) - (prev->r_off + prev->r_len));
 }
 
 /*
@@ -460,7 +461,7 @@ static void
 zfs_range_unlock_reader(znode_t *zp, rl_t *remove)
 {
 	avl_tree_t *tree = &zp->z_range_avl;
-	rl_t *rl, *next;
+	rl_t *rl, *next = NULL;
 	uint64_t len;
 
 	/*

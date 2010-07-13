@@ -1255,7 +1255,7 @@ vn_open(char *pnamep, enum uio_seg seg, int filemode, int createmode,
 	fmode = filemode;
 	if (crwhy)
 		fmode |= O_CREAT;
-
+	// TODO I think this should be 'fmode' instead of 'filemode'
 	vctx = vfs_context_create((vfs_context_t)0);
 	error = vnode_open(pnamep, filemode, createmode, 0, vpp, vctx);
 	(void) vfs_context_rele(vctx);

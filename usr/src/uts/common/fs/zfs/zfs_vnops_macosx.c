@@ -193,7 +193,7 @@ zfs_vnop_readdirattr(struct vnop_readdirattr_args *ap)
 	void		*varptr;  /* variable-length storage area */
 	boolean_t	user64 = vfs_context_is64bit(ap->a_context);
 	int		prefetch = 0;
-	int		error;
+	int		error = 0;
 
 	*(ap->a_actualcount) = 0;
 	*(ap->a_eofflag) = 0;
@@ -412,6 +412,8 @@ commonattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp, const char *name,
 	cred_t  *cr = (cred_t *)vfs_context_ucred(aip->ai_context);
 	finderinfo_t finderinfo;
 
+	finderinfo.fi_flags = 0;
+	
 	if (ATTR_CMN_NAME & commonattr) {
 		nameattrpack(aip, name, strlen(name));
 		attrbufptr = *aip->ai_attrbufpp;
@@ -464,13 +466,14 @@ commonattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp, const char *name,
 		 * On Mac OS X we always export the root
 		 * directory id as 2 and its parent as 1
 		 */
-		if (zp->z_id == zfsvfs->z_root)
+		if (zp && zp->z_id == zfsvfs->z_root)
 			parentid = 1;
-		else if (pzp->zp_parent == zfsvfs->z_root)
+		else if (pzp && pzp->zp_parent == zfsvfs->z_root)
 			parentid = 2;
 		else
-			parentid = pzp->zp_parent;
-
+			parentid = pzp ? pzp->zp_parent : 0;
+		ASSERT(parentid != 0);
+		
 		((fsobj_id_t *)attrbufptr)->fid_objno = parentid;
 		((fsobj_id_t *)attrbufptr)->fid_generation = 0;
 		attrbufptr = ((fsobj_id_t *)attrbufptr) + 1;
@@ -479,7 +482,7 @@ commonattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp, const char *name,
 		*((text_encoding_t *)attrbufptr) = kTextEncodingMacUnicode; 
 		attrbufptr = ((text_encoding_t *)attrbufptr) + 1;
 	}
-	if (ATTR_CMN_CRTIME & commonattr) {
+	if (pzp && ATTR_CMN_CRTIME & commonattr) {
 		if (user64) {
 			ZFS_TIME_DECODE((timespec_user64_t *)attrbufptr,
 			                pzp->zp_crtime);
@@ -490,7 +493,7 @@ commonattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp, const char *name,
 			attrbufptr = ((timespec_user32_t *)attrbufptr) + 1;
 		}
 	}
-	if (ATTR_CMN_MODTIME & commonattr) {
+	if (pzp && ATTR_CMN_MODTIME & commonattr) {
 		if (user64) {
 			ZFS_TIME_DECODE((timespec_user64_t *)attrbufptr,
 			                pzp->zp_mtime);
@@ -501,7 +504,7 @@ commonattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp, const char *name,
 			attrbufptr = ((timespec_user32_t *)attrbufptr) + 1;
 		}
 	}
-	if (ATTR_CMN_CHGTIME & commonattr) {
+	if (pzp && ATTR_CMN_CHGTIME & commonattr) {
 		if (user64) {
 			ZFS_TIME_DECODE((timespec_user64_t *)attrbufptr,
 			                pzp->zp_ctime);
@@ -512,7 +515,7 @@ commonattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp, const char *name,
 			attrbufptr = ((timespec_user32_t *)attrbufptr) + 1;
 		}
 	}
-	if (ATTR_CMN_ACCTIME & commonattr) {
+	if (pzp && ATTR_CMN_ACCTIME & commonattr) {
 		if (user64) {
 			ZFS_TIME_DECODE((timespec_user64_t *)attrbufptr,
 			                pzp->zp_atime);
@@ -523,7 +526,7 @@ commonattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp, const char *name,
 			attrbufptr = ((timespec_user32_t *)attrbufptr) + 1;
 		}
 	}
-	if (ATTR_CMN_BKUPTIME & commonattr) {
+	if (pzp && ATTR_CMN_BKUPTIME & commonattr) {
 		/* legacy attribute -- just pass zero */
 		if (user64) {
 			((timespec_user64_t *)attrbufptr)->tv_sec = 0;
@@ -535,25 +538,25 @@ commonattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp, const char *name,
 			attrbufptr = ((timespec_user32_t *)attrbufptr) + 1;
 		}
 	}
-	if (ATTR_CMN_FNDRINFO & commonattr) {
+	if (pzp && ATTR_CMN_FNDRINFO & commonattr) {
 		getfinderinfo(zp, pzp, cr, &finderinfo);
 		/* Shadow ZFS_HIDDEN to Finder Info's invisible bit */
-		if (pzp->zp_flags & ZFS_HIDDEN) {
+		if (pzp && pzp->zp_flags & ZFS_HIDDEN) {
 			finderinfo.fi_flags |=
 				OSSwapHostToBigConstInt16(kIsInvisible);
 		}
 		bcopy(&finderinfo, attrbufptr, sizeof (finderinfo));
 		attrbufptr = (char *)attrbufptr + 32;
 	}
-	if (ATTR_CMN_OWNERID & commonattr) {
+	if (pzp && ATTR_CMN_OWNERID & commonattr) {
 		*((uid_t *)attrbufptr) = pzp->zp_uid;
 		attrbufptr = ((uid_t *)attrbufptr) + 1;
 	}
-	if (ATTR_CMN_GRPID & commonattr) {
+	if (pzp && ATTR_CMN_GRPID & commonattr) {
 		*((gid_t *)attrbufptr) = pzp->zp_gid;
 		attrbufptr = ((gid_t *)attrbufptr) + 1;
 	}
-	if (ATTR_CMN_ACCESSMASK & commonattr) {
+	if (pzp && ATTR_CMN_ACCESSMASK & commonattr) {
 		*((u_int32_t *)attrbufptr) = pzp->zp_mode;
 		attrbufptr = ((u_int32_t *)attrbufptr) + 1;
 	}
@@ -578,7 +581,7 @@ commonattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp, const char *name,
 			user_access &= ~W_OK;
 		}
 		/* Locked objects are not writable either */
-		if ((pzp->zp_flags & ZFS_IMMUTABLE) &&
+		if (pzp && (pzp->zp_flags & ZFS_IMMUTABLE) &&
 		    (vfs_context_suser(aip->ai_context) != 0)) {
 			user_access &= ~W_OK;
 		}
@@ -603,13 +606,14 @@ commonattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp, const char *name,
 		 * On Mac OS X we always export the root
 		 * directory id as 2 and its parent as 1
 		 */
-		if (zp->z_id == zfsvfs->z_root)
+		if (zp && zp->z_id == zfsvfs->z_root)
 			parentid = 1;
-		else if (pzp->zp_parent == zfsvfs->z_root)
+		else if (pzp && pzp->zp_parent == zfsvfs->z_root)
 			parentid = 2;
 		else
-			parentid = pzp->zp_parent;
-
+			parentid = pzp ? pzp->zp_parent : 0;
+		ASSERT(parentid != 0);
+		
 		*((u_int64_t *)attrbufptr) = parentid;
 		attrbufptr = ((u_int64_t *)attrbufptr) + 1;
 	}
@@ -630,11 +634,11 @@ dirattrpack(attrinfo_t *aip, znode_t *zp)
 		*((u_int32_t *)attrbufptr) = 1;  /* no dir hard links */
 		attrbufptr = ((u_int32_t *)attrbufptr) + 1;
 	}
-	if (ATTR_DIR_ENTRYCOUNT & dirattr) {
+	if (ATTR_DIR_ENTRYCOUNT & dirattr && pzp) {
 		*((u_int32_t *)attrbufptr) = pzp->zp_size;
 		attrbufptr = ((u_int32_t *)attrbufptr) + 1;
 	}
-	if (ATTR_DIR_MOUNTSTATUS & dirattr) {
+	if (ATTR_DIR_MOUNTSTATUS & dirattr && zp) {
 		struct vnode *vp = ZTOV(zp);
 
 		if (vp != NULL && vnode_mountedhere(vp) != NULL)
@@ -656,18 +660,18 @@ fileattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp)
 	uint64_t allocsize = 0;
 	cred_t  *cr = (cred_t *)vfs_context_ucred(aip->ai_context);
 
-	if ((ATTR_FILE_ALLOCSIZE | ATTR_FILE_DATAALLOCSIZE) & fileattr) {
+	if ((ATTR_FILE_ALLOCSIZE | ATTR_FILE_DATAALLOCSIZE) & fileattr && zp) {
 		uint32_t  blksize;
 		u_longlong_t  nblks;
 
 		dmu_object_size_from_db(zp->z_dbuf, &blksize, &nblks);
 		allocsize = (uint64_t)512LL * (uint64_t)nblks;
 	}
-	if (ATTR_FILE_LINKCOUNT & fileattr) {
+	if (ATTR_FILE_LINKCOUNT & fileattr && pzp) {
 		*((u_int32_t *)attrbufptr) = pzp->zp_links;
 		attrbufptr = ((u_int32_t *)attrbufptr) + 1;
 	}
-	if (ATTR_FILE_TOTALSIZE & fileattr) {
+	if (ATTR_FILE_TOTALSIZE & fileattr && pzp) {
 		*((off_t *)attrbufptr) = pzp->zp_size;
 		attrbufptr = ((off_t *)attrbufptr) + 1;
 	}
@@ -675,19 +679,19 @@ fileattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp)
 		*((off_t *)attrbufptr) = allocsize;
 		attrbufptr = ((off_t *)attrbufptr) + 1;
 	}
-	if (ATTR_FILE_IOBLOCKSIZE & fileattr) {
+	if (ATTR_FILE_IOBLOCKSIZE & fileattr && zp) {
 		*((u_int32_t *)attrbufptr) =
 				zp->z_blksz ? zp->z_blksz : zfsvfs->z_max_blksz;
 		attrbufptr = ((u_int32_t *)attrbufptr) + 1;
 	}
-	if (ATTR_FILE_DEVTYPE & fileattr) {
+	if (ATTR_FILE_DEVTYPE & fileattr && pzp) {
 		if (S_ISBLK(pzp->zp_mode) || S_ISCHR(pzp->zp_mode))
 			*((u_int32_t *)attrbufptr) = (u_int32_t)pzp->zp_rdev;
 		else
 			*((u_int32_t *)attrbufptr) = 0;
 		attrbufptr = ((u_int32_t *)attrbufptr) + 1;
 	}
-	if (ATTR_FILE_DATALENGTH & fileattr) {
+	if (ATTR_FILE_DATALENGTH & fileattr && pzp) {
 		*((off_t *)attrbufptr) = pzp->zp_size;
 		attrbufptr = ((off_t *)attrbufptr) + 1;
 	}
@@ -695,7 +699,7 @@ fileattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp)
 		*((off_t *)attrbufptr) = allocsize;
 		attrbufptr = ((off_t *)attrbufptr) + 1;
 	}
-	if ((ATTR_FILE_RSRCLENGTH | ATTR_FILE_RSRCALLOCSIZE) & fileattr) {
+	if ((ATTR_FILE_RSRCLENGTH | ATTR_FILE_RSRCALLOCSIZE) & fileattr && pzp) {
 		uint64_t rsrcsize = 0;
 
 		if (pzp->zp_xattr) {

@@ -409,7 +409,7 @@ mappedwrite(vnode_t *vp, int nbytes, uio_t *uio, dmu_tx_t *tx)
 	int len = nbytes;
 	int error = 0;
 #ifdef __APPLE__
-	vm_offset_t vaddr;
+	vm_offset_t vaddr = 0;
 	upl_t upl;
 	upl_page_info_t *pl = NULL;
 	off_t upl_start;
@@ -548,7 +548,7 @@ mappedread(vnode_t *vp, int nbytes, uio_t *uio)
 	int len = nbytes;
 	int error = 0;
 #ifdef __APPLE__
-	vm_offset_t vaddr;
+	vm_offset_t vaddr = 0;
 	upl_t upl;
 	upl_page_info_t *pl = NULL;
 	off_t upl_start;
@@ -663,7 +663,7 @@ zfs_read(vnode_t *vp, uio_t *uio, int ioflag, cred_t *cr, caller_context_t *ct)
 	zfsvfs_t	*zfsvfs = zp->z_zfsvfs;
 	objset_t	*os = zfsvfs->z_os;
 	ssize_t		n, nbytes;
-	int		error;
+	int		error = 0;
 	rl_t		*rl;
 
 	ZFS_ENTER(zfsvfs);
@@ -877,7 +877,7 @@ zfs_write(vnode_t *vp, uio_t *uio, int ioflag, cred_t *cr, caller_context_t *ct)
 	rlim64_t	limit = uio->uio_llimit;
 	ssize_t		start_resid = uio->uio_resid;
 #endif /* __APPLE__ */
-	ssize_t		tx_bytes;
+	ssize_t		tx_bytes = 0;
 	uint64_t	end_size;
 	dmu_tx_t	*tx;
 	zfsvfs_t	*zfsvfs = zp->z_zfsvfs;
@@ -886,7 +886,7 @@ zfs_write(vnode_t *vp, uio_t *uio, int ioflag, cred_t *cr, caller_context_t *ct)
 	ssize_t		n, nbytes;
 	rl_t		*rl;
 	int		max_blksz = zfsvfs->z_max_blksz;
-	int		error;
+	int		error = 0;
 
 	/*
 	 * Fasttrack empty write
@@ -1357,7 +1357,7 @@ zfs_lookup(vnode_t *dvp, char *nm, vnode_t **vpp, struct pathname *pnp,
 	char smallname[64];
 	char *filename = NULL;
 	char * nm;
-	cred_t *cr = (cred_t *)vfs_context_ucred(ap->a_context);
+	// cred_t *cr = (cred_t *)vfs_context_ucred(ap->a_context);
 #endif /* __APPLE__ */
 	znode_t *zdp = VTOZ(dvp);
 	zfsvfs_t *zfsvfs = zdp->z_zfsvfs;
@@ -1761,7 +1761,7 @@ zfs_remove(vnode_t *dvp, char *name, cred_t *cr)
 	struct vnode  *dvp = ap->a_dvp;
 	struct vnode  *vp;
 	struct componentname  *cnp = ap->a_cnp;
-	cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
+	// cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
 #else
 	vnode_t		*vp;
 #endif /* __APPLE__ */
@@ -1773,7 +1773,7 @@ zfs_remove(vnode_t *dvp, char *name, cred_t *cr)
 	uint64_t	acl_obj, xattr_obj;
 	zfs_dirlock_t	*dl;
 	dmu_tx_t	*tx;
-	boolean_t	may_delete_now, delete_now = FALSE;
+	boolean_t	may_delete_now = FALSE, delete_now = FALSE;
 	boolean_t	unlinked;
 	int		error;
 
@@ -2129,7 +2129,7 @@ zfs_rmdir(vnode_t *dvp, char *name, vnode_t *cwd, cred_t *cr)
 	struct vnode  *vp;
 	struct componentname  *cnp = ap->a_cnp;
         char * name = (char *)cnp->cn_nameptr;
-	cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
+	// cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
 #else
 	vnode_t		*vp;
 #endif /* __APPLE__ */
@@ -2280,7 +2280,7 @@ zfs_readdir(vnode_t *vp, uio_t *uio, cred_t *cr, int *eofp)
 #ifdef __APPLE__
 	struct vnode	*vp = ap->a_vp;
 	uio_t		uio = ap->a_uio;
-	cred_t		*cr = (cred_t *)vfs_context_ucred(ap->a_context);
+	// cred_t		*cr = (cred_t *)vfs_context_ucred(ap->a_context);
 	int		*eofp =  ap->a_eofflag;
 	char		*bufptr;
 #else
@@ -2333,7 +2333,6 @@ zfs_readdir(vnode_t *vp, uio_t *uio, cred_t *cr, int *eofp)
 		return (0);
 	}
 
-	error = 0;
 	os = zfsvfs->z_os;
 #ifdef __APPLE__
 	offset = uio_offset(uio);
@@ -2871,7 +2870,7 @@ zfs_setattr(vnode_t *vp, vattr_t *vap, int flags, cred_t *cr,
 #ifdef __APPLE__
 	struct vnode  *vp = ap->a_vp;
 	struct vnode_attr  *vap = ap->a_vap;
-	uint64_t  mask = vap->va_active;
+	uint64_t  mask; // = vap->va_active;
 	uint64_t  saved_mask;
 	cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
 #else
@@ -2885,7 +2884,7 @@ zfs_setattr(vnode_t *vp, vattr_t *vap, int flags, cred_t *cr,
 	zilog_t		*zilog = zfsvfs->z_log;
 	dmu_tx_t	*tx;
 	int		trim_mask = 0;
-	uint64_t	new_mode;
+	uint64_t	new_mode = 0;
 	znode_t		*attrzp;
 	int		need_policy = FALSE;
 	int		err;
@@ -4279,7 +4278,6 @@ top:
 			zfs_range_unlock(rl);
 			dmu_tx_wait(tx);
 			dmu_tx_abort(tx);
-			err = 0;
 			goto top;
 		}
 		dmu_tx_abort(tx);
@@ -5354,7 +5352,7 @@ zfs_vnop_exchange(__unused struct vnop_exchange_args *ap)
 		return (EINVAL);
 
 	fzp = VTOZ(fvp);
-	tzp = VTOZ(tvp);
+	// tzp = VTOZ(tvp);
 	zfsvfs = fzp->z_zfsvfs;
 
 	ZFS_ENTER(zfsvfs);

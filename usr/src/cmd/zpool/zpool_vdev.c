@@ -414,6 +414,8 @@ make_leaf_vdev(const char *arg, uint64_t is_log)
 	char *type = NULL;
 	boolean_t wholedisk = B_FALSE;
 
+	statbuf.st_mode = 0;
+	
 	/*
 	 * Determine what type of vdev this is, and put the full path into
 	 * 'path'.  We detect whether this is a device of file afterwards by

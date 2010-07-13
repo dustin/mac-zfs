@@ -2665,7 +2665,6 @@ arc_release(arc_buf_t *buf, void *tag)
 #else
 		atomic_add_64(&arc_anon->arcs_size, blksz);
 #endif
-		hdr = nhdr;
 	} else {
 		ASSERT(refcount_count(&hdr->b_refcnt) == 1);
 		ASSERT(!list_link_active(&hdr->b_arc_node));

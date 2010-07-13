@@ -307,6 +307,8 @@ print_prop_cb(zpool_prop_t prop, void *cb)
 	return (ZFS_PROP_CONT);
 }
 
+void usage(boolean_t requested) __attribute__((__noreturn__));
+
 /*
  * Display usage message.  If we're inside a command, display only the usage for
  * that command.  Otherwise, iterate over the entire command table and display
@@ -1344,7 +1346,7 @@ zpool_do_import(int argc, char **argv)
 	int nsearch = 0;
 	int c;
 	int err;
-	nvlist_t *pools;
+	nvlist_t *pools = NULL;
 	boolean_t do_all = B_FALSE;
 	boolean_t do_destroyed = B_FALSE;
 	char *altroot = NULL;
@@ -1601,7 +1603,8 @@ zpool_do_import(int argc, char **argv)
 error:
 	if (props)
 		nvlist_free(props);
-	nvlist_free(pools);
+	if (pools)
+		nvlist_free(pools);
 	free(searchdirs);
 
 	return (err ? 1 : 0);
@@ -3791,7 +3794,7 @@ find_command_idx(char *command, int *idx)
 int
 main(int argc, char **argv)
 {
-	int ret;
+	int ret = 0;
 	int i;
 	char *cmdname;
 

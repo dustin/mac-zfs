@@ -482,7 +482,7 @@ qsort(
 
 /* ARGSUSED */
 static void
-swapp32(uint32_t *r1, uint32_t *r2, size_t cnt)
+swapp32(uint32_t *r1 __attribute__((unused)), uint32_t *r2 __attribute__((unused)), size_t cnt)
 {
 	uint32_t temp;
 
@@ -493,7 +493,7 @@ swapp32(uint32_t *r1, uint32_t *r2, size_t cnt)
 
 /* ARGSUSED */
 static void
-swapp64(uint64_t *r1, uint64_t *r2, size_t cnt)
+swapp64(uint64_t *r1 __attribute__((unused)), uint64_t *r2 __attribute__((unused)), size_t cnt)
 {
 	uint64_t temp;
 

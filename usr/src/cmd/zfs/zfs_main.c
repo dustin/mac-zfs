@@ -312,6 +312,8 @@ usage_prop_cb(zfs_prop_t prop, void *cb)
 	return (ZFS_PROP_CONT);
 }
 
+static void usage(boolean_t requested) __attribute__((__noreturn__));
+
 /*
  * Display usage message.  If we're inside a command, display only the usage for
  * that command.  Otherwise, iterate over the entire command table and display
@@ -2847,15 +2849,15 @@ share_mount_one(zfs_handle_t *zhp, int op, int flags, boolean_t explicit,
 	assert(type & (ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME));
 
 	if (type == ZFS_TYPE_FILESYSTEM) {
+#ifndef	__APPLE__
 		/*
 		 * Check to make sure we can mount/share this dataset.  If we
 		 * are in the global zone and the filesystem is exported to a
 		 * local zone, or if we are in a local zone and the
 		 * filesystem is not exported, then it is an error.
 		 */
-		zoned = zfs_prop_get_int(zhp, ZFS_PROP_ZONED);
 
-#ifndef	__APPLE__
+		zoned = zfs_prop_get_int(zhp, ZFS_PROP_ZONED);
 		if (zoned && getzoneid() == GLOBAL_ZONEID) {
 			if (!explicit)
 				return (0);
@@ -3895,7 +3897,7 @@ find_command_idx(char *command, int *idx)
 int
 main(int argc, char **argv)
 {
-	int ret;
+	int ret = 0;
 	int i;
 	char *progname;
 	char *cmdname;

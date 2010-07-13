@@ -117,6 +117,7 @@ extern void vuprintf(const char *, __va_list)
     __KVPRINTFLIKE(1);
 #pragma rarely_called(vuprintf)
 
+#ifndef __APPLE__
 /*PRINTFLIKE3*/
 extern size_t snprintf(char *, size_t, const char *, ...)
     __KPRINTFLIKE(3);
@@ -127,7 +128,8 @@ extern char *sprintf(char *, const char *, ...)
     __KPRINTFLIKE(2);
 extern char *vsprintf(char *, const char *, __va_list)
     __KVPRINTFLIKE(2);
-
+#endif /* __APPLE__ */
+	
 /*PRINTFLIKE1*/
 extern void panic(const char *, ...)
     __KPRINTFLIKE(1) __NORETURN;

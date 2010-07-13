@@ -1287,7 +1287,7 @@ zio_write_allocate_gang_members(zio_t *zio, metaslab_class_t *mc)
 	for (loff = 0, i = 0; loff != zio->io_size;
 	    loff += lsize, resid -= lsize, gbps_left--, i++) {
 		blkptr_t *gbp = &gbh->zg_blkptr[i];
-		dva = gbp->blk_dva;
+		// dva = gbp->blk_dva;
 
 		ASSERT(gbps_left != 0);
 		maxalloc = MIN(maxalloc, resid);

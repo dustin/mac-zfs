@@ -43,7 +43,10 @@ extern "C" {
  * Forward references that lots of things need.
  */
 typedef struct spa spa_t;
+#ifndef __APPLE__
+// This is defined in zfs_context.h
 typedef struct vdev vdev_t;
+#endif /* __APPLE__ */
 typedef struct metaslab metaslab_t;
 typedef struct zilog zilog_t;
 typedef struct traverse_handle traverse_handle_t;
