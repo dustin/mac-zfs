@@ -38,8 +38,6 @@
 		26B7E4A90B0A84B600C0C00F /* zpool.8 in CopyFiles */ = {isa = PBXBuildFile; fileRef = 269334CA0AD1C3FC000CDAB9 /* zpool.8 */; };
 		26E59EC70B87AAE600CFC573 /* zoink.c in Sources */ = {isa = PBXBuildFile; fileRef = 26E59EC60B87AAE600CFC573 /* zoink.c */; };
 		26E8B80C0B7243590006CCAF /* VolumeIcon.icns in Resources */ = {isa = PBXBuildFile; fileRef = 26E8B80B0B7243590006CCAF /* VolumeIcon.icns */; };
-		D9B898050BF3ADA000F648C1 /* zfs.plist in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9B897FE0BF3AD0B00F648C1 /* zfs.plist */; };
-		D9B898060BF3ADB200F648C1 /* zfs.txt in CopyFiles */ = {isa = PBXBuildFile; fileRef = D9B897FF0BF3AD0B00F648C1 /* zfs.txt */; };
 		DAD6B3DC10940AE4008A0395 /* fix-nofs.m in Sources */ = {isa = PBXBuildFile; fileRef = DAD6B3DB10940AE4008A0395 /* fix-nofs.m */; };
 		DAD6B41810940DCF008A0395 /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = DAD6B41710940DCF008A0395 /* Foundation.framework */; };
 		DAD6B4D010941B6F008A0395 /* post-install.sh in CopyFiles */ = {isa = PBXBuildFile; fileRef = DAD6B4BA109419E8008A0395 /* post-install.sh */; };
@@ -358,7 +356,6 @@
 			dstPath = /usr/local/OpenSourceVersions;
 			dstSubfolderSpec = 0;
 			files = (
-				D9B898050BF3ADA000F648C1 /* zfs.plist in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -368,7 +365,6 @@
 			dstPath = /usr/local/OpenSourceLicenses;
 			dstSubfolderSpec = 0;
 			files = (
-				D9B898060BF3ADB200F648C1 /* zfs.txt in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 1;
 		};
@@ -403,8 +399,6 @@
 		26F63DB20AABD480000C5196 /* zfs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = zfs; sourceTree = BUILT_PRODUCTS_DIR; };
 		32A4FEC30562C75700D090E7 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; name = Info.plist; path = zfs_kext/Info.plist; sourceTree = "<group>"; };
 		32A4FEC40562C75800D090E7 /* zfs.kext */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = zfs.kext; sourceTree = BUILT_PRODUCTS_DIR; };
-		D9B897FE0BF3AD0B00F648C1 /* zfs.plist */ = {isa = PBXFileReference; explicitFileType = text.xml; fileEncoding = 4; path = zfs.plist; sourceTree = "<group>"; };
-		D9B897FF0BF3AD0B00F648C1 /* zfs.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = zfs.txt; sourceTree = "<group>"; };
 		DAD6B3CF109409E4008A0395 /* fix-nofs */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = "fix-nofs"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DAD6B3DB10940AE4008A0395 /* fix-nofs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = "fix-nofs.m"; path = "install_support/fix-nofs.m"; sourceTree = "<group>"; };
 		DAD6B41710940DCF008A0395 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
@@ -749,8 +743,6 @@
 		262438310ACDCD8F007444B5 /* zfs_bundle */ = {
 			isa = PBXGroup;
 			children = (
-				D9B897FE0BF3AD0B00F648C1 /* zfs.plist */,
-				D9B897FF0BF3AD0B00F648C1 /* zfs.txt */,
 				26E8B80B0B7243590006CCAF /* VolumeIcon.icns */,
 				265DACD30AE8932300EBFDCE /* PkgInfo */,
 				2611F7F50ACDE5F200E5D4E2 /* InfoPlist.strings */,
