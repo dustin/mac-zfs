@@ -106,6 +106,15 @@
 		FA93777510A3925300754C9E /* kernel.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93766710A38E6300754C9E /* kernel.c */; };
 		FA93777610A3925300754C9E /* util.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93766A10A38E6300754C9E /* util.c */; };
 		FA93777710A3925300754C9E /* taskq.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93766B10A38E6300754C9E /* taskq.c */; };
+		FA9656AE11F1BFA3001E7C56 /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656A811F1BFA3001E7C56 /* assfail.c */; };
+		FA9656AF11F1BFA3001E7C56 /* maczfs_kernel.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656AB11F1BFA3001E7C56 /* maczfs_kernel.c */; };
+		FA9656B011F1BFA3001E7C56 /* zfs_context.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656AD11F1BFA3001E7C56 /* zfs_context.c */; };
+		FA9656B311F1BFBC001E7C56 /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656A811F1BFA3001E7C56 /* assfail.c */; };
+		FA9656B411F1BFBD001E7C56 /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656A811F1BFA3001E7C56 /* assfail.c */; };
+		FA9656B611F1BFC0001E7C56 /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656A811F1BFA3001E7C56 /* assfail.c */; };
+		FA9656B711F1BFC1001E7C56 /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656A811F1BFA3001E7C56 /* assfail.c */; };
+		FA9656B811F1BFC1001E7C56 /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656A811F1BFA3001E7C56 /* assfail.c */; };
+		FA9656B911F1BFC5001E7C56 /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656A811F1BFA3001E7C56 /* assfail.c */; };
 		FAA3738910A3A7E600B9ADAC /* arc.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9375DB10A38E6300754C9E /* arc.c */; };
 		FAA3738A10A3A7E600B9ADAC /* bplist.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9375DD10A38E6300754C9E /* bplist.c */; };
 		FAA3738B10A3A7E600B9ADAC /* dbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93760910A38E6300754C9E /* dbuf.c */; };
@@ -186,15 +195,6 @@
 		FAA3740A10A3AA5700B9ADAC /* zfs_prop.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9376A110A38FB500754C9E /* zfs_prop.c */; };
 		FAB331D010C3C88B00BF4948 /* nvpair_alloc_system.c in Sources */ = {isa = PBXBuildFile; fileRef = FAB331CF10C3C88B00BF4948 /* nvpair_alloc_system.c */; };
 		FAB331F810C3CC7C00BF4948 /* xdr_array.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93759210A38E6300754C9E /* xdr_array.c */; };
-		FAB3322610C3CDB700BF4948 /* zfs_context.c in Sources */ = {isa = PBXBuildFile; fileRef = FAB331B510BFD6A000BF4948 /* zfs_context.c */; };
-		FACE32B4113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
-		FACE32B5113A769500A513AE /* assfail.h in Headers */ = {isa = PBXBuildFile; fileRef = FACE32B3113A769500A513AE /* assfail.h */; };
-		FACE32B8113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
-		FACE32B9113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
-		FACE32BA113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
-		FACE32BB113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
-		FACE32BC113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
-		FACE32BD113A769500A513AE /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FACE32B2113A769500A513AE /* assfail.c */; };
 		FACE32C9113A779E00A513AE /* uu_misc.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93757F10A38E6300754C9E /* uu_misc.c */; };
 /* End PBXBuildFile section */
 
@@ -641,10 +641,12 @@
 		FA9376A510A38FB500754C9E /* zfs_deleg.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zfs_deleg.c; sourceTree = "<group>"; };
 		FA9376A610A38FB500754C9E /* zfs_prop.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zfs_prop.h; sourceTree = "<group>"; };
 		FA93776F10A3924300754C9E /* ztest */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = ztest; sourceTree = BUILT_PRODUCTS_DIR; };
-		FAB331B510BFD6A000BF4948 /* zfs_context.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = zfs_context.c; path = maczfs/zfs_context.c; sourceTree = "<group>"; };
+		FA9656A811F1BFA3001E7C56 /* assfail.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = assfail.c; sourceTree = "<group>"; };
+		FA9656A911F1BFA3001E7C56 /* assfail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = assfail.h; sourceTree = "<group>"; };
+		FA9656AB11F1BFA3001E7C56 /* maczfs_kernel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = maczfs_kernel.c; sourceTree = "<group>"; };
+		FA9656AC11F1BFA3001E7C56 /* maczfs_kernel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maczfs_kernel.h; sourceTree = "<group>"; };
+		FA9656AD11F1BFA3001E7C56 /* zfs_context.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zfs_context.c; sourceTree = "<group>"; };
 		FAB331CF10C3C88B00BF4948 /* nvpair_alloc_system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = nvpair_alloc_system.c; sourceTree = "<group>"; };
-		FACE32B2113A769500A513AE /* assfail.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = assfail.c; path = maczfs/assfail.c; sourceTree = "<group>"; };
-		FACE32B3113A769500A513AE /* assfail.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = assfail.h; path = maczfs/assfail.h; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -711,7 +713,6 @@
 		089C166AFE841209C02AAC07 /* zfs */ = {
 			isa = PBXGroup;
 			children = (
-				FAB331B210BFD5ED00BF4948 /* maczfs */,
 				FA93755C10A38E6300754C9E /* usr */,
 				26A9784D0AA938FD00FF1F22 /* zfs_commands */,
 				26BE01540A9E9FC800F3429C /* zfs_kext */,
@@ -807,6 +808,7 @@
 		FA93755D10A38E6300754C9E /* src */ = {
 			isa = PBXGroup;
 			children = (
+				FA9656A711F1BFA3001E7C56 /* maczfs */,
 				FA93755E10A38E6300754C9E /* lib */,
 				FA93758A10A38E6300754C9E /* libgen */,
 				FA93758D10A38E6300754C9E /* uts */,
@@ -1337,14 +1339,24 @@
 			path = zfs;
 			sourceTree = "<group>";
 		};
-		FAB331B210BFD5ED00BF4948 /* maczfs */ = {
+		FA9656A711F1BFA3001E7C56 /* maczfs */ = {
 			isa = PBXGroup;
 			children = (
-				FACE32B2113A769500A513AE /* assfail.c */,
-				FACE32B3113A769500A513AE /* assfail.h */,
-				FAB331B510BFD6A000BF4948 /* zfs_context.c */,
+				FA9656A811F1BFA3001E7C56 /* assfail.c */,
+				FA9656A911F1BFA3001E7C56 /* assfail.h */,
+				FA9656AA11F1BFA3001E7C56 /* kernel */,
 			);
-			name = maczfs;
+			path = maczfs;
+			sourceTree = "<group>";
+		};
+		FA9656AA11F1BFA3001E7C56 /* kernel */ = {
+			isa = PBXGroup;
+			children = (
+				FA9656AB11F1BFA3001E7C56 /* maczfs_kernel.c */,
+				FA9656AC11F1BFA3001E7C56 /* maczfs_kernel.h */,
+				FA9656AD11F1BFA3001E7C56 /* zfs_context.c */,
+			);
+			path = kernel;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1376,7 +1388,6 @@
 				FA0D2AC510A39F8000C63936 /* zfs_namecheck.h in Headers */,
 				FA0D2AC710A39F8000C63936 /* zfs_prop.h in Headers */,
 				FA0D2AE710A39F8000C63936 /* zvol.h in Headers */,
-				FACE32B5113A769500A513AE /* assfail.h in Headers */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1628,7 +1639,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				2611F7400ACDD29E00E5D4E2 /* zfsutil.c in Sources */,
-				FACE32BA113A769500A513AE /* assfail.c in Sources */,
+				FA9656B611F1BFC0001E7C56 /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1668,8 +1679,8 @@
 				FA0D2AB910A39F8000C63936 /* zfs_deleg.c in Sources */,
 				FA0D2AC410A39F8000C63936 /* zfs_namecheck.c in Sources */,
 				FA0D2AC610A39F8000C63936 /* zfs_prop.c in Sources */,
-				FACE32B4113A769500A513AE /* assfail.c in Sources */,
 				FACE32C9113A779E00A513AE /* uu_misc.c in Sources */,
+				FA9656B311F1BFBC001E7C56 /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1681,7 +1692,7 @@
 				FA93776710A391FD00754C9E /* zpool_vdev.c in Sources */,
 				FA93776810A391FD00754C9E /* zpool_util.c in Sources */,
 				FA93776910A391FD00754C9E /* zpool_main.c in Sources */,
-				FACE32BB113A769500A513AE /* assfail.c in Sources */,
+				FA9656B411F1BFBD001E7C56 /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1690,7 +1701,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				26E59EC70B87AAE600CFC573 /* zoink.c in Sources */,
-				FACE32BC113A769500A513AE /* assfail.c in Sources */,
+				FA9656B711F1BFC1001E7C56 /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1700,7 +1711,7 @@
 			files = (
 				FA93776A10A3922300754C9E /* zfs_iter.c in Sources */,
 				FA93776B10A3922300754C9E /* zfs_main.c in Sources */,
-				FACE32B9113A769500A513AE /* assfail.c in Sources */,
+				FA9656B811F1BFC1001E7C56 /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1788,8 +1799,9 @@
 				FAA3740A10A3AA5700B9ADAC /* zfs_prop.c in Sources */,
 				FAB331D010C3C88B00BF4948 /* nvpair_alloc_system.c in Sources */,
 				FAB331F810C3CC7C00BF4948 /* xdr_array.c in Sources */,
-				FAB3322610C3CDB700BF4948 /* zfs_context.c in Sources */,
-				FACE32B8113A769500A513AE /* assfail.c in Sources */,
+				FA9656AE11F1BFA3001E7C56 /* assfail.c in Sources */,
+				FA9656AF11F1BFA3001E7C56 /* maczfs_kernel.c in Sources */,
+				FA9656B011F1BFA3001E7C56 /* zfs_context.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1809,7 +1821,7 @@
 				FA93777510A3925300754C9E /* kernel.c in Sources */,
 				FA93777610A3925300754C9E /* util.c in Sources */,
 				FA93777710A3925300754C9E /* taskq.c in Sources */,
-				FACE32BD113A769500A513AE /* assfail.c in Sources */,
+				FA9656B911F1BFC5001E7C56 /* assfail.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

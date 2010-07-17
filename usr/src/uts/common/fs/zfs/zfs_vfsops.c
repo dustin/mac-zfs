@@ -50,6 +50,8 @@
 #ifdef __APPLE__
 #include <sys/zfs_context.h>
 #include <sys/zfs_vfsops.h>
+#include <sys/sysctl.h>
+#include <maczfs/kernel/maczfs_kernel.h>
 #endif /* __APPLE__ */
 
 #ifndef __APPLE__
@@ -2128,7 +2130,12 @@ zfs_vfs_start(__unused struct mount *mp, __unused int flags, __unused vfs_contex
 }
 #endif /* __APPLE__ */
 
+#ifdef _KERNEL
 #ifdef __APPLE__
+
+SYSCTL_NODE(_debug, OID_AUTO, maczfs, CTLFLAG_RW, 0, "maczfs specific tuning flags");
+SYSCTL_INT(_debug_maczfs, OID_AUTO, stalk, (CTLTYPE_INT | CTLFLAG_RW | CTLFLAG_ANYBODY ), &k_maczfs_debug_stalk, 0, "enable stalk-printf logging");
+
 int
 zfs_module_start(__unused kmod_info_t *ki, __unused void *data)
 {
@@ -2138,15 +2145,16 @@ zfs_module_start(__unused kmod_info_t *ki, __unused void *data)
 
 	printf("zfs_module_start: memory footprint %d (kalloc %d, kernel %d)\n",
 		zfs_footprint.current, zfs_kallocmap_size, zfs_kernelmap_size);
-	
+
+	sysctl_register_oid(&sysctl__debug_maczfs);
+	sysctl_register_oid(&sysctl__debug_maczfs_stalk);
+		
 	vfe.vfe_vfsops = &zfs_vfsops_template;
 	vfe.vfe_vopcnt = ZFS_VNOP_TBL_CNT;
 	vfe.vfe_opvdescs = zfs_vnodeop_opv_desc_list;
-#if 1
-	strcpy(vfe.vfe_fsname, "zfs");
-#else
-	strlcpy(vfe.vfe_fsname, "zfs", sizeof(vfe.vfe_fsname));
-#endif
+
+	strlcpy(vfe.vfe_fsname, "zfs", MFSNAMELEN);
+
 	/*
 	 * Note: must set VFS_TBLGENERICMNTARGS with VFS_TBLLOCALVOL
 	 * to suppress local mount argument handling.
@@ -2166,9 +2174,7 @@ zfs_module_start(__unused kmod_info_t *ki, __unused void *data)
 	else
 		return KERN_SUCCESS;
 }
-#endif /* __APPLE__ */
 
-#ifdef __APPLE__
 int  
 zfs_module_stop(__unused kmod_info_t *ki, __unused void *data)
 {
@@ -2179,13 +2185,17 @@ zfs_module_stop(__unused kmod_info_t *ki, __unused void *data)
 		return KERN_FAILURE;   /* ZFS Still busy! */
 	}
 	zfs_fini();
-
+	
+	sysctl_unregister_oid(&sysctl__debug_maczfs_stalk);
+	sysctl_unregister_oid(&sysctl__debug_maczfs);
+	
 	printf("zfs_module_stop: memory footprint %d (kalloc %d, kernel %d)\n",
 		zfs_footprint.current, zfs_kallocmap_size, zfs_kernelmap_size);
 	
 	return KERN_SUCCESS;
 }
 #endif /* __APPLE__ */
+#endif /* _KERNEL */
 
 #ifndef __APPLE__
 static int

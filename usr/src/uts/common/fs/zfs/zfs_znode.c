@@ -62,6 +62,9 @@
 #include <sys/zfs_ioctl.h>
 #include <sys/zfs_rlock.h>
 #include <sys/fs/zfs.h>
+#ifdef __APPLE__
+#include <maczfs/kernel/maczfs_kernel.h>
+#endif
 #endif /* _KERNEL */
 
 #include <sys/dmu.h>
@@ -1661,6 +1664,7 @@ zfs_setbsdflags(znode_t *zp, uint32_t bsdflags)
 	zp->z_phys->zp_flags = zflags;
 }
 
+#ifdef _KERNEL
 #ifdef ZFS_DEBUG
 char *
 n_event_to_str(whereami_t event); // the prototype that removes gcc warning
@@ -1699,13 +1703,14 @@ void
 znode_stalker(znode_t *zp, whereami_t event)
 {
 	findme_t *n;
-
-	n = kmem_alloc(sizeof (findme_t), KM_SLEEP);
-	n->event = event;
-	mutex_enter(&zp->z_lock);
-	list_insert_tail(&zp->z_stalker, n);
-	mutex_exit(&zp->z_lock);
-	printf("stalk: zp %p %s\n", zp, n_event_to_str(event));
+	if( k_maczfs_debug_stalk ) {
+		n = kmem_alloc(sizeof (findme_t), KM_SLEEP);
+		n->event = event;
+		mutex_enter(&zp->z_lock);
+		list_insert_tail(&zp->z_stalker, n);
+		mutex_exit(&zp->z_lock);
+		printf("stalk: zp %p %s\n", zp, n_event_to_str(event));
+	}
 }
 
 void 
@@ -1720,4 +1725,5 @@ znode_stalker_fini(znode_t *zp)
 	list_destroy(&zp->z_stalker);
 }
 #endif /* ZFS_DEBUG */
+#endif /* _KERNEL */
 #endif /* __APPLE__ */
