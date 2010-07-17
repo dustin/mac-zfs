@@ -759,13 +759,7 @@ add_reference(arc_buf_hdr_t *ab, kmutex_t *hash_lock, void *tag)
 		}
 		ASSERT(delta > 0);
 		ASSERT3U(*size, >=, delta);
-// XXX There's an atomic_add_64 - should we use that instead?
-// Issue 26
-#ifdef __APPLE__
-		*size -= delta;
-#else
 		atomic_add_64(size, -delta);
-#endif
 		mutex_exit(&ab->b_state->arcs_mtx);
 		/* remove the prefetch flag is we get a reference */
 		if (ab->b_flags & ARC_PREFETCH)
@@ -791,13 +785,7 @@ remove_reference(arc_buf_hdr_t *ab, kmutex_t *hash_lock, void *tag)
 		ASSERT(!list_link_active(&ab->b_arc_node));
 		list_insert_head(&state->arcs_list[ab->b_type], ab);
 		ASSERT(ab->b_datacnt > 0);
-// XXX There's an atomic_add_64 - should we use that instead?
-// Issue 26
-#ifdef __APPLE__
-		*size += ab->b_size * ab->b_datacnt;
-#else
 		atomic_add_64(size, ab->b_size * ab->b_datacnt);
-#endif
 		mutex_exit(&state->arcs_mtx);
 	}
 	return (cnt);
@@ -846,13 +834,8 @@ arc_change_state(arc_state_t *new_state, arc_buf_hdr_t *ab, kmutex_t *hash_lock)
 				from_delta = ab->b_size;
 			}
 			ASSERT3U(*size, >=, from_delta);
-// XXX There's an atomic_add_64 - should we use that instead?
-// Issue 26
-#ifdef __APPLE__
-			*size -= from_delta;
-#else
 			atomic_add_64(size, -from_delta);
-#endif
+			
 			if (use_mutex)
 				mutex_exit(&old_state->arcs_mtx);
 		}
@@ -871,13 +854,7 @@ arc_change_state(arc_state_t *new_state, arc_buf_hdr_t *ab, kmutex_t *hash_lock)
 				ASSERT(ab->b_buf == NULL);
 				to_delta = ab->b_size;
 			}
-// XXX There's an atomic_add_64 - should we use that instead?
-// Issue 26
-#ifdef __APPLE__
-			*size += to_delta;
-#else
 			atomic_add_64(size, to_delta);
-#endif
 
 			if (use_mutex)
 				mutex_exit(&new_state->arcs_mtx);
@@ -890,36 +867,11 @@ arc_change_state(arc_state_t *new_state, arc_buf_hdr_t *ab, kmutex_t *hash_lock)
 	}
 
 	/* adjust state sizes */
-	if (to_delta) {
-#ifdef __APPLE__
-		int use_mutex = !MUTEX_HELD(&new_state->arcs_mtx);
-
-		if (use_mutex)
-			mutex_enter(&new_state->arcs_mtx);
-// XXX There's an atomic_add_64 - should we use that instead?
-// Issue 26
-		new_state->arcs_size += to_delta;
-		if (use_mutex)
-			mutex_exit(&new_state->arcs_mtx);
-#else
+	if (to_delta) 
 		atomic_add_64(&new_state->arcs_size, to_delta);
-#endif
-	}
 	if (from_delta) {
-	ASSERT3U(old_state->arcs_size, >=, from_delta);
-#ifdef __APPLE__
-		int use_mutex = !MUTEX_HELD(&old_state->arcs_mtx);
-
-		if (use_mutex)
-			mutex_enter(&old_state->arcs_mtx);
-// XXX There's an atomic_add_64 - should we use that instead?
-// Issue 26
-		old_state->arcs_size -= from_delta;
-		if (use_mutex)
-			mutex_exit(&old_state->arcs_mtx);
-#else
+		ASSERT3U(old_state->arcs_size, >=, from_delta);
 		atomic_add_64(&old_state->arcs_size, -from_delta);
-#endif
 	}
 	ab->b_state = new_state;
 }
@@ -1081,36 +1033,10 @@ arc_buf_destroy(arc_buf_t *buf, boolean_t recycle, boolean_t all)
 			ASSERT(state != arc_anon);
 
 			ASSERT3U(*cnt, >=, size);
-// XXX There's an atomic_add_64 - should we use that instead?
-// Issue 26
-#ifdef __APPLE__
-			if (!MUTEX_HELD(&state->arcs_mtx)) {
-				mutex_enter(&state->arcs_mtx);
-				*cnt -= size;
-				mutex_exit(&state->arcs_mtx);
-			} else {
-				*cnt -= size;
-			}
-#else
 			atomic_add_64(cnt, -size);
-#endif
 		}
 		ASSERT3U(state->arcs_size, >=, size);
-// XXX There's an atomic_add_64 - should we use that instead?
-// Issue 26
-
-#ifdef __APPLE__
-		if (!MUTEX_HELD(&state->arcs_mtx)) {
-			mutex_enter(&state->arcs_mtx);
-			state->arcs_size -= size;
-			mutex_exit(&state->arcs_mtx);
-		} else {
-			state->arcs_size -= size;
-		}
-#else
 		atomic_add_64(&state->arcs_size, -size);
-#endif
-
 		buf->b_data = NULL;
 		ASSERT(buf->b_hdr->b_datacnt > 0);
 		buf->b_hdr->b_datacnt -= 1;
@@ -1935,28 +1861,11 @@ out:
 	if (!GHOST_STATE(buf->b_hdr->b_state)) {
 		arc_buf_hdr_t *hdr = buf->b_hdr;
 
-#ifdef __APPLE__
-
-		int use_mutex = !MUTEX_HELD(&hdr->b_state->arcs_mtx);
-
-		if (use_mutex)
-			mutex_enter(&hdr->b_state->arcs_mtx);
-
-		hdr->b_state->arcs_size += size;
-		if (list_link_active(&hdr->b_arc_node)) {
-			ASSERT(refcount_is_zero(&hdr->b_refcnt));
-			hdr->b_state->arcs_lsize[type] += size;
-		}
-
-		if (use_mutex)
-			mutex_exit(&hdr->b_state->arcs_mtx);
-#else
 		atomic_add_64(&hdr->b_state->arcs_size, size);
 		if (list_link_active(&hdr->b_arc_node)) {
 			ASSERT(refcount_is_zero(&hdr->b_refcnt));
 			atomic_add_64(&hdr->b_state->arcs_lsize[type], size);
 		}
-#endif
 		/*
 		 * If we are growing the cache, and we are adding anonymous
 		 * data, and we have outgrown arc_p, update arc_p
@@ -2610,31 +2519,12 @@ arc_release(arc_buf_t *buf, void *tag)
 		buf->b_next = NULL;
 
 		ASSERT3U(hdr->b_state->arcs_size, >=, hdr->b_size);
-#ifdef __APPLE__
-		{
-			int use_mutex = !MUTEX_HELD(&hdr->b_state->arcs_mtx);
-
-			if (use_mutex)
-				mutex_enter(&hdr->b_state->arcs_mtx);
-			hdr->b_state->arcs_size -= hdr->b_size;
-			if (refcount_is_zero(&hdr->b_refcnt)) {
-				uint64_t *size = 
-					&hdr->b_state->arcs_lsize[hdr->b_type];
-				ASSERT3U(*size, >=, hdr->b_size);
-				*size -= hdr->b_size;
-			}
-
-			if (use_mutex)
-				mutex_exit(&hdr->b_state->arcs_mtx);
-		}
-#else
 		atomic_add_64(&hdr->b_state->arcs_size, -hdr->b_size);
 		if (refcount_is_zero(&hdr->b_refcnt)) {
 			uint64_t *size = &hdr->b_state->arcs_lsize[hdr->b_type];
 			ASSERT3U(*size, >=, hdr->b_size);
 			atomic_add_64(size, -hdr->b_size);
 		}
-#endif
 		hdr->b_datacnt -= 1;
 		arc_cksum_verify(buf);
 
@@ -2652,19 +2542,7 @@ arc_release(arc_buf_t *buf, void *tag)
 		nhdr->b_freeze_cksum = NULL;
 		(void) refcount_add(&nhdr->b_refcnt, tag);
 		buf->b_hdr = nhdr;
-// XXX There's an atomic_add_64 - should we use that instead?
-// Issue 26
-#ifdef __APPLE__
-		if (!MUTEX_HELD(&arc_anon->arcs_mtx)) {
-			mutex_enter(&arc_anon->arcs_mtx);
-			arc_anon->arcs_size += blksz;
-			mutex_exit(&arc_anon->arcs_mtx);
-		} else {
-			arc_anon->arcs_size += blksz;
-		}
-#else
 		atomic_add_64(&arc_anon->arcs_size, blksz);
-#endif
 	} else {
 		ASSERT(refcount_count(&hdr->b_refcnt) == 1);
 		ASSERT(!list_link_active(&hdr->b_arc_node));
