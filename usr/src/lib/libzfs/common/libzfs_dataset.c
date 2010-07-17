@@ -2165,15 +2165,11 @@ get_numeric_property(zfs_handle_t *zhp, zfs_prop_t prop, zfs_source_t *src,
 		rewind(mnttab);
 #endif /*!__APPLE__*/
 		
-		/*XXXNOEL this code will work but is hackish 
-		 */
 		if (getmntany(mnttab, &entry, &search) == 0) {
 			zhp->zfs_mntopts = zfs_strdup(zhp->zfs_hdl,
 				entry.mnt_mntopts);
-#ifndef __APPLE__
 			if (zhp->zfs_mntopts == NULL)
 				return (-1);
-#endif /* !__APPLE__ */
 		}
 
 		zhp->zfs_mntcheck = B_TRUE;
