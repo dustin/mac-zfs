@@ -158,11 +158,7 @@ spa_config_sync(void)
 	nvlist_t *config;
 	size_t buflen;
 	char *buf;
-#ifdef __APPLE__
-	struct vnode *vp;
-#else
 	vnode_t *vp;
-#endif
 	int oflags = FWRITE | FTRUNC | FCREAT | FOFFMAX;
 	char pathname[128];
 	char pathname2[128];

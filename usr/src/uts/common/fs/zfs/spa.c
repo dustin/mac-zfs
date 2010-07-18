@@ -2818,7 +2818,7 @@ static void
 spa_async_dispatch(spa_t *spa)
 {
 #ifdef __APPLE__
-	struct vnode *rootdir = getrootdir();
+	vnode_t *rootdir = getrootdir();
 #endif
 	mutex_enter(&spa->spa_async_lock);
 	if (spa->spa_async_tasks && !spa->spa_async_suspended &&

@@ -174,7 +174,7 @@ static u_int32_t  getuseraccess(znode_t *zp, vfs_context_t ctx);
 int
 zfs_vnop_readdirattr(struct vnop_readdirattr_args *ap)
 {
-	struct vnode	*vp = ap->a_vp;
+	vnode_t		*vp = ap->a_vp;
 	struct attrlist	*alp = ap->a_alist;
 	struct uio	*uio = ap->a_uio;
 	znode_t		*zp = VTOZ(vp);
@@ -639,7 +639,7 @@ dirattrpack(attrinfo_t *aip, znode_t *zp)
 		attrbufptr = ((u_int32_t *)attrbufptr) + 1;
 	}
 	if (ATTR_DIR_MOUNTSTATUS & dirattr && zp) {
-		struct vnode *vp = ZTOV(zp);
+		vnode_t *vp = ZTOV(zp);
 
 		if (vp != NULL && vnode_mountedhere(vp) != NULL)
 			*((u_int32_t *)attrbufptr) = DIR_MNTSTATUS_MNTPOINT;
@@ -703,8 +703,8 @@ fileattrpack(attrinfo_t *aip, zfsvfs_t *zfsvfs, znode_t *zp)
 		uint64_t rsrcsize = 0;
 
 		if (pzp->zp_xattr) {
-			struct vnode  *xdvp = NULLVP;
-			struct vnode  *xvp = NULLVP;
+			vnode_t *xdvp = NULLVP;
+			vnode_t *xvp = NULLVP;
 			struct componentname  cn;
 
 			bzero(&cn, sizeof (cn));
@@ -867,8 +867,8 @@ getpackedsize(struct attrlist *alp, boolean_t user64)
 static void
 getfinderinfo(znode_t *zp, znode_phys_t *pzp, cred_t *cr, finderinfo_t *fip)
 {
-	struct vnode	*xdvp = NULLVP;
-	struct vnode	*xvp = NULLVP;
+	vnode_t	*xdvp = NULLVP;
+	vnode_t	*xvp = NULLVP;
 	uio_t		auio = NULL;
 	struct componentname  cn;
 	int		error;
@@ -936,7 +936,7 @@ nodata:
 static u_int32_t
 getuseraccess(znode_t *zp, vfs_context_t ctx)
 {
-	struct vnode	*vp;
+	vnode_t	*vp;
 	znode_phys_t	*pzp = zp->z_phys;
 	u_int32_t	user_access = 0;
 

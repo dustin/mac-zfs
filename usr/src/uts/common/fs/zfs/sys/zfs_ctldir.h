@@ -51,11 +51,7 @@ extern "C" {
 void zfsctl_create(zfsvfs_t *);
 void zfsctl_destroy(zfsvfs_t *);
 
-#ifdef __APPLE__
-struct vnode *zfsctl_root(znode_t *);
-#else
 vnode_t *zfsctl_root(znode_t *);
-#endif
 
 void zfsctl_init(void);
 void zfsctl_fini(void);

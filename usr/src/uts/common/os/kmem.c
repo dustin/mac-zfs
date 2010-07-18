@@ -1354,7 +1354,6 @@ kmem_cache_free(kmem_cache_t *cp, void *buf)
 	kmem_magtype_t *mtp;
 
 #ifdef __APPLE__
-	// Issue 36
 	if(cp == NULL)
 		 return;
 	

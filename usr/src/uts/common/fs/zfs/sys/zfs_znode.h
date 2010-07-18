@@ -193,12 +193,10 @@ typedef struct findme {
 typedef struct znode {
 	struct zfsvfs	*z_zfsvfs;
 
+	vnode_t		*z_vnode;
 #ifdef __APPLE__
-	struct vnode	*z_vnode;
 	uint32_t	z_vid;
 	kcondvar_t	z_cv;		/* wait for vnode to be attached */
-#else
-	vnode_t		*z_vnode;
 #endif
 	uint64_t	z_id;		/* object ID for this znode */
 	kmutex_t	z_lock;		/* znode modification lock */

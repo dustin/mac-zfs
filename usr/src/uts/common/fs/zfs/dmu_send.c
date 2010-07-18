@@ -45,11 +45,7 @@
 
 struct backuparg {
 	dmu_replay_record_t *drr;
-#ifdef __APPLE__
-	struct vnode *vp;
-#else
 	vnode_t *vp;
-#endif
 	objset_t *os;
 	zio_cksum_t zc;
 	int err;
@@ -233,13 +229,7 @@ backup_cb(traverse_blk_cache_t *bc, spa_t *spa, void *arg)
 	return (err);
 }
 
-// Issue 27
-int
-#ifdef __APPLE__
-dmu_sendbackup(objset_t *tosnap, objset_t *fromsnap, struct vnode *vp)
-#else
 dmu_sendbackup(objset_t *tosnap, objset_t *fromsnap, vnode_t *vp)
-#endif
 {
 	dsl_dataset_t *ds = tosnap->os->os_dsl_dataset;
 	dsl_dataset_t *fromds = fromsnap ? fromsnap->os->os_dsl_dataset : NULL;
@@ -308,12 +298,7 @@ dmu_sendbackup(objset_t *tosnap, objset_t *fromsnap, vnode_t *vp)
 struct restorearg {
 	int err;
 	int byteswap;
-// Issue 27
-#ifdef __APPLE__
-	struct vnode *vp;
-#else
 	vnode_t *vp;
-#endif
 	char *buf;
 	uint64_t voff;
 	int buflen; /* number of valid bytes in buf */
@@ -765,15 +750,9 @@ restore_free(struct restorearg *ra, objset_t *os,
 	return (err);
 }
 
-// Issue 27
 int
-#ifdef __APPLE__
-dmu_recvbackup(char *tosnap, struct drr_begin *drrb, uint64_t *sizep,
-    boolean_t force, struct vnode *vp, uint64_t voffset)
-#else
 dmu_recvbackup(char *tosnap, struct drr_begin *drrb, uint64_t *sizep,
     boolean_t force, vnode_t *vp, uint64_t voffset)
-#endif
 {
 	struct restorearg ra;
 	dmu_replay_record_t *drr;

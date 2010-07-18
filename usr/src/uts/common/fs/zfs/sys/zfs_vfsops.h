@@ -61,14 +61,12 @@ struct zfsvfs {
 	krwlock_t	z_unmount_inactive_lock;
 	list_t		z_all_znodes;	/* all vnodes in the fs */
 	kmutex_t	z_znodes_lock;	/* lock for z_all_znodes */
+	vnode_t		*z_ctldir;	/* .zfs directory pointer */
 #ifdef __APPLE__
-	struct vnode	*z_ctldir;		/* .zfs directory pointer */
 	time_t		z_mount_time;		/* mount timestamp (for Spotlight) */	
 	time_t		z_last_unmount_time;	/* unmount timestamp (for Spotlight) */
 	time_t		z_last_mtime_synced;	/* last fs mtime synced to disk */
-	struct vnode	*z_mtime_vp;		/* znode utilized for the fs mtime. */
-#else
-	vnode_t		*z_ctldir;	/* .zfs directory pointer */
+	vnode_t		*z_mtime_vp;		/* znode utilized for the fs mtime. */
 #endif
 	boolean_t	z_show_ctldir;	/* expose .zfs in the root dir */
 	boolean_t	z_issnap;	/* true if this is a snapshot */

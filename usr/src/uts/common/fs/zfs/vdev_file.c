@@ -42,13 +42,11 @@ static int
 vdev_file_open(vdev_t *vd, uint64_t *psize, uint64_t *ashift)
 {
 	vdev_file_t *vf;
-#ifdef __APPLE__
-	struct vnode *vp, *rootdir;
-	struct vnode_attr vattr;
-	vfs_context_t context;
-#else
 	vnode_t *vp;
 	vattr_t vattr;
+#ifdef __APPLE__
+	vfs_context_t context;
+	vnode_t *rootdir;
 #endif
 	int error;
 

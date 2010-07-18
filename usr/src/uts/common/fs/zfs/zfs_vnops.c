@@ -191,8 +191,7 @@ static int zfs_getsecattr(znode_t *, kauth_acl_t *, cred_t *);
 
 static int zfs_setsecattr(znode_t *, kauth_acl_t, cred_t *);
 
-int zfs_obtain_xattr(znode_t *, const char *, mode_t, cred_t *,
-                     struct vnode **, int);
+int zfs_obtain_xattr(znode_t *, const char *, mode_t, cred_t *, vnode_t **, int);
 
 static int zfs_vnop_fsync(struct vnop_fsync_args *ap);
 #endif /* __APPLE__ */
@@ -399,7 +398,7 @@ zfs_ioctl(vnode_t *vp, int com, intptr_t data, int flag, cred_t *cred,
  */
 static int
 #ifdef __APPLE__
-mappedwrite(struct vnode *vp, int nbytes, struct uio *uio, dmu_tx_t *tx)
+mappedwrite(vnode_t *vp, int nbytes, struct uio *uio, dmu_tx_t *tx)
 #else
 mappedwrite(vnode_t *vp, int nbytes, uio_t *uio, dmu_tx_t *tx)
 #endif /* __APPLE__ */
@@ -538,7 +537,7 @@ mappedwrite(vnode_t *vp, int nbytes, uio_t *uio, dmu_tx_t *tx)
  */
 static int
 #ifdef __APPLE__
-mappedread(struct vnode *vp, int nbytes, struct uio *uio)
+mappedread(vnode_t *vp, int nbytes, struct uio *uio)
 #else
 mappedread(vnode_t *vp, int nbytes, uio_t *uio)
 #endif /* __APPLE__ */
@@ -655,7 +654,7 @@ zfs_read(vnode_t *vp, uio_t *uio, int ioflag, cred_t *cr, caller_context_t *ct)
 #endif /* __APPLE__ */
 {
 #ifdef __APPLE__
-        struct vnode    *vp = ap->a_vp;
+        vnode_t *vp = ap->a_vp;
         struct uio      *uio = ap->a_uio;
         int  		ioflag = ap->a_ioflag;
 #endif
@@ -864,7 +863,7 @@ zfs_write(vnode_t *vp, uio_t *uio, int ioflag, cred_t *cr, caller_context_t *ct)
 #endif /* __APPLE__ */
 {
 #ifdef __APPLE__
-	struct vnode	*vp = ap->a_vp;
+	vnode_t *vp = ap->a_vp;
 	struct uio	*uio = ap->a_uio;
 	int		ioflag = ap->a_ioflag;
 	cred_t		*cr = (cred_t *)vfs_context_ucred(ap->a_context);
@@ -1155,12 +1154,7 @@ zfs_get_done(dmu_buf_t *db, void *vzgd)
 {
 	zgd_t *zgd = (zgd_t *)vzgd;
 	rl_t *rl = zgd->zgd_rl;
-// Issue 27
-#ifdef __APPLE__
-	struct vnode *vp = ZTOV(rl->r_zp);
-#else
 	vnode_t *vp = ZTOV(rl->r_zp);
-#endif /* __APPLE__ */
 
 	dmu_buf_rele(db, vzgd);
 	zfs_range_unlock(rl);
@@ -1350,8 +1344,8 @@ zfs_lookup(vnode_t *dvp, char *nm, vnode_t **vpp, struct pathname *pnp,
 #endif /* __APPLE__ */
 {
 #ifdef __APPLE__
-	struct vnode *dvp = ap->a_dvp;
-	struct vnode **vpp = ap->a_vpp;
+	vnode_t *dvp = ap->a_dvp;
+	vnode_t **vpp = ap->a_vpp;
 	struct componentname *cnp = ap->a_cnp;
 	struct componentname cn;
 	char smallname[64];
@@ -1509,8 +1503,8 @@ zfs_create(vnode_t *dvp, char *name, vattr_t *vap, vcexcl_t excl,
 #endif
 {
 #ifdef __APPLE__
-	struct vnode  *dvp = ap->a_dvp;
-	struct vnode **vpp = ap->a_vpp;
+	vnode_t  *dvp = ap->a_dvp;
+	vnode_t **vpp = ap->a_vpp;
 	cred_t *cr = (cred_t *)vfs_context_ucred(ap->a_context);
 	struct vnode_attr  *vap = ap->a_vap;
 	struct componentname  *cnp = ap->a_cnp;
@@ -1719,7 +1713,7 @@ out:
 		 * If vnode is for a device return a specfs vnode instead.
 		 */
 		if (IS_DEVVP(*vpp)) {
-			struct vnode *svp;
+			vnode_t *svp;
 
 			svp = specvp(*vpp, (*vpp)->v_rdev, (*vpp)->v_type, cr);
 			VN_RELE(*vpp);
@@ -1756,15 +1750,12 @@ zfs_vnop_remove(struct vnop_remove_args *ap)
 zfs_remove(vnode_t *dvp, char *name, cred_t *cr)
 #endif /* __APPLE__ */
 {
-// Issue 28
 #ifdef __APPLE__
-	struct vnode  *dvp = ap->a_dvp;
-	struct vnode  *vp;
+	vnode_t *dvp = ap->a_dvp;
 	struct componentname  *cnp = ap->a_cnp;
 	// cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
-#else
-	vnode_t		*vp;
 #endif /* __APPLE__ */
+	vnode_t		*vp;
 	znode_t		*dzp = VTOZ(dvp);
 	znode_t		*zp;
 	znode_t		*xzp = NULL;
@@ -1992,9 +1983,9 @@ zfs_mkdir(vnode_t *dvp, char *dirname, vattr_t *vap, vnode_t **vpp, cred_t *cr)
 #endif /* __APPLE__ */
 {
 #ifdef __APPLE__
-	struct vnode  *dvp = ap->a_dvp;
-	struct vnode  **vpp = ap->a_vpp;
-	struct vnode_attr  *vap = ap->a_vap;
+	vnode_t *dvp = ap->a_dvp;
+	vnode_t **vpp = ap->a_vpp;
+	vattr_t *vap = ap->a_vap;
 	struct componentname  *cnp = ap->a_cnp;
 	char * dirname = (char *)cnp->cn_nameptr;
 	cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
@@ -2125,14 +2116,12 @@ zfs_rmdir(vnode_t *dvp, char *name, vnode_t *cwd, cred_t *cr)
 #endif /* __APPLE__ */
 {
 #ifdef __APPLE__
-	struct vnode  *dvp = ap->a_dvp;
-	struct vnode  *vp;
+	vnode_t  *dvp = ap->a_dvp;
 	struct componentname  *cnp = ap->a_cnp;
-        char * name = (char *)cnp->cn_nameptr;
+	char * name = (char *)cnp->cn_nameptr;
 	// cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
-#else
-	vnode_t		*vp;
 #endif /* __APPLE__ */
+	vnode_t		*vp;
 	znode_t		*dzp = VTOZ(dvp);
 	znode_t		*zp;
 	zfsvfs_t	*zfsvfs = dzp->z_zfsvfs;
@@ -2278,7 +2267,7 @@ zfs_readdir(vnode_t *vp, uio_t *uio, cred_t *cr, int *eofp)
 #endif /* __APPLE__ */
 {
 #ifdef __APPLE__
-	struct vnode	*vp = ap->a_vp;
+	vnode_t		*vp = ap->a_vp;
 	uio_t		uio = ap->a_uio;
 	// cred_t		*cr = (cred_t *)vfs_context_ucred(ap->a_context);
 	int		*eofp =  ap->a_eofflag;
@@ -2622,7 +2611,7 @@ zfs_fsync(vnode_t *vp, int syncflag, cred_t *cr)
 #endif __APPLE__
 {
 #ifdef __APPLE__
-	struct vnode  *vp = ap->a_vp;
+	vnode_t  *vp = ap->a_vp;
 #endif /* __APPLE__ */
 	znode_t	*zp = VTOZ(vp);
 	zfsvfs_t *zfsvfs;
@@ -2679,8 +2668,8 @@ zfs_getattr(vnode_t *vp, vattr_t *vap, int flags, cred_t *cr)
 #endif
 {
 #ifdef __APPLE__
-	struct vnode  *vp = ap->a_vp;
-	struct vnode_attr  *vap = ap->a_vap;
+	vnode_t  *vp = ap->a_vp;
+	vattr_t  *vap = ap->a_vap;
 	cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
 #endif /* __APPLE__ */
 	znode_t *zp = VTOZ(vp);
@@ -2868,8 +2857,8 @@ zfs_setattr(vnode_t *vp, vattr_t *vap, int flags, cred_t *cr,
 #endif
 {
 #ifdef __APPLE__
-	struct vnode  *vp = ap->a_vp;
-	struct vnode_attr  *vap = ap->a_vap;
+	vnode_t  *vp = ap->a_vp;
+	vattr_t  *vap = ap->a_vap;
 	uint64_t  mask; // = vap->va_active;
 	uint64_t  saved_mask;
 	cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
@@ -3384,12 +3373,12 @@ zfs_rename(vnode_t *sdvp, char *snm, vnode_t *tdvp, char *tnm, cred_t *cr)
 #endif /* __APPLE__ */
 {
 #ifdef __APPLE__
-	struct vnode  *sdvp = ap->a_fdvp;
-	struct vnode  *tdvp = ap->a_tdvp;
+	vnode_t *sdvp = ap->a_fdvp;
+	vnode_t *tdvp = ap->a_tdvp;
 	struct componentname *scnp = ap->a_fcnp;
 	struct componentname *tcnp = ap->a_tcnp;
-        char *snm = (char *)scnp->cn_nameptr;
-        char *tnm = (char *)tcnp->cn_nameptr;
+	char *snm = (char *)scnp->cn_nameptr;
+	char *tnm = (char *)tcnp->cn_nameptr;
 #else
 	vnode_t		*realvp;
 #endif /* __APPLE__ */
@@ -3660,10 +3649,10 @@ zfs_symlink(vnode_t *dvp, char *name, vattr_t *vap, char *link, cred_t *cr)
 #endif
 {
 #ifdef __APPLE__
-	struct vnode  *dvp = ap->a_dvp;
+	vnode_t *dvp = ap->a_dvp;
 	struct componentname  *cnp = ap->a_cnp;
-        char * name = (char *)cnp->cn_nameptr;
-	struct vnode_attr  *vap = ap->a_vap;
+	char * name = (char *)cnp->cn_nameptr;
+	vattr_t *vap = ap->a_vap;
 	cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
 	char  *link = ap->a_target;
 #endif /* __APPLE__ */
@@ -3819,7 +3808,7 @@ zfs_readlink(vnode_t *vp, uio_t *uio, cred_t *cr)
 #endif /* __APPLE__ */
 {
 #ifdef __APPLE__
-	struct vnode  *vp = ap->a_vp;
+	vnode_t *vp = ap->a_vp;
 	struct uio  *uio = ap->a_uio;
 #endif
 	znode_t		*zp = VTOZ(vp);
@@ -3884,10 +3873,10 @@ zfs_link(vnode_t *tdvp, vnode_t *svp, char *name, cred_t *cr)
 #endif /* __APPLE__ */
 {
 #ifdef __APPLE__
-	struct vnode  *tdvp = ap->a_tdvp;
-	struct vnode  *svp = ap->a_vp;
+	vnode_t *tdvp = ap->a_tdvp;
+	vnode_t *svp = ap->a_vp;
 	struct componentname  *cnp = ap->a_cnp;
-        char * name = (char *)cnp->cn_nameptr;
+	char * name = (char *)cnp->cn_nameptr;
 #endif
 	znode_t		*dzp = VTOZ(tdvp);
 	znode_t		*tzp, *szp;
@@ -4018,7 +4007,7 @@ top:
 static int
 zfs_vnop_pagein(struct vnop_pagein_args *ap)
 {
-	struct vnode	*vp = ap->a_vp;
+	vnode_t		*vp = ap->a_vp;
 	offset_t	off = ap->a_f_offset;
 	size_t		len = ap->a_size;
 	upl_t		upl = ap->a_pl;
@@ -4160,8 +4149,7 @@ zfs_putapage(vnode_t *vp, page_t *pp, u_offset_t *offp,
 #endif /* __APPLE__ */
 {
 #ifdef __APPLE__
-// Issue 27
-	struct vnode	*vp = ap->a_vp;
+	vnode_t	*vp = ap->a_vp;
 	int		flags = ap->a_flags;
 	upl_t		upl = ap->a_pl;
 	vm_offset_t	upl_offset = ap->a_pl_offset;
@@ -4356,7 +4344,7 @@ exit:
 static int
 zfs_vnop_mmap(struct vnop_mmap_args *ap)
 {
-	struct vnode *vp = ap->a_vp;
+	vnode_t *vp = ap->a_vp;
 	znode_t *zp = VTOZ(vp);
 	zfsvfs_t *zfsvfs = zp->z_zfsvfs;
 
@@ -4379,7 +4367,7 @@ zfs_vnop_mmap(struct vnop_mmap_args *ap)
 static int
 zfs_vnop_inactive(struct vnop_inactive_args *ap)
 {
-	struct vnode  *vp = ap->a_vp;
+	vnode_t *vp = ap->a_vp;
 	znode_t *zp = VTOZ(vp);
 	zfsvfs_t *zfsvfs = zp->z_zfsvfs;
 	znode_phys_t  *pzp = zp->z_phys;
@@ -4412,7 +4400,7 @@ zfs_vnop_inactive(struct vnop_inactive_args *ap)
 static int
 zfs_vnop_reclaim(struct vnop_reclaim_args *ap)
 {
-	struct vnode  *vp = ap->a_vp;
+	vnode_t *vp = ap->a_vp;
 	znode_t *zp = VTOZ(vp);
 	if (zp == NULL)
 	{
@@ -4463,7 +4451,7 @@ zfs_vnop_mknod(struct vnop_mknod_args *ap)
 static int
 zfs_vnop_allocate(struct vnop_allocate_args *ap)
 {
-	struct vnode *vp = ap->a_vp;
+	vnode_t *vp = ap->a_vp;
 	off_t length = ap->a_length;
 	znode_t *zp;
 	zfsvfs_t *zfsvfs;
@@ -4496,7 +4484,7 @@ zfs_vnop_allocate(struct vnop_allocate_args *ap)
 static int 
 zfs_vnop_whiteout(struct vnop_whiteout_args *ap)
 {
-	struct vnode *vp = NULLVP;
+	vnode_t *vp = NULLVP;
 	int error = 0;
 
 	switch (ap->a_flags) {
@@ -4617,9 +4605,9 @@ zfs_vnop_pathconf(struct vnop_pathconf_args *ap)
 static int
 zfs_vnop_getxattr(struct vnop_getxattr_args *ap)
 {
-	struct vnode  *vp = ap->a_vp;
-	struct vnode  *xdvp = NULLVP;
-	struct vnode  *xvp = NULLVP;
+	vnode_t *vp = ap->a_vp;
+	vnode_t *xdvp = NULLVP;
+	vnode_t *xvp = NULLVP;
 	znode_t  *zp = VTOZ(vp);
 	zfsvfs_t  *zfsvfs = zp->z_zfsvfs;
 	uio_t  uio = ap->a_uio;
@@ -4698,7 +4686,7 @@ out:
  */
 int
 zfs_obtain_xattr(znode_t *dzp, const char *name, mode_t mode, cred_t *cr,
-                 struct vnode **vpp, int flag)
+                 vnode_t **vpp, int flag)
 {
 	znode_t  *xzp = NULL;
 	zfsvfs_t  *zfsvfs = dzp->z_zfsvfs;
@@ -4967,9 +4955,9 @@ zfs_frlock(vnode_t *vp, int cmd, flock64_t *bfp, int flag, offset_t offset,
 static int
 zfs_vnop_setxattr(struct vnop_setxattr_args *ap)
 {
-	struct vnode  *vp = ap->a_vp;
-	struct vnode  *xdvp = NULLVP;
-	struct vnode  *xvp = NULLVP;
+	vnode_t *vp = ap->a_vp;
+	vnode_t *xdvp = NULLVP;
+	vnode_t *xvp = NULLVP;
 	znode_t  *zp = VTOZ(vp);
 	zfsvfs_t  *zfsvfs = zp->z_zfsvfs;
 	uio_t  uio = ap->a_uio;
@@ -5032,9 +5020,9 @@ out:
 static int
 zfs_vnop_removexattr(struct vnop_removexattr_args *ap)
 {
-	struct vnode  *vp = ap->a_vp;
-	struct vnode  *xdvp = NULLVP;
-	struct vnode  *xvp = NULLVP;
+	vnode_t *vp = ap->a_vp;
+	vnode_t *xdvp = NULLVP;
+	vnode_t *xvp = NULLVP;
 	znode_t  *zp = VTOZ(vp);
 	zfsvfs_t  *zfsvfs = zp->z_zfsvfs;
 	cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
@@ -5102,8 +5090,8 @@ out:
 static int
 zfs_vnop_listxattr(struct vnop_listxattr_args *ap)
 {
-	struct vnode  *vp = ap->a_vp;
-	struct vnode  *xdvp = NULLVP;
+	vnode_t *vp = ap->a_vp;
+	vnode_t *xdvp = NULLVP;
 	znode_t  *zp = VTOZ(vp);
 	zfsvfs_t  *zfsvfs = zp->z_zfsvfs;
 	uio_t  uio = ap->a_uio;
@@ -5191,9 +5179,9 @@ out:
 static int
 zfs_vnop_getnamedstream(struct vnop_getnamedstream_args* ap)
 {
-	struct vnode  *vp = ap->a_vp;
-	struct vnode  **svpp = ap->a_svpp;
-	struct vnode  *xdvp = NULLVP;
+	vnode_t *vp = ap->a_vp;
+	vnode_t **svpp = ap->a_svpp;
+	vnode_t *xdvp = NULLVP;
 	znode_t  *zp = VTOZ(vp);
 	zfsvfs_t  *zfsvfs = zp->z_zfsvfs;
 	cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
@@ -5242,8 +5230,8 @@ out:
 static int
 zfs_vnop_makenamedstream(struct vnop_makenamedstream_args* ap)
 {
-	struct vnode  *vp = ap->a_vp;
-	struct vnode  *xdvp = NULLVP;
+	vnode_t *vp = ap->a_vp;
+	vnode_t *xdvp = NULLVP;
 	znode_t  *zp = VTOZ(vp);
 	zfsvfs_t  *zfsvfs = zp->z_zfsvfs;
 	cred_t  *cr = (cred_t *)vfs_context_ucred(ap->a_context);
@@ -5334,8 +5322,8 @@ out:
 static int
 zfs_vnop_exchange(__unused struct vnop_exchange_args *ap)
 {
-	struct vnode  *fvp = ap->a_fvp;
-	struct vnode  *tvp = ap->a_tvp;
+	vnode_t *fvp = ap->a_fvp;
+	vnode_t *tvp = ap->a_tvp;
 	znode_t  *fzp;
 	znode_t  *tzp;
 	zfsvfs_t  *zfsvfs;

@@ -1980,7 +1980,7 @@ static int
 zfs_ioc_recvbackup(zfs_cmd_t *zc)
 {
 #ifdef __APPLE__
-	struct vnode *vp;
+	vnode_t *vp;
 #else
 	file_t *fp;
 #endif
@@ -2040,7 +2040,7 @@ zfs_ioc_sendbackup(zfs_cmd_t *zc)
 	objset_t *fromsnap = NULL;
 	objset_t *tosnap;
 #ifdef __APPLE__
-	struct vnode *vp;
+	vnode_t *vp;
 #else
 	file_t *fp;
 #endif /* __APPLE__ */

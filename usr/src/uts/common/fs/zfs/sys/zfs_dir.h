@@ -63,7 +63,7 @@ extern int zfs_link_destroy(zfs_dirlock_t *, znode_t *, dmu_tx_t *, int,
     boolean_t *);
 
 #ifdef __APPLE__
-extern int zfs_dirlook(znode_t *, struct componentname *, struct vnode **);
+extern int zfs_dirlook(znode_t *, struct componentname *, vnode_t **);
 #else
 extern int zfs_dirlook(znode_t *, char *, vnode_t **);
 #endif
@@ -75,13 +75,8 @@ extern void zfs_unlinked_add(znode_t *, dmu_tx_t *);
 extern void zfs_unlinked_drain(zfsvfs_t *zfsvfs);
 extern int zfs_sticky_remove_access(znode_t *, znode_t *, cred_t *cr);
 
-#ifdef __APPLE__
-extern int zfs_get_xattrdir(znode_t *, struct vnode **, cred_t *, int);
-extern int zfs_make_xattrdir(znode_t *, vattr_t *, struct vnode **, cred_t *);
-#else
 extern int zfs_get_xattrdir(znode_t *, vnode_t **, cred_t *, int);
 extern int zfs_make_xattrdir(znode_t *, vattr_t *, vnode_t **, cred_t *);
-#endif
 
 #ifdef	__cplusplus
 }

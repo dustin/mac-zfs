@@ -46,7 +46,7 @@ extern "C" {
 typedef struct vdev_disk {
 #ifdef __APPLE__
 	char		*vd_minor;
-	struct vnode	*vd_devvp;
+	vnode_t		*vd_devvp;
 #else
 	ddi_devid_t	vd_devid;
 	char		*vd_minor;

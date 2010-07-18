@@ -100,13 +100,13 @@ static int  zfs_vfs_init (struct vfsconf *vfsp);
 static int  zfs_vfs_start (struct mount *mp, int flags, vfs_context_t context);
 static int  zfs_vfs_mount (struct mount *mp, vnode_t *devvp, user_addr_t data, vfs_context_t context);
 static int  zfs_vfs_unmount (struct mount *mp, int mntflags, vfs_context_t context);
-static int  zfs_vfs_root (struct mount *mp, struct vnode **vpp, vfs_context_t context);
-static int  zfs_vfs_vget (struct mount *mp, ino64_t ino, struct vnode **vpp, vfs_context_t context);
+static int  zfs_vfs_root (struct mount *mp, vnode_t **vpp, vfs_context_t context);
+static int  zfs_vfs_vget (struct mount *mp, ino64_t ino, vnode_t **vpp, vfs_context_t context);
 static int  zfs_vfs_getattr (struct mount *mp, struct vfs_attr *fsap, vfs_context_t context);
 static int  zfs_vfs_setattr (struct mount *mp, struct vfs_attr *fsap, vfs_context_t context);
 static int  zfs_vfs_sync (struct mount *mp, int waitfor, vfs_context_t context);
-static int  zfs_vfs_fhtovp (struct mount *mp, int fhlen, unsigned char *fhp, struct vnode **vpp, vfs_context_t context);
-static int  zfs_vfs_vptofh (struct vnode *vp, int *fhlenp, unsigned char *fhp, vfs_context_t context);
+static int  zfs_vfs_fhtovp (struct mount *mp, int fhlen, unsigned char *fhp, vnode_t **vpp, vfs_context_t context);
+static int  zfs_vfs_vptofh (vnode_t *vp, int *fhlenp, unsigned char *fhp, vfs_context_t context);
 static int  zfs_vfs_sysctl (int *name, u_int namelen, user_addr_t oldp, size_t *oldlenp,  user_addr_t newp, size_t newlen, vfs_context_t context);
 static int  zfs_vfs_quotactl ( struct mount *mp, int cmds, uid_t uid, caddr_t datap, vfs_context_t context);
 static void zfs_objset_close(zfsvfs_t *zfsvfs);
@@ -125,8 +125,7 @@ int  zfs_module_stop(kmod_info_t *ki, void *data);
  */
 #define ZFS_MTIME_XATTR		"com.apple.system.mtime"
 
-extern int zfs_obtain_xattr(znode_t *, const char *, mode_t, cred_t *,
-                            struct vnode **, int);
+extern int zfs_obtain_xattr(znode_t *, const char *, mode_t, cred_t *, vnode_t **, int);
 
 /*
  * zfs vfs operations.
@@ -1218,9 +1217,9 @@ zfs_mount(vfs_t *vfsp, vnode_t *mvp, struct mounta *uap, cred_t *cr)
 		 */
 		zfsvfs = vfs_fsprivate(mp);
 		if (zfsvfs->z_mtime_vp == NULL) {
-			struct vnode * rvp;
-			struct vnode *xdvp = NULLVP;
-			struct vnode *xvp = NULLVP;
+			vnode_t *rvp;
+			vnode_t *xdvp = NULLVP;
+			vnode_t *xvp = NULLVP;
 			znode_t *rootzp;
 			timestruc_t modify_time;
 			cred_t  *cr;
@@ -1588,7 +1587,7 @@ zfs_statvfs(vfs_t *vfsp, struct statvfs64 *statp)
 
 static int
 #ifdef __APPLE__
-zfs_vfs_root(struct mount *mp, struct vnode **vpp, __unused vfs_context_t context)
+zfs_vfs_root(struct mount *mp, vnode_t **vpp, __unused vfs_context_t context)
 #else
 zfs_root(vfs_t *vfsp, vnode_t **vpp)
 #endif
@@ -1681,7 +1680,7 @@ zfs_umount(vfs_t *vfsp, int fflag, cred_t *cr)
 	 */
 	if ((ret == 0) || (mntflags & MNT_FORCE)) {
 		if (zfsvfs->z_mtime_vp != NULL) {
-			struct vnode *mvp;
+			vnode_t *mvp;
 
 			mvp = zfsvfs->z_mtime_vp;
 			zfsvfs->z_mtime_vp = NULL;
@@ -1824,15 +1823,15 @@ zfs_umount(vfs_t *vfsp, int fflag, cred_t *cr)
 }
 
 #ifdef __APPLE__
-struct vnode* vnode_getparent(struct vnode *vp);  /* sys/vnode_internal.h */
+vnode_t *vnode_getparent(vnode_t *vp);  /* sys/vnode_internal.h */
 #endif /* __APPLE__ */
 
 #ifdef __APPLE__
 static int
-zfs_vget_internal(zfsvfs_t *zfsvfs, ino64_t ino, struct vnode **vpp)
+zfs_vget_internal(zfsvfs_t *zfsvfs, ino64_t ino, vnode_t **vpp)
 {
-	struct vnode	*vp;
-	struct vnode	*dvp = NULL;
+	vnode_t	*vp;
+	vnode_t	*dvp = NULL;
 	znode_t		*zp;
 	int		error;
 
@@ -1902,7 +1901,7 @@ out:
  * Use by NFS Server (readdirplus) and VFS (build_path)
  */
 static int
-zfs_vfs_vget(struct mount *mp, ino64_t ino, struct vnode **vpp, __unused vfs_context_t context)
+zfs_vfs_vget(struct mount *mp, ino64_t ino, vnode_t **vpp, __unused vfs_context_t context)
 {
 	zfsvfs_t *zfsvfs = vfs_fsprivate(mp);
 	int error;
@@ -1951,7 +1950,7 @@ typedef struct zfs_zfid {
  */
 static int
 zfs_vfs_fhtovp(struct mount *mp, int fhlen, unsigned char *fhp,
-               struct vnode **vpp, __unused vfs_context_t context)
+               vnode_t **vpp, __unused vfs_context_t context)
 {
 	zfsvfs_t *zfsvfs = vfs_fsprivate(mp);
 	zfs_zfid_t	*zfid = (zfs_zfid_t *)fhp;
@@ -2007,7 +2006,7 @@ out:
  * XXX Do we want to check the DSL sharenfs property?
  */
 static int
-zfs_vfs_vptofh(struct vnode *vp, int *fhlenp, unsigned char *fhp, __unused vfs_context_t context)
+zfs_vfs_vptofh(vnode_t *vp, int *fhlenp, unsigned char *fhp, __unused vfs_context_t context)
 {
 	zfsvfs_t	*zfsvfs = vfs_fsprivate(vnode_mount(vp));
 	zfs_zfid_t	*zfid = (zfs_zfid_t *)fhp;

@@ -38,11 +38,7 @@ extern "C" {
 #endif
 
 typedef struct vdev_file {
-#ifdef __APPLE__
-	struct vnode	*vf_vnode;
-#else
 	vnode_t		*vf_vnode;
-#endif
 } vdev_file_t;
 
 #ifdef	__cplusplus

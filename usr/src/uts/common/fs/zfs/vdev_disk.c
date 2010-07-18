@@ -55,15 +55,14 @@ typedef struct vdev_disk_buf {
 static int
 vdev_disk_open(vdev_t *vd, uint64_t *psize, uint64_t *ashift)
 {
-#ifdef __APPLE__
 	vdev_disk_t *dvd = NULL;
-	struct vnode *devvp = NULLVP;
+#ifdef __APPLE__
+	vnode_t *devvp = NULLVP;
 	vfs_context_t context = NULL;
 	uint64_t blkcnt;
 	uint32_t blksize;
 	int fmode = 0;
 #else
-	vdev_disk_t *dvd;
 	struct dk_minfo dkm;
 	dev_t dev;
 	char *physpath, *minorname;

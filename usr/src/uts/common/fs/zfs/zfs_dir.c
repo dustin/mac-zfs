@@ -105,13 +105,11 @@ zfs_dirent_lock(zfs_dirlock_t **dlpp, znode_t *dzp, char *name, znode_t **zpp,
 	zfs_dirlock_t	*dl;
 	uint64_t	zoid;
 	int		error;
+	vnode_t		*vp;
 #ifdef __APPLE__
-	struct vnode	*vp;
 	char		*name;
 	u_int8_t	*nfc_name = NULL;  /* NFC form of name */
 	int		nfc_namesize = 0;
-#else
-	vnode_t		*vp;
 #endif
 
 	*zpp = NULL;
@@ -352,9 +350,7 @@ zfs_dirent_unlock(zfs_dirlock_t *dl)
 	cv_broadcast(&dl->dl_cv);
 	mutex_exit(&dzp->z_lock);
 
-#ifdef __APPLE__
 	/* Mac OS X: note dl_name can contain NFC name. */ 
-#endif
 	if (dl->dl_namesize != 0)
 		kmem_free(dl->dl_name, dl->dl_namesize);
 	cv_destroy(&dl->dl_cv);
@@ -371,7 +367,7 @@ zfs_dirent_unlock(zfs_dirlock_t *dl)
  */
 int
 #ifdef __APPLE__
-zfs_dirlook(znode_t *dzp, struct componentname *cnp, struct vnode **vpp)
+zfs_dirlook(znode_t *dzp, struct componentname *cnp, vnode_t **vpp)
 #else
 zfs_dirlook(znode_t *dzp, char *name, vnode_t **vpp)
 #endif
@@ -380,9 +376,7 @@ zfs_dirlook(znode_t *dzp, char *name, vnode_t **vpp)
 	znode_t *zp;
 	int error = 0;
 #ifdef __APPLE__
-	char *name;
-
-	name = cnp->cn_nameptr;
+	char *name = cnp->cn_nameptr;
 #endif
 
 	if (name[0] == 0 || (name[0] == '.' && name[1] == 0)) {
@@ -785,11 +779,10 @@ zfs_link_destroy(zfs_dirlock_t *dl, znode_t *zp, dmu_tx_t *tx, int flag,
 	boolean_t *unlinkedp)
 {
 	znode_t *dzp = dl->dl_dzp;
+	vnode_t *vp = ZTOV(zp);
 #ifdef __APPLE__
-	struct vnode *vp = ZTOV(zp);
 	int zp_is_dir = S_ISDIR(zp->z_phys->zp_mode);
 #else
-	vnode_t *vp = ZTOV(zp);
 	int zp_is_dir = (vp->v_type == VDIR);
 #endif
 	boolean_t unlinked = B_FALSE;
@@ -879,11 +872,7 @@ zfs_dirempty(znode_t *dzp)
 }
 
 int
-#ifdef __APPLE__
-zfs_make_xattrdir(znode_t *zp, vattr_t *vap, struct vnode **xvpp, cred_t *cr)
-#else
 zfs_make_xattrdir(znode_t *zp, vattr_t *vap, vnode_t **xvpp, cred_t *cr)
-#endif
 {
 	zfsvfs_t *zfsvfs = zp->z_zfsvfs;
 	znode_t *xzp;
@@ -942,11 +931,7 @@ zfs_make_xattrdir(znode_t *zp, vattr_t *vap, vnode_t **xvpp, cred_t *cr)
  *		error number on failure
  */
 int
-#ifdef __APPLE__
-zfs_get_xattrdir(znode_t *zp, struct vnode **xvpp, cred_t *cr, int flags)
-#else
 zfs_get_xattrdir(znode_t *zp, vnode_t **xvpp, cred_t *cr, int flags)
-#endif
 {
 	zfsvfs_t	*zfsvfs = zp->z_zfsvfs;
 	znode_t		*xzp;
