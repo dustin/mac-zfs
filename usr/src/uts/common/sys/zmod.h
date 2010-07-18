@@ -24,9 +24,6 @@
  * Portions Copyright 2007 Apple Inc. All rights reserved.
  * Use is subject to license terms.
  */
-
-#ifndef __APPLE
-
 #ifndef _ZMOD_H
 #define	_ZMOD_H
 
@@ -36,6 +33,12 @@
 extern "C" {
 #endif
 
+#ifdef _KERNEL
+#ifdef __APPLE__
+#include <libkern/zlib.h>
+#endif /* __APPLE__ */
+#endif /* _KERNEL */
+	
 /*
  * zmod - RFC-1950-compatible decompression routines
  *
@@ -64,10 +67,11 @@ extern int z_compress(void *, size_t *, const void *, size_t);
 extern int z_compress_level(void *, size_t *, const void *, size_t, int);
 extern const char *z_strerror(int);
 
+extern size_t gzip_compress(void *, void *, size_t, size_t, int);
+extern int gzip_decompress(void *, void *, size_t, size_t, int);
+	
 #ifdef	__cplusplus
 }
 #endif
 
 #endif	/* _ZMOD_H */
-
-#endif /* __APPLE__ */

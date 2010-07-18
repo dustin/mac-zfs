@@ -23,13 +23,54 @@
  * Copyright 2007 Sun Microsystems, Inc.  All rights reserved.
  * Use is subject to license terms.
  */
+/* Portions Copyright 2007 Apple Inc. All rights reserved.
+ * Use is subject to license terms.
+ */
+
 
 #pragma ident	"%Z%%M%	%I%	%E% SMI"
 
-#include <sys/modctl.h>
 #include <sys/zmod.h>
 
+#ifndef __APPLE__
+#include <sys/modctl.h>
 #include "zlib.h"
+#endif /* !__APPLE__ */
+
+#ifdef __APPLE__
+
+/*
+ * Space allocation and freeing routines for use by zlib routines.
+ */
+
+struct _zmemheader {
+	uint64_t        length;
+	char            data[0];
+};
+
+static void *
+zfs_zalloc(void* opaque, uInt items, uInt size)
+{
+	struct _zmemheader *hdr;
+	size_t alloc_size = (items * size) + sizeof (uint64_t);
+	
+	hdr = zfs_kmem_zalloc(alloc_size, KM_SLEEP);
+	hdr->length = alloc_size;
+	
+	return (&hdr->data);
+}
+
+static void
+zfs_zfree(void *opaque, void *addr)
+{
+	struct _zmemheader *hdr;
+	
+	hdr = addr;
+	hdr--;
+	
+	zfs_kmem_free(hdr, hdr->length);
+}
+#endif /* __APPLE__ */
 
 /*
  * Uncompress the buffer 'src' into the buffer 'dst'.  The caller must store
@@ -48,7 +89,11 @@ z_uncompress(void *dst, size_t *dstlen, const void *src, size_t srclen)
 	zs.avail_in = srclen;
 	zs.next_out = dst;
 	zs.avail_out = *dstlen;
-
+#ifdef __APPLE__	
+	zs.zalloc = zfs_zalloc;
+	zs.zfree = zfs_zfree;
+#endif /* __APPLE__ */
+	
 	if ((err = inflateInit(&zs)) != Z_OK)
 		return (err);
 
@@ -74,7 +119,11 @@ z_compress_level(void *dst, size_t *dstlen, const void *src, size_t srclen,
 	zs.avail_in = srclen;
 	zs.next_out = dst;
 	zs.avail_out = *dstlen;
-
+#ifdef __APPLE__	
+	zs.zalloc = zfs_zalloc;
+	zs.zfree = zfs_zfree;
+#endif /* __APPLE__ */
+	
 	if ((err = deflateInit(&zs, level)) != Z_OK)
 		return (err);
 

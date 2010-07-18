@@ -115,6 +115,7 @@
 		FA9656B711F1BFC1001E7C56 /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656A811F1BFA3001E7C56 /* assfail.c */; };
 		FA9656B811F1BFC1001E7C56 /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656A811F1BFA3001E7C56 /* assfail.c */; };
 		FA9656B911F1BFC5001E7C56 /* assfail.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9656A811F1BFA3001E7C56 /* assfail.c */; };
+		FA965A1611F366D2001E7C56 /* zmod.c in Sources */ = {isa = PBXBuildFile; fileRef = FA96598B11F35E74001E7C56 /* zmod.c */; };
 		FAA3738910A3A7E600B9ADAC /* arc.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9375DB10A38E6300754C9E /* arc.c */; };
 		FAA3738A10A3A7E600B9ADAC /* bplist.c in Sources */ = {isa = PBXBuildFile; fileRef = FA9375DD10A38E6300754C9E /* bplist.c */; };
 		FAA3738B10A3A7E600B9ADAC /* dbuf.c in Sources */ = {isa = PBXBuildFile; fileRef = FA93760910A38E6300754C9E /* dbuf.c */; };
@@ -650,6 +651,29 @@
 		FA96584611F304B1001E7C56 /* maczfs_libc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maczfs_libc.h; sourceTree = "<group>"; };
 		FA96584711F304B1001E7C56 /* maczfs_mount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maczfs_mount.h; sourceTree = "<group>"; };
 		FA96584811F304B1001E7C56 /* maczfs_ubc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maczfs_ubc.h; sourceTree = "<group>"; };
+		FA96597811F35E74001E7C56 /* adler32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = adler32.c; sourceTree = "<group>"; };
+		FA96597911F35E74001E7C56 /* crc32.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = crc32.c; sourceTree = "<group>"; };
+		FA96597A11F35E74001E7C56 /* crc32.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = crc32.h; sourceTree = "<group>"; };
+		FA96597B11F35E74001E7C56 /* deflate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = deflate.c; sourceTree = "<group>"; };
+		FA96597C11F35E74001E7C56 /* deflate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = deflate.h; sourceTree = "<group>"; };
+		FA96597D11F35E74001E7C56 /* inffast.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inffast.c; sourceTree = "<group>"; };
+		FA96597E11F35E74001E7C56 /* inffast.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inffast.h; sourceTree = "<group>"; };
+		FA96597F11F35E74001E7C56 /* inffixed.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inffixed.h; sourceTree = "<group>"; };
+		FA96598011F35E74001E7C56 /* inflate.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inflate.c; sourceTree = "<group>"; };
+		FA96598111F35E74001E7C56 /* inflate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inflate.h; sourceTree = "<group>"; };
+		FA96598211F35E74001E7C56 /* inftrees.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = inftrees.c; sourceTree = "<group>"; };
+		FA96598311F35E74001E7C56 /* inftrees.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = inftrees.h; sourceTree = "<group>"; };
+		FA96598411F35E74001E7C56 /* mapfile */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = mapfile; sourceTree = "<group>"; };
+		FA96598511F35E74001E7C56 /* THIRDPARTYLICENSE */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = THIRDPARTYLICENSE; sourceTree = "<group>"; };
+		FA96598611F35E74001E7C56 /* THIRDPARTYLICENSE.descrip */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = THIRDPARTYLICENSE.descrip; sourceTree = "<group>"; };
+		FA96598711F35E74001E7C56 /* trees.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = trees.c; sourceTree = "<group>"; };
+		FA96598811F35E74001E7C56 /* zconf.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zconf.h; sourceTree = "<group>"; };
+		FA96598911F35E74001E7C56 /* zlib.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zlib.h; sourceTree = "<group>"; };
+		FA96598A11F35E74001E7C56 /* zlib_lint.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zlib_lint.c; sourceTree = "<group>"; };
+		FA96598B11F35E74001E7C56 /* zmod.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zmod.c; sourceTree = "<group>"; };
+		FA96598C11F35E74001E7C56 /* zmod_subr.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zmod_subr.c; sourceTree = "<group>"; };
+		FA96598D11F35E74001E7C56 /* zutil.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zutil.c; sourceTree = "<group>"; };
+		FA96598E11F35E74001E7C56 /* zutil.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = zutil.h; sourceTree = "<group>"; };
 		FAB331CF10C3C88B00BF4948 /* nvpair_alloc_system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = nvpair_alloc_system.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -963,6 +987,7 @@
 		FA93758E10A38E6300754C9E /* common */ = {
 			isa = PBXGroup;
 			children = (
+				FA96597711F35E74001E7C56 /* zmod */,
 				FA93759C10A38E6300754C9E /* vm */,
 				FA93758F10A38E6300754C9E /* rpc */,
 				FA93759510A38E6300754C9E /* sys */,
@@ -1365,6 +1390,36 @@
 				FA9656AD11F1BFA3001E7C56 /* zfs_context.c */,
 			);
 			path = kernel;
+			sourceTree = "<group>";
+		};
+		FA96597711F35E74001E7C56 /* zmod */ = {
+			isa = PBXGroup;
+			children = (
+				FA96597811F35E74001E7C56 /* adler32.c */,
+				FA96597911F35E74001E7C56 /* crc32.c */,
+				FA96597A11F35E74001E7C56 /* crc32.h */,
+				FA96597B11F35E74001E7C56 /* deflate.c */,
+				FA96597C11F35E74001E7C56 /* deflate.h */,
+				FA96597D11F35E74001E7C56 /* inffast.c */,
+				FA96597E11F35E74001E7C56 /* inffast.h */,
+				FA96597F11F35E74001E7C56 /* inffixed.h */,
+				FA96598011F35E74001E7C56 /* inflate.c */,
+				FA96598111F35E74001E7C56 /* inflate.h */,
+				FA96598211F35E74001E7C56 /* inftrees.c */,
+				FA96598311F35E74001E7C56 /* inftrees.h */,
+				FA96598411F35E74001E7C56 /* mapfile */,
+				FA96598511F35E74001E7C56 /* THIRDPARTYLICENSE */,
+				FA96598611F35E74001E7C56 /* THIRDPARTYLICENSE.descrip */,
+				FA96598711F35E74001E7C56 /* trees.c */,
+				FA96598811F35E74001E7C56 /* zconf.h */,
+				FA96598911F35E74001E7C56 /* zlib.h */,
+				FA96598A11F35E74001E7C56 /* zlib_lint.c */,
+				FA96598B11F35E74001E7C56 /* zmod.c */,
+				FA96598C11F35E74001E7C56 /* zmod_subr.c */,
+				FA96598D11F35E74001E7C56 /* zutil.c */,
+				FA96598E11F35E74001E7C56 /* zutil.h */,
+			);
+			path = zmod;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1810,6 +1865,7 @@
 				FA9656AE11F1BFA3001E7C56 /* assfail.c in Sources */,
 				FA9656AF11F1BFA3001E7C56 /* maczfs_kernel.c in Sources */,
 				FA9656B011F1BFA3001E7C56 /* zfs_context.c in Sources */,
+				FA965A1611F366D2001E7C56 /* zmod.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

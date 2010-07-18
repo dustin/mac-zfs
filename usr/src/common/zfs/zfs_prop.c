@@ -236,18 +236,10 @@ zfs_prop_init(void)
 	    PROP_INHERIT, ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME,
 	    "on | off | fletcher2 | fletcher4 | sha256", "CHECKSUM",
 	    checksum_table);
-#ifdef __APPLE__
-/*XXX Only support lzjb until gzip is ported over*/
-	register_index(ZFS_PROP_COMPRESSION, "compression",
-	    ZIO_COMPRESS_DEFAULT, PROP_INHERIT,
-	    ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME,
-	    "on | off | lzjb", "COMPRESS", compress_table);
-#else
 	register_index(ZFS_PROP_COMPRESSION, "compression",
 	    ZIO_COMPRESS_DEFAULT, PROP_INHERIT,
 	    ZFS_TYPE_FILESYSTEM | ZFS_TYPE_VOLUME,
 	    "on | off | lzjb | gzip | gzip-[1-9]", "COMPRESS", compress_table);
-#endif
 	register_index(ZFS_PROP_SNAPDIR, "snapdir", ZFS_SNAPDIR_HIDDEN,
 	    PROP_INHERIT, ZFS_TYPE_FILESYSTEM,
 	    "hidden | visible", "SNAPDIR", snapdir_table);
