@@ -45,7 +45,7 @@
  */
 #include <sys/types.h>
 #if defined(__APPLE__) && !defined(_KERNEL)
-#include <libc.h>
+#include <maczfs/maczfs_libc.h>
 #include <string.h>
 #endif
 

@@ -552,7 +552,20 @@ extern int issig(int);
 /*
  * VNODE SUPPORT
  */
-
+	
+#ifdef __APPLE__
+// The vnode_t has differing types in OSX and the ZFS codebase - one is a struct vnode, the other is a struct vnode*
+// If we use a #define here, we can replace all the code on the fly - but we need to be careful about the OSX headers
+// (e.g. mount.h, ubc.h, file.h, libc.h) that expect the vnode to be sane. So, we provide maczfs/maczfs_{mount,ubc,file,libc}.h that we have
+// to use instead e.g. if there's compile errors, do:
+// #ifdef __APPLE__
+// #include <maczfs/maczfs_file.h>
+// #else
+// #include <sys/file.h>
+// #endif /* __APPLE__ */
+#define vnode_t struct vnode
+#endif
+	
 extern int	vn_open(char *pnamep, enum uio_seg seg, int filemode, int createmode,
                     struct vnode **vpp, enum create crwhy, mode_t umask);
 

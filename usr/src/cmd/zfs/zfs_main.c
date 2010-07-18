@@ -48,7 +48,11 @@
 #endif /* !__APPLE__ */
 #include <sys/mntent.h>
 #include <sys/mnttab.h>
+#ifdef __APPLE__
+#include <maczfs/maczfs_mount.h>
+#else
 #include <sys/mount.h>
+#endif /* __APPLE__ */
 #include <sys/stat.h>
 #include <sys/avl.h>
 

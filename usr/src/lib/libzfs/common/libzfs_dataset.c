@@ -46,11 +46,15 @@
 #include <fcntl.h>
 #include <sys/mntent.h>
 #include <sys/mnttab.h>
+#ifdef __APPLE__
+#include <maczfs/maczfs_mount.h>
+#else
 #include <sys/mount.h>
+#endif /* __APPLE__ */
 #include <sys/avl.h>
 #ifndef __APPLE__
 #include <priv.h>
-#endif
+#endif /* __APPLE__ */
 #include <pwd.h>
 #include <grp.h>
 #include <stddef.h>

@@ -43,8 +43,11 @@
 #include <sys/vfs_opreg.h>
 #include <sys/mntent.h>
 #endif /* !__APPLE__ */
-
+#ifdef __APPLE__
+#include <maczfs/maczfs_mount.h>
+#else
 #include <sys/mount.h>
+#endif /* __APPLE__ */
 #include <sys/vnode.h>
 
 #ifdef __APPLE__
@@ -95,7 +98,7 @@
 
 static int  zfs_vfs_init (struct vfsconf *vfsp);
 static int  zfs_vfs_start (struct mount *mp, int flags, vfs_context_t context);
-static int  zfs_vfs_mount (struct mount *mp, vnode_t devvp, user_addr_t data, vfs_context_t context);
+static int  zfs_vfs_mount (struct mount *mp, vnode_t *devvp, user_addr_t data, vfs_context_t context);
 static int  zfs_vfs_unmount (struct mount *mp, int mntflags, vfs_context_t context);
 static int  zfs_vfs_root (struct mount *mp, struct vnode **vpp, vfs_context_t context);
 static int  zfs_vfs_vget (struct mount *mp, ino64_t ino, struct vnode **vpp, vfs_context_t context);
@@ -1054,7 +1057,7 @@ out:
 /*ARGSUSED*/
 static int
 #ifdef __APPLE__
-zfs_vfs_mount(struct mount *mp, vnode_t devvp, user_addr_t data, vfs_context_t context)
+zfs_vfs_mount(struct mount *mp, vnode_t *devvp, user_addr_t data, vfs_context_t context)
 #else
 zfs_mount(vfs_t *vfsp, vnode_t *mvp, struct mounta *uap, cred_t *cr)
 #endif

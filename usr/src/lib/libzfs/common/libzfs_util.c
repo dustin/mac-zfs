@@ -41,7 +41,7 @@
 #include <unistd.h>
 #include <sys/mnttab.h>
 #ifdef __APPLE__
-#include <sys/mount.h>
+#include <maczfs/maczfs_mount.h>
 #include <sys/stat.h>
 #include <sys/sysctl.h>
 #include <sys/fs/zfs_sysctl.h>

@@ -27,7 +27,7 @@
 
 #include <sys/types.h>
 #include <sys/param.h>
-#include <sys/mount.h>
+#include <maczfs/maczfs_mount.h>
 #include <sys/sysctl.h>
 
 #include <err.h>

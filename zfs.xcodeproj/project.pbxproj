@@ -646,6 +646,10 @@
 		FA9656AB11F1BFA3001E7C56 /* maczfs_kernel.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = maczfs_kernel.c; sourceTree = "<group>"; };
 		FA9656AC11F1BFA3001E7C56 /* maczfs_kernel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maczfs_kernel.h; sourceTree = "<group>"; };
 		FA9656AD11F1BFA3001E7C56 /* zfs_context.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = zfs_context.c; sourceTree = "<group>"; };
+		FA96584511F304B1001E7C56 /* maczfs_file.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maczfs_file.h; sourceTree = "<group>"; };
+		FA96584611F304B1001E7C56 /* maczfs_libc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maczfs_libc.h; sourceTree = "<group>"; };
+		FA96584711F304B1001E7C56 /* maczfs_mount.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maczfs_mount.h; sourceTree = "<group>"; };
+		FA96584811F304B1001E7C56 /* maczfs_ubc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = maczfs_ubc.h; sourceTree = "<group>"; };
 		FAB331CF10C3C88B00BF4948 /* nvpair_alloc_system.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; path = nvpair_alloc_system.c; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1342,6 +1346,10 @@
 		FA9656A711F1BFA3001E7C56 /* maczfs */ = {
 			isa = PBXGroup;
 			children = (
+				FA96584511F304B1001E7C56 /* maczfs_file.h */,
+				FA96584611F304B1001E7C56 /* maczfs_libc.h */,
+				FA96584711F304B1001E7C56 /* maczfs_mount.h */,
+				FA96584811F304B1001E7C56 /* maczfs_ubc.h */,
 				FA9656A811F1BFA3001E7C56 /* assfail.c */,
 				FA9656A911F1BFA3001E7C56 /* assfail.h */,
 				FA9656AA11F1BFA3001E7C56 /* kernel */,

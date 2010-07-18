@@ -83,7 +83,7 @@
 #include <sys/zfs_rlock.h>
 #include <sys/unistd.h>
 #include <sys/utfconv.h>
-#include <sys/ubc.h>
+#include <maczfs/maczfs_ubc.h>
 #else
 #include <sys/policy.h>
 #include <sys/sunddi.h>
@@ -5307,7 +5307,7 @@ out:
 static int
 zfs_vnop_removenamedstream(struct vnop_removenamedstream_args* ap)
 {
-	vnode_t svp = ap->a_svp;
+	vnode_t *svp = ap->a_svp;
 	znode_t  *zp = VTOZ(svp);
 	zfsvfs_t  *zfsvfs = zp->z_zfsvfs;
 	int error = 0;
