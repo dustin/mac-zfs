@@ -34,7 +34,7 @@
 			<key>FSProbeExecutable</key>
 			<string>../../zfs.util</string>
 			<key>FSProbeOrder</key>
-			<integer>1000</integer>
+			<integer>850</integer>
 		</dict>
 	</dict>
 	<key>FSPersonalities</key>
