@@ -789,11 +789,19 @@ zfs_domount(vfs_t *vfsp, char *osname, cred_t *cr)
 		if (!vfs_isrdonly(vfsp))
 			zfs_unlinked_drain(zfsvfs);
 #else
+		uint_t readonly;
 		error = zfs_register_callbacks(vfsp);
 		if (error)
 			goto out;
 
-		if (!(zfsvfs->z_vfs->vfs_flag & VFS_RDONLY))
+		/*
+		 * During replay we remove the read only flag to
+		 * allow replays to succeed.
+		 */
+		readonly = zfsvfs->z_vfs->vfs_flag & VFS_RDONLY;
+		if (readonly != 0)
+			zfsvfs->z_vfs->vfs_flag &= ~VFS_RDONLY;
+		else
 			zfs_unlinked_drain(zfsvfs);
 
 		/*
@@ -824,9 +832,11 @@ zfs_domount(vfs_t *vfsp, char *osname, cred_t *cr)
 		zil_replay(zfsvfs->z_os, zfsvfs, &zfsvfs->z_assign,
 		    zfs_replay_vector);
 
+		zfsvfs->z_vfs->vfs_flag |= readonly; /* restore readonly bit */
+
 		if (!zil_disable)
 			zfsvfs->z_log = zil_open(zfsvfs->z_os, zfs_get_data);
-#endif
+#endif /* __APPLE__ */
 	}
 
 #if 0
@@ -1785,12 +1795,9 @@ zfs_umount(vfs_t *vfsp, int fflag, cred_t *cr)
 	}
 
 	/*
-	 * Evict all dbufs so that cached znodes will be freed
+	 * Evict cached data
 	 */
-	if (dmu_objset_evict_dbufs(os, B_TRUE)) {
-		txg_wait_synced(dmu_objset_pool(zfsvfs->z_os), 0);
-		(void) dmu_objset_evict_dbufs(os, B_FALSE);
-	}
+	(void) dmu_objset_evict_dbufs(os);
 
 	/*
 	 * Finally close the objset
