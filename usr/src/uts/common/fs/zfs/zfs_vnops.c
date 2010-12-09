@@ -2745,8 +2745,9 @@ zfs_getattr(vnode_t *vp, vattr_t *vap, int flags, cred_t *cr)
 		VNODE_ATTR_va_parentid |
 		VNODE_ATTR_va_iosize;
 
+	/* Don't include '.' and '..' in the number of entries */
 	if (VATTR_IS_ACTIVE(vap, va_nchildren) && vnode_isdir(vp))
-		VATTR_RETURN(vap, va_nchildren, pzp->zp_size);
+		VATTR_RETURN(vap, va_nchildren, pzp->zp_size - 2);
 
 	if (VATTR_IS_ACTIVE(vap, va_acl)) {
 		if (zp->z_phys->zp_acl.z_acl_count == 0) {
